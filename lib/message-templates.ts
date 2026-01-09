@@ -43,7 +43,7 @@ export const MESSAGE_TEMPLATES: MessageTemplate[] = [
     daysPastDueMin: 0,
     daysPastDueMax: 7,
     smsTemplate:
-      "Hi {customerFirstName}, this is {businessName}. Just a friendly reminder that invoice #{invoiceNumber} for ${invoiceAmount} was due on {dueDate}. Pay here: {paymentLink} Reply STOP to opt out.",
+      "Hi {customerFirstName}, this is {businessName}. Just a friendly reminder that invoice #{invoiceNumber} for {invoiceAmount} was due on {dueDate}. Pay here: {paymentLink} Reply STOP to opt out.",
     requiresConsent: true,
     includesOptOut: true,
   },
@@ -58,7 +58,7 @@ export const MESSAGE_TEMPLATES: MessageTemplate[] = [
     emailSubject: "Friendly Reminder: Invoice #{invoiceNumber} Payment",
     emailBody: `Hi {customerFirstName},
 
-I hope this message finds you well. This is a friendly reminder that invoice #{invoiceNumber} for ${invoiceAmount} was due on {dueDate}.
+I hope this message finds you well. This is a friendly reminder that invoice #{invoiceNumber} for {invoiceAmount} was due on {dueDate}.
 
 We understand that things can get busy, so we wanted to send a gentle reminder. You can easily make a payment using the link below:
 
@@ -86,11 +86,11 @@ To stop receiving payment reminders via email, reply with "UNSUBSCRIBE" in the s
     daysPastDueMin: 0,
     daysPastDueMax: 7,
     smsTemplate:
-      "Hi {customerFirstName}! Friendly reminder from {businessName}: Invoice #{invoiceNumber} ($${invoiceAmount}) is now due. Pay here: {paymentLink} Reply STOP to opt out.",
+      "Hi {customerFirstName}! Friendly reminder from {businessName}: Invoice #{invoiceNumber} ({invoiceAmount}) is now due. Pay here: {paymentLink} Reply STOP to opt out.",
     emailSubject: "Payment Reminder: Invoice #{invoiceNumber}",
     emailBody: `Hi {customerFirstName},
 
-This is a friendly reminder that invoice #{invoiceNumber} for ${invoiceAmount} is now past its due date of {dueDate}.
+This is a friendly reminder that invoice #{invoiceNumber} for {invoiceAmount} is now past its due date of {dueDate}.
 
 Payment Link: {paymentLink}
 
@@ -119,7 +119,7 @@ To unsubscribe from payment reminders, reply with "UNSUBSCRIBE".`,
     daysPastDueMin: 8,
     daysPastDueMax: 30,
     smsTemplate:
-      "{businessName}: Invoice #{invoiceNumber} for ${invoiceAmount} is now {daysPastDue} days overdue. Please pay immediately: {paymentLink} or call {businessPhone}. Reply STOP to opt out.",
+      "{businessName}: Invoice #{invoiceNumber} for {invoiceAmount} is now {daysPastDue} days overdue. Please pay immediately: {paymentLink} or call {businessPhone}. Reply STOP to opt out.",
     requiresConsent: true,
     includesOptOut: true,
   },
@@ -134,7 +134,7 @@ To unsubscribe from payment reminders, reply with "UNSUBSCRIBE".`,
     emailSubject: "URGENT: Invoice #{invoiceNumber} - {daysPastDue} Days Overdue",
     emailBody: `Dear {customerFullName},
 
-This is an important notice regarding invoice #{invoiceNumber} for ${invoiceAmount}, which is now {daysPastDue} days past due (original due date: {dueDate}).
+This is an important notice regarding invoice #{invoiceNumber} for {invoiceAmount}, which is now {daysPastDue} days past due (original due date: {dueDate}).
 
 IMMEDIATE ACTION REQUIRED
 
@@ -173,14 +173,14 @@ To unsubscribe from payment reminders, reply with "UNSUBSCRIBE".`,
     daysPastDueMin: 8,
     daysPastDueMax: 30,
     smsTemplate:
-      "URGENT - {businessName}: Invoice #{invoiceNumber} ($${invoiceAmount}) is {daysPastDue} days overdue. Pay now: {paymentLink} or call {businessPhone}. Reply STOP to opt out.",
+      "URGENT - {businessName}: Invoice #{invoiceNumber} ({invoiceAmount}) is {daysPastDue} days overdue. Pay now: {paymentLink} or call {businessPhone}. Reply STOP to opt out.",
     emailSubject: "URGENT: Payment Required - Invoice #{invoiceNumber}",
     emailBody: `Dear {customerFullName},
 
-URGENT NOTICE: Invoice #{invoiceNumber} for ${invoiceAmount} is now {daysPastDue} days past due.
+URGENT NOTICE: Invoice #{invoiceNumber} for {invoiceAmount} is now {daysPastDue} days past due.
 
 Original Due Date: {dueDate}
-Amount Due: ${invoiceAmount}
+Amount Due: {invoiceAmount}
 Days Overdue: {daysPastDue}
 
 IMMEDIATE ACTION REQUIRED:
@@ -210,7 +210,7 @@ To unsubscribe, reply "UNSUBSCRIBE".`,
     daysPastDueMin: 30,
     daysPastDueMax: 999,
     smsTemplate:
-      "FINAL NOTICE - {businessName}: Invoice #{invoiceNumber} ($${invoiceAmount}) is {daysPastDue} days overdue. Pay by [DATE] or account goes to collections: {paymentLink} Call {businessPhone} ASAP. Reply STOP to opt out.",
+      "FINAL NOTICE - {businessName}: Invoice #{invoiceNumber} ({invoiceAmount}) is {daysPastDue} days overdue. Pay by [DATE] or account goes to collections: {paymentLink} Call {businessPhone} ASAP. Reply STOP to opt out.",
     requiresConsent: true,
     includesOptOut: true,
   },
@@ -227,12 +227,12 @@ To unsubscribe, reply "UNSUBSCRIBE".`,
 
 Dear {customerFullName},
 
-This is your FINAL NOTICE regarding invoice #{invoiceNumber} for ${invoiceAmount}, which is now {daysPastDue} days past due.
+This is your FINAL NOTICE regarding invoice #{invoiceNumber} for {invoiceAmount}, which is now {daysPastDue} days past due.
 
 ACCOUNT SUMMARY:
 Invoice Number: #{invoiceNumber}
 Original Due Date: {dueDate}
-Amount Due: ${invoiceAmount}
+Amount Due: {invoiceAmount}
 Days Overdue: {daysPastDue}
 Status: SERIOUSLY PAST DUE
 
@@ -279,7 +279,7 @@ To unsubscribe from payment reminders, reply with "UNSUBSCRIBE".`,
     daysPastDueMin: 0,
     daysPastDueMax: 0,
     smsTemplate:
-      "Thank you {customerFirstName}! We received your payment of ${invoiceAmount} for invoice #{invoiceNumber}. Receipt: {paymentLink} - {businessName}",
+      "Thank you {customerFirstName}! We received your payment of {invoiceAmount} for invoice #{invoiceNumber}. Receipt: {paymentLink} - {businessName}",
     requiresConsent: false,
     includesOptOut: false,
   },
@@ -296,10 +296,10 @@ To unsubscribe from payment reminders, reply with "UNSUBSCRIBE".`,
 
 Thank you for your payment!
 
-We have successfully received your payment of ${invoiceAmount} for invoice #{invoiceNumber}.
+We have successfully received your payment of {invoiceAmount} for invoice #{invoiceNumber}.
 
 PAYMENT DETAILS:
-Amount Paid: ${invoiceAmount}
+Amount Paid: {invoiceAmount}
 Invoice Number: #{invoiceNumber}
 Date Received: {paymentDate}
 
@@ -331,7 +331,7 @@ Best regards,
 
 We understand that unexpected circumstances can make it difficult to pay invoices on time. We want to work with you.
 
-CURRENT BALANCE: ${invoiceAmount}
+CURRENT BALANCE: {invoiceAmount}
 Invoice #{invoiceNumber} - {daysPastDue} days overdue
 
 PAYMENT PLAN OPTION:
@@ -377,11 +377,11 @@ To unsubscribe from payment reminders, reply with "UNSUBSCRIBE".`,
 Thank you for your recent payment toward invoice #{invoiceNumber}.
 
 PAYMENT SUMMARY:
-Original Amount: ${originalAmount}
-Amount Paid: ${amountPaid}
-Remaining Balance: ${invoiceAmount}
+Original Amount: {originalAmount}
+Amount Paid: {amountPaid}
+Remaining Balance: {invoiceAmount}
 
-We appreciate your payment. However, there is still a remaining balance of ${invoiceAmount} on this invoice.
+We appreciate your payment. However, there is still a remaining balance of {invoiceAmount} on this invoice.
 
 Please submit the remaining balance: {paymentLink}
 
