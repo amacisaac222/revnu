@@ -39,3 +39,6 @@ next-env.d.ts
 
 # clerk configuration (can include secrets)
 /.clerk/
+nul
+temp_*.ts
+temp_*.tsx

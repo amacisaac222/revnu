@@ -19,7 +19,12 @@
       "Bash(git remote add:*)",
       "Bash(git push:*)",
       "Bash(git reset:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(git rm:*)",
+      "Bash(npm ls:*)",
+      "Bash(del package-lock.json)",
+      "Bash(npm uninstall:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []
