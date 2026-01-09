@@ -32,10 +32,22 @@ export async function POST(req: NextRequest) {
     }
 
     // Dynamically import Anthropic only when needed
-    const Anthropic = (await import("@anthropic-ai/sdk")).default;
-    const anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
+    let Anthropic, anthropic;
+    try {
+      Anthropic = (await import("@anthropic-ai/sdk")).default;
+      anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+    } catch (error) {
+      console.error("Failed to load Anthropic SDK:", error);
+      return NextResponse.json(
+        {
+          error: "AI service temporarily unavailable",
+          message: "Please try again later"
+        },
+        { status: 503 }
+      );
+    }
 
     // Use Claude to generate realistic demo data based on industry
     const prompt = `Generate realistic sample data for a ${org.industry || "trades"} business named "${org.businessName}".

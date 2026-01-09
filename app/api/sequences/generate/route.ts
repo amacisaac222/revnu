@@ -39,10 +39,22 @@ export async function POST(req: Request) {
     }
 
     // Dynamically import Anthropic only when needed
-    const Anthropic = (await import("@anthropic-ai/sdk")).default;
-    const anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
+    let Anthropic, anthropic;
+    try {
+      Anthropic = (await import("@anthropic-ai/sdk")).default;
+      anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+    } catch (error) {
+      console.error("Failed to load Anthropic SDK:", error);
+      return NextResponse.json(
+        {
+          error: "AI service temporarily unavailable",
+          message: "Please try again later"
+        },
+        { status: 503 }
+      );
+    }
 
     // Call Claude to generate the sequence
     const message = await anthropic.messages.create({
