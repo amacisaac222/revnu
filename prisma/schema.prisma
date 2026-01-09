@@ -1,0 +1,352 @@
+// RevenuPros - Collection Management Platform
+// Prisma Schema for PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ORGANIZATIONS (Multi-tenant)
+// ============================================
+
+model Organization {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Business info
+  businessName String
+  industry     String? // "electrical", "hvac", "plumbing", etc.
+  phone        String?
+  email        String?
+  website      String?
+  timezone     String  @default("America/New_York") // For TCPA compliance
+
+  // Branding (to personalize messages)
+  logoUrl String?
+
+  // Subscription & Billing
+  stripeCustomerId       String?   @unique
+  stripeSubscriptionId   String?   @unique
+  subscriptionStatus     String?   // "trialing", "active", "past_due", "canceled", "unpaid"
+  subscriptionTier       String    @default("starter") // "starter", "pro", "business"
+  billingPeriod          String    @default("monthly") // "monthly", "annual"
+  subscriptionEndsAt     DateTime?
+  trialEndsAt            DateTime?
+
+  // Usage Tracking (Credits per billing cycle)
+  smsCreditsUsed         Int       @default(0)
+  emailCreditsUsed       Int       @default(0)
+  smsCreditsLimit        Int       @default(100)    // Starter: 100, Pro: 500, Business: 2000
+  emailCreditsLimit      Int       @default(200)    // Starter: 200, Pro: 1000, Business: 5000
+  billingCycleStart      DateTime?
+  billingCycleEnd        DateTime?
+
+  // Feature Flags (tier-based)
+  hasQuickBooksAccess    Boolean   @default(false)  // Pro+
+  hasCustomBranding      Boolean   @default(false)  // Business only
+  hasAdvancedAnalytics   Boolean   @default(false)  // Business only
+  maxSequences           Int       @default(3)      // Starter: 3, Pro: 10, Business: unlimited (999)
+  maxTeamMembers         Int       @default(1)      // Starter: 1, Pro: 5, Business: unlimited (999)
+
+  // Settings
+  settings Json @default("{}")
+
+  // Payment Settings
+  defaultPaymentUrl      String?  // Organization-level default payment link
+  defaultPaymentMethod   String?  // "stripe", "custom_link", "manual_only"
+  paymentInstructions    String?  // Default payment instructions
+
+  // Relations
+  users              User[]
+  customers          Customer[]
+  invoices           Invoice[]
+  messages           Message[]
+  sequenceTemplates  SequenceTemplate[]
+  auditLogs          AuditLog[]
+
+  @@index([stripeCustomerId])
+}
+
+// ============================================
+// USERS (Team members)
+// ============================================
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email         String   @unique
+  name          String?
+  role          String   @default("member") // "owner", "admin", "member"
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([email])
+}
+
+// ============================================
+// CUSTOMERS (Debtors)
+// ============================================
+
+model Customer {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Contact info
+  firstName   String
+  lastName    String
+  email       String?
+  phone       String? // E.164 format
+  address     String?
+  city        String?
+  state       String?
+  zip         String?
+
+  // TCPA Compliance
+  smsConsentGiven     Boolean   @default(false)
+  smsConsentDate      DateTime?
+  smsConsentMethod    String?   // "verbal", "written", "online_form"
+  smsOptedOut         Boolean   @default(false)
+  smsOptedOutAt       DateTime?
+  emailConsentGiven   Boolean   @default(false)
+  emailOptedOut       Boolean   @default(false)
+  emailOptedOutAt     DateTime?
+
+  // Customer metadata
+  customerNotes       String?
+  externalId          String?   // ID from their accounting system
+  tags                String[]  @default([])
+
+  // Relations
+  invoices    Invoice[]
+  messages    Message[]
+
+  @@unique([organizationId, externalId])
+  @@index([organizationId])
+  @@index([phone])
+  @@index([email])
+}
+
+// ============================================
+// INVOICES (Outstanding balances)
+// ============================================
+
+model Invoice {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  // Invoice details
+  invoiceNumber   String
+  invoiceDate     DateTime
+  dueDate         DateTime
+  description     String?
+
+  // Amounts (in cents to avoid floating point issues)
+  amountDue       Int      // Original amount
+  amountPaid      Int      @default(0)
+  amountRemaining Int      // Calculated field updated on payment
+  currency        String   @default("usd")
+
+  // Status
+  status          String   @default("outstanding") // "outstanding", "partial", "paid", "written_off"
+  daysPastDue     Int      @default(0) // Calculated daily
+
+  // Collection tracking
+  inCollection            Boolean   @default(false)
+  collectionStartedAt     DateTime?
+  collectionSequenceId    String?
+  collectionSequence      SequenceTemplate? @relation(fields: [collectionSequenceId], references: [id])
+  lastContactedAt         DateTime?
+  nextScheduledContactAt  DateTime?
+  contactAttempts         Int       @default(0)
+
+  // Payment
+  stripePaymentIntentId   String?
+  stripePaymentLinkId     String?
+  paidAt                  DateTime?
+
+  // Custom Payment Options
+  customPaymentUrl        String?  // User's own payment link for this invoice
+  externalInvoiceRef      String?  // Reference to external system (QuickBooks, etc.)
+  paymentInstructions     String?  // Custom payment instructions for this invoice
+
+  // Relations
+  messages    Message[]
+  payments    Payment[]
+
+  @@unique([organizationId, invoiceNumber])
+  @@index([organizationId])
+  @@index([customerId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+// ============================================
+// PAYMENTS
+// ============================================
+
+model Payment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  amount              Int      // In cents
+  currency            String   @default("usd")
+  paymentMethod       String   // "credit_card", "ach", "check", "cash", "bank_transfer", "venmo", "zelle", "paypal", "other"
+  paymentDate         DateTime @default(now()) // When payment was received
+  referenceNumber     String?  // Check number, confirmation code, etc.
+  stripePaymentId     String?  @unique
+  stripeChargeId      String?
+  status              String   @default("completed") // "pending", "completed", "failed", "refunded"
+  notes               String?
+
+  @@index([invoiceId])
+  @@index([stripePaymentId])
+}
+
+// ============================================
+// COLLECTION SEQUENCES (Templates)
+// ============================================
+
+model SequenceTemplate {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  isActive    Boolean @default(true)
+  isDefault   Boolean @default(false)
+
+  // Trigger rules
+  triggerDaysPastDue Int @default(0) // Start when X days past due
+
+  // Relations
+  steps    SequenceStep[]
+  invoices Invoice[]
+
+  @@index([organizationId])
+}
+
+model SequenceStep {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sequenceId String
+  sequence   SequenceTemplate @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+
+  stepNumber  Int      // Order in sequence
+  delayDays   Int      // Days after previous step (or trigger for first step)
+  channel     String   // "sms", "email"
+
+  // Message content
+  subject     String?  // For email
+  body        String   // Template with variables: {{customerName}}, {{amountDue}}, {{paymentLink}}, etc.
+
+  // Behavior
+  isActive    Boolean  @default(true)
+
+  @@unique([sequenceId, stepNumber])
+  @@index([sequenceId])
+}
+
+// ============================================
+// MESSAGES (Communication log)
+// ============================================
+
+model Message {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  invoiceId  String?
+  invoice    Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+
+  // Message details
+  channel     String   // "sms", "email"
+  direction   String   // "outbound", "inbound"
+
+  // Content
+  subject     String?  // Email only
+  body        String
+
+  // Delivery tracking
+  status      String   @default("pending") // "pending", "sent", "delivered", "failed", "bounced"
+  sentAt      DateTime?
+  deliveredAt DateTime?
+  failedAt    DateTime?
+  errorMessage String?
+
+  // Provider IDs (for tracking)
+  twilioSid   String?  @unique
+  emailId     String?
+
+  // Compliance & audit
+  sentFromNumber String?  // Phone number used
+  sentFromEmail  String?  // Email address used
+  isAutomated    Boolean  @default(false)
+
+  @@index([organizationId])
+  @@index([customerId])
+  @@index([invoiceId])
+  @@index([createdAt])
+  @@index([twilioSid])
+}
+
+// ============================================
+// AUDIT LOGS (Compliance)
+// ============================================
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Event tracking
+  action      String   // "sms_sent", "consent_given", "opt_out", "payment_received", etc.
+  entityType  String?  // "customer", "invoice", "message"
+  entityId    String?
+
+  // Details
+  metadata    Json     @default("{}")
+  ipAddress   String?
+  userAgent   String?
+  userId      String?
+
+  @@index([organizationId])
+  @@index([action])
+  @@index([createdAt])
+}
