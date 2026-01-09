@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import Anthropic from "@anthropic-ai/sdk";
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+const anthropic = process.env.ANTHROPIC_API_KEY
+  ? new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    })
+  : null;
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,6 +28,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Organization not found" },
         { status: 404 }
+      );
+    }
+
+    if (!anthropic) {
+      return NextResponse.json(
+        { error: "AI service not configured" },
+        { status: 503 }
       );
     }
 
