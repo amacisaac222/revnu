@@ -349,7 +349,9 @@ export default function SequenceForm({ organizationId, sequence }: SequenceFormP
                     />
                   </div>
                   <textarea
-                    ref={(el) => (textareaRefs.current[step.id] = el)}
+                    ref={(el) => {
+                      if (el) textareaRefs.current[step.id] = el;
+                    }}
                     required
                     rows={4}
                     value={step.body}
