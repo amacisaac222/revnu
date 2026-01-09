@@ -17,17 +17,26 @@ export async function createPaymentLink(params: {
     throw new Error('Stripe not configured')
   }
 
+  // Create a product for this invoice
+  const product = await stripe.products.create({
+    name: params.description,
+    metadata: {
+      invoiceId: params.invoiceId,
+    },
+  })
+
+  // Create a price for the product
+  const price = await stripe.prices.create({
+    product: product.id,
+    unit_amount: params.amount,
+    currency: 'usd',
+  })
+
   // Create a payment link for the invoice
   const paymentLink = await stripe.paymentLinks.create({
     line_items: [
       {
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: params.description,
-          },
-          unit_amount: params.amount,
-        },
+        price: price.id,
         quantity: 1,
       },
     ],
