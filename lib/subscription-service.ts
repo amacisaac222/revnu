@@ -51,7 +51,8 @@ export class SubscriptionService {
     }
 
     // Single tier - return feature availability
-    return TIER.features[feature] ?? false;
+    const value = TIER.features[feature];
+    return typeof value === 'boolean' ? value : Boolean(value);
   }
 
   /**
