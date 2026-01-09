@@ -11,7 +11,10 @@ export default async function DashboardPage() {
     include: { organization: true },
   });
 
-  if (!dbUser?.organization) return null;
+  // Redirect to onboarding if user doesn't have an organization
+  if (!dbUser?.organization) {
+    redirect("/onboarding");
+  }
 
   const showWelcome = !dbUser.organization.hasSeenWelcome;
 
