@@ -62,6 +62,12 @@ model Organization {
   defaultPaymentMethod   String?  // "stripe", "custom_link", "manual_only"
   paymentInstructions    String?  // Default payment instructions
 
+  // Onboarding & First-time Experience
+  completedOnboarding    Boolean   @default(false)  // Has user completed initial onboarding
+  hasSeenWelcome         Boolean   @default(false)  // Has user seen welcome modal
+  usedDemoData           Boolean   @default(false)  // Is using demo/sample data
+  onboardingProgress     Json      @default("{}")   // Track checklist completion: {addedCustomer: true, createdInvoice: false, ...}
+
   // Relations
   users              User[]
   customers          Customer[]

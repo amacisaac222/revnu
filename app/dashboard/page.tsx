@@ -1,6 +1,8 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import Link from "next/link";
+import FirstTimeExperience from "@/components/dashboard/first-time-experience";
+import ProgressChecklist from "@/components/dashboard/progress-checklist";
 
 export default async function DashboardPage() {
   const user = await currentUser();
@@ -10,6 +12,8 @@ export default async function DashboardPage() {
   });
 
   if (!dbUser?.organization) return null;
+
+  const showWelcome = !dbUser.organization.hasSeenWelcome;
 
   // Get stats
   const [totalCustomers, totalInvoices, totalOutstanding, recentMessages] =
@@ -37,8 +41,23 @@ export default async function DashboardPage() {
 
   const outstandingAmount = totalOutstanding._sum.amountRemaining || 0;
 
+  // Parse onboarding progress
+  const onboardingProgress = typeof dbUser.organization.onboardingProgress === 'object' && dbUser.organization.onboardingProgress !== null
+    ? dbUser.organization.onboardingProgress as Record<string, boolean>
+    : {};
+
   return (
-    <div className="space-y-6 md:space-y-8">
+    <>
+      {showWelcome && (
+        <FirstTimeExperience organizationId={dbUser.organization.id} />
+      )}
+
+      <ProgressChecklist
+        onboardingProgress={onboardingProgress}
+        usedDemoData={dbUser.organization.usedDemoData}
+      />
+
+      <div className="space-y-6 md:space-y-8">
       {/* Header - Mobile optimized */}
       <div>
         <h1 className="text-2xl md:text-3xl font-black text-white">Dashboard</h1>
@@ -132,5 +151,6 @@ export default async function DashboardPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
