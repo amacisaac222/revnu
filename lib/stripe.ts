@@ -1,11 +1,20 @@
 import Stripe from 'stripe'
 
-export const stripe = process.env.STRIPE_SECRET_KEY
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+// Lazy-load Stripe client to avoid initialization during build
+let _stripe: Stripe | null = null
+
+function getStripeClient(): Stripe {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('Stripe not configured')
+    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
       apiVersion: '2025-02-24.acacia',
       typescript: true,
     })
-  : null
+  }
+  return _stripe
+}
 
 export async function createPaymentLink(params: {
   invoiceId: string
@@ -13,9 +22,7 @@ export async function createPaymentLink(params: {
   description: string
   metadata?: Record<string, string>
 }) {
-  if (!stripe) {
-    throw new Error('Stripe not configured')
-  }
+  const stripe = getStripeClient()
 
   // Create a product for this invoice
   const product = await stripe.products.create({

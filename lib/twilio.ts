@@ -1,11 +1,20 @@
-import twilio from 'twilio'
+// Lazy-load the Twilio client to avoid initialization during build
+let _twilioClient: any = null
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID
-const authToken = process.env.TWILIO_AUTH_TOKEN
+export function getTwilioClient() {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID
+  const authToken = process.env.TWILIO_AUTH_TOKEN
 
-export const twilioClient = accountSid && authToken
-  ? twilio(accountSid, authToken)
-  : null
+  if (!accountSid || !authToken) {
+    return null
+  }
+  if (!_twilioClient) {
+    // Dynamic import to prevent initialization during build
+    const twilio = require('twilio')
+    _twilioClient = twilio(accountSid, authToken)
+  }
+  return _twilioClient
+}
 
 export const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER || ''
 
@@ -30,11 +39,12 @@ export async function sendSMS(params: {
   body: string
   from?: string
 }) {
-  if (!twilioClient) {
+  const client = getTwilioClient()
+  if (!client) {
     throw new Error('Twilio client not configured')
   }
 
-  return await twilioClient.messages.create({
+  return await client.messages.create({
     to: params.to,
     from: params.from || TWILIO_PHONE_NUMBER,
     body: params.body,

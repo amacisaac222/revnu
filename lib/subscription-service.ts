@@ -1,9 +1,20 @@
 import { db } from "@/lib/db";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-02-24.acacia",
-});
+// Lazy-load Stripe client to avoid initialization during build
+let _stripe: Stripe | null = null;
+
+function getStripeClient(): Stripe {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error("STRIPE_SECRET_KEY is not configured");
+    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2025-02-24.acacia",
+    });
+  }
+  return _stripe;
+}
 
 // ============================================
 // SINGLE TIER DEFINITION ($99/month)
@@ -196,7 +207,7 @@ export class SubscriptionService {
     // Create or get Stripe customer
     let customerId = org.stripeCustomerId;
     if (!customerId) {
-      const customer = await stripe.customers.create({
+      const customer = await getStripeClient().customers.create({
         email: org.email || undefined,
         metadata: {
           organizationId: org.id,
@@ -212,7 +223,7 @@ export class SubscriptionService {
     }
 
     // Create checkout session
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripeClient().checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
       payment_method_types: ["card"],
@@ -252,7 +263,7 @@ export class SubscriptionService {
       throw new Error("Organization not found or no Stripe customer");
     }
 
-    const session = await stripe.billingPortal.sessions.create({
+    const session = await getStripeClient().billingPortal.sessions.create({
       customer: org.stripeCustomerId,
       return_url: returnUrl,
     });
@@ -274,7 +285,7 @@ export class SubscriptionService {
       throw new Error("Organization not found or no active subscription");
     }
 
-    await stripe.subscriptions.update(org.stripeSubscriptionId, {
+    await getStripeClient().subscriptions.update(org.stripeSubscriptionId, {
       cancel_at_period_end: true,
     });
 
@@ -303,7 +314,7 @@ export class SubscriptionService {
       throw new Error("Organization not found or no subscription");
     }
 
-    await stripe.subscriptions.update(org.stripeSubscriptionId, {
+    await getStripeClient().subscriptions.update(org.stripeSubscriptionId, {
       cancel_at_period_end: false,
     });
 

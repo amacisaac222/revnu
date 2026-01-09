@@ -3,16 +3,29 @@ import { headers } from "next/headers";
 import Stripe from "stripe";
 import { db } from "@/lib/db";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-02-24.acacia",
-});
+// Force dynamic rendering to skip static generation
+export const dynamic = 'force-dynamic'
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+// Lazy-load Stripe client to avoid initialization during build
+let _stripe: Stripe | null = null
+
+function getStripeClient(): Stripe {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY is not configured')
+    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2025-02-24.acacia",
+    })
+  }
+  return _stripe
+}
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.text();
     const signature = (await headers()).get("stripe-signature");
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
     if (!signature) {
       return NextResponse.json(
@@ -24,6 +37,7 @@ export async function POST(req: NextRequest) {
     // Verify webhook signature
     let event: Stripe.Event;
     try {
+      const stripe = getStripeClient()
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } catch (err: any) {
       console.error("Webhook signature verification failed:", err.message);
