@@ -1,13 +1,6 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import Anthropic from "@anthropic-ai/sdk";
-
-const anthropic = process.env.ANTHROPIC_API_KEY
-  ? new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    })
-  : null;
 
 export async function POST(req: Request) {
   try {
@@ -35,7 +28,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!anthropic) {
+    if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json(
         {
           error: "Claude AI not configured",
@@ -44,6 +37,12 @@ export async function POST(req: Request) {
         { status: 503 }
       );
     }
+
+    // Dynamically import Anthropic only when needed
+    const Anthropic = (await import("@anthropic-ai/sdk")).default;
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
 
     // Call Claude to generate the sequence
     const message = await anthropic.messages.create({

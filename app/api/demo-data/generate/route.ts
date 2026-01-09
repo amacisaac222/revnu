@@ -1,12 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import Anthropic from "@anthropic-ai/sdk";
-
-const anthropic = process.env.ANTHROPIC_API_KEY
-  ? new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    })
-  : null;
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,12 +24,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!anthropic) {
+    if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json(
         { error: "AI service not configured" },
         { status: 503 }
       );
     }
+
+    // Dynamically import Anthropic only when needed
+    const Anthropic = (await import("@anthropic-ai/sdk")).default;
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
 
     // Use Claude to generate realistic demo data based on industry
     const prompt = `Generate realistic sample data for a ${org.industry || "trades"} business named "${org.businessName}".
