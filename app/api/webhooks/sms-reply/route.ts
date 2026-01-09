@@ -50,6 +50,9 @@ export async function POST(req: NextRequest) {
           contains: normalizedPhone,
         },
       },
+      include: {
+        organization: true,
+      },
     });
 
     if (!customer) {
