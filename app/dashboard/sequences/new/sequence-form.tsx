@@ -381,18 +381,13 @@ export default function SequenceForm({ organizationId, sequence }: SequenceFormP
         </h4>
         <div className="space-y-2 text-sm text-blue-800">
           <div>
-            <span className="font-medium">Step 1 (Friendly):</span> "Hi
-            {{'{{'}}customerFirstName{{'}}'}}, friendly reminder that invoice
-            {{'{{'}}invoiceNumber{{'}}'}} is due..."
+            <span className="font-medium">Step 1 (Friendly):</span> &quot;Hi {'{{customerFirstName}}'}, friendly reminder that invoice {'{{invoiceNumber}}'} is due...&quot;
           </div>
           <div>
-            <span className="font-medium">Step 2 (Firm):</span> "{{'{{'}}customerName{{'}}'}}
-            , we haven't received payment for invoice {{'{{'}}invoiceNumber{{'}}'}}..."
+            <span className="font-medium">Step 2 (Firm):</span> &quot;{'{{customerName}}'}, we haven&apos;t received payment for invoice {'{{invoiceNumber}}'}...&quot;
           </div>
           <div>
-            <span className="font-medium">Step 3 (Final Notice):</span> "Final notice:
-            Invoice {{'{{'}}invoiceNumber{{'}}'}} is {{'{{'}}daysPastDue{{'}}'}} days past
-            due..."
+            <span className="font-medium">Step 3 (Final Notice):</span> &quot;Final notice: Invoice {'{{invoiceNumber}}'} is {'{{daysPastDue}}'} days past due...&quot;
           </div>
         </div>
       </div>
