@@ -4,6 +4,9 @@ import { SubscriptionService } from "@/lib/subscription-service";
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 
+// Force dynamic rendering to skip static generation
+export const dynamic = 'force-dynamic'
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
