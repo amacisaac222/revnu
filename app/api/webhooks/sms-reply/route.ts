@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
           action: "customer.opt_out",
           entityType: "Customer",
           entityId: customer.id,
-          changes: {
+          metadata: {
             action: "SMS Opt-Out",
             method: "Inbound SMS Reply",
             keyword: body.trim(),

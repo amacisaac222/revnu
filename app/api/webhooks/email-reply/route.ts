@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
           action: "customer.email_opt_out",
           entityType: "Customer",
           entityId: customer.id,
-          changes: {
+          metadata: {
             action: "Email Opt-Out",
             method: "Inbound Email Reply",
             subject: subject || "",
