@@ -4,7 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import SendReminderButton from "./send-reminder-button";
 import RecordPaymentButton from "./record-payment-button";
-import SmartSuggestions from "@/components/ai/smart-suggestions";
+// import SmartSuggestions from "@/components/ai/smart-suggestions";
 
 export default async function InvoiceDetailPage({
   params,
@@ -144,10 +144,10 @@ export default async function InvoiceDetailPage({
         </div>
       </div>
 
-      {/* AI Smart Suggestions */}
-      {invoice.status !== "paid" && invoice.daysPastDue >= 0 && (
+      {/* AI Smart Suggestions - Temporarily disabled */}
+      {/* {invoice.status !== "paid" && invoice.daysPastDue >= 0 && (
         <SmartSuggestions invoiceId={invoice.id} />
-      )}
+      )} */}
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

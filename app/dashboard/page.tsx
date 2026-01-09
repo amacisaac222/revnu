@@ -1,8 +1,8 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import Link from "next/link";
-import FirstTimeExperience from "@/components/dashboard/first-time-experience";
-import ProgressChecklist from "@/components/dashboard/progress-checklist";
+// import FirstTimeExperience from "@/components/dashboard/first-time-experience";
+// import ProgressChecklist from "@/components/dashboard/progress-checklist";
 
 export default async function DashboardPage() {
   const user = await currentUser();
@@ -48,14 +48,15 @@ export default async function DashboardPage() {
 
   return (
     <>
-      {showWelcome && (
+      {/* Temporarily disabled AI features */}
+      {/* {showWelcome && (
         <FirstTimeExperience organizationId={dbUser.organization.id} />
       )}
 
       <ProgressChecklist
         onboardingProgress={onboardingProgress}
         usedDemoData={dbUser.organization.usedDemoData}
-      />
+      /> */}
 
       <div className="space-y-6 md:space-y-8">
       {/* Header - Mobile optimized */}

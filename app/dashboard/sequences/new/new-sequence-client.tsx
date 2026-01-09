@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import VisualSequenceBuilder from "@/components/sequence-builder/visual-sequence-builder";
-import AIGenerator from "@/components/sequence-builder/ai-generator";
+// import AIGenerator from "@/components/sequence-builder/ai-generator";
 
 interface SequenceStep {
   id: string;
@@ -167,13 +167,13 @@ export default function NewSequenceClient({ organizationId, businessName }: NewS
         )}
       </div>
 
-      {/* AI Generator */}
-      <AIGenerator
+      {/* AI Generator - Temporarily disabled */}
+      {/* <AIGenerator
         onGenerate={(steps) => {
           console.log("Generated steps:", steps);
           setAiGeneratedSteps(steps);
         }}
-      />
+      /> */}
 
       {/* Visual Sequence Builder */}
       <VisualSequenceBuilder
