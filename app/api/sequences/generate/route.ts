@@ -3,9 +3,11 @@ import { currentUser } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import Anthropic from "@anthropic-ai/sdk";
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "",
-});
+const anthropic = process.env.ANTHROPIC_API_KEY
+  ? new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    })
+  : null;
 
 export async function POST(req: Request) {
   try {
@@ -33,7 +35,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!process.env.ANTHROPIC_API_KEY) {
+    if (!anthropic) {
       return NextResponse.json(
         {
           error: "Claude AI not configured",
