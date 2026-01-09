@@ -154,7 +154,7 @@ export async function POST(
         action: "message.sent",
         entityType: "Message",
         entityId: message.id,
-        changes: {
+        metadata: {
           channel,
           invoiceId,
           customerId: invoice.customer.id,
