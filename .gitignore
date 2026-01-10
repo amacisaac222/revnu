@@ -42,3 +42,5 @@ next-env.d.ts
 nul
 temp_*.ts
 temp_*.tsx
+
+.vercel

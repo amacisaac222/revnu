@@ -11,11 +11,26 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { businessName, industry, phone, timezone, userEmail, userName } = body;
+    const {
+      businessName,
+      industry,
+      phone,
+      timezone,
+      userEmail,
+      userName,
+      // New questionnaire fields
+      collectionMethod,
+      hasExistingInvoices,
+      preferredChannels,
+      communicationTone,
+      followUpFrequency,
+      averageInvoiceAmount,
+      typicalPaymentTerms,
+    } = body;
 
     // Create organization and user in a transaction
     const result = await db.$transaction(async (tx) => {
-      // Create organization
+      // Create organization with all onboarding data
       const organization = await tx.organization.create({
         data: {
           businessName,
@@ -23,6 +38,15 @@ export async function POST(request: Request) {
           phone,
           timezone,
           subscriptionTier: "starter",
+          // Collection preferences
+          collectionMethod,
+          hasExistingInvoices: hasExistingInvoices || false,
+          preferredChannels: preferredChannels || {},
+          communicationTone,
+          followUpFrequency,
+          averageInvoiceAmount: averageInvoiceAmount || null,
+          typicalPaymentTerms: typicalPaymentTerms || 30,
+          completedOnboarding: true,
         },
       });
 

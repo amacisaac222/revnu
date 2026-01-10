@@ -68,6 +68,15 @@ model Organization {
   usedDemoData           Boolean   @default(false)  // Is using demo/sample data
   onboardingProgress     Json      @default("{}")   // Track checklist completion: {addedCustomer: true, createdInvoice: false, ...}
 
+  // Collection & Communication Preferences (from onboarding questionnaire)
+  collectionMethod       String?                    // "invoicing_software", "manual_invoices", "cash_only", "mixed"
+  hasExistingInvoices    Boolean   @default(false)  // Has outstanding invoices
+  preferredChannels      Json      @default("{}")   // {sms: true, email: true, phone: false}
+  communicationTone      String?                    // "friendly", "professional", "firm", "casual"
+  followUpFrequency      String?                    // "aggressive", "moderate", "relaxed"
+  averageInvoiceAmount   Int?                       // In cents, helps AI calibrate messaging
+  typicalPaymentTerms    Int       @default(30)     // Days (e.g., Net 30)
+
   // Relations
   users              User[]
   customers          Customer[]

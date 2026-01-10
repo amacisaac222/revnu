@@ -24,7 +24,10 @@
       "Bash(npm ls:*)",
       "Bash(del package-lock.json)",
       "Bash(npm uninstall:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(vercel env add:*)",
+      "Bash(vercel link:*)",
+      "Bash(vercel:*)"
     ],
     "deny": [],
     "ask": []
