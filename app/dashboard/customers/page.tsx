@@ -33,12 +33,20 @@ export default async function CustomersPage() {
             Manage your customers and their outstanding balances
           </p>
         </div>
-        <Link
-          href="/dashboard/customers/new"
-          className="px-6 py-3 bg-gradient-to-r from-revnu-green to-revnu-greenDark text-revnu-dark font-black rounded-lg hover:from-revnu-greenLight hover:to-revnu-green transition shadow-lg shadow-revnu-green/20 text-center active:scale-98"
-        >
-          Add Customer
-        </Link>
+        <div className="flex gap-3">
+          <Link
+            href="/dashboard/customers/import"
+            className="px-6 py-3 bg-revnu-slate/40 border border-revnu-green/30 text-revnu-green font-bold rounded-lg hover:bg-revnu-slate/60 transition text-center"
+          >
+            Import CSV/Excel
+          </Link>
+          <Link
+            href="/dashboard/customers/new"
+            className="px-6 py-3 bg-gradient-to-r from-revnu-green to-revnu-greenDark text-revnu-dark font-black rounded-lg hover:from-revnu-greenLight hover:to-revnu-green transition shadow-lg shadow-revnu-green/20 text-center active:scale-98"
+          >
+            Add Customer
+          </Link>
+        </div>
       </div>
 
       <CustomersList customers={customers} />

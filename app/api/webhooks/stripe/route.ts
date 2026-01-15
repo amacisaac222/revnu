@@ -73,6 +73,14 @@ export async function POST(req: NextRequest) {
         await handleInvoicePaymentFailed(event.data.object as Stripe.Invoice);
         break;
 
+      case "checkout.session.completed":
+        await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
+        break;
+
+      case "payment_intent.succeeded":
+        await handlePaymentIntentSucceeded(event.data.object as Stripe.PaymentIntent);
+        break;
+
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
@@ -341,4 +349,89 @@ function getTierLimits() {
       maxTeamMembers: 5,
     },
   };
+}
+
+// ============================================
+// PAYMENT LINK EVENT HANDLERS
+// ============================================
+
+async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+  const invoiceId = session.metadata?.invoiceId;
+  if (!invoiceId) {
+    console.error("No invoice ID in checkout session metadata");
+    return;
+  }
+
+  // Get invoice
+  const invoice = await db.invoice.findUnique({
+    where: { id: invoiceId },
+    include: { customer: true },
+  });
+
+  if (!invoice) {
+    console.error(`Invoice not found: ${invoiceId}`);
+    return;
+  }
+
+  // Get payment intent details
+  const paymentIntentId = session.payment_intent as string;
+
+  // Create payment record
+  const payment = await db.payment.create({
+    data: {
+      invoiceId: invoice.id,
+      amount: session.amount_total!,
+      currency: session.currency || "usd",
+      paymentMethod: "credit_card",
+      paymentDate: new Date(),
+      stripePaymentId: paymentIntentId,
+      status: "completed",
+      notes: "Payment via Stripe payment link",
+    },
+  });
+
+  // Update invoice
+  const newAmountPaid = invoice.amountPaid + session.amount_total!;
+  const newAmountRemaining = invoice.amountRemaining - session.amount_total!;
+
+  await db.invoice.update({
+    where: { id: invoice.id },
+    data: {
+      amountPaid: newAmountPaid,
+      amountRemaining: newAmountRemaining,
+      status: newAmountRemaining === 0 ? "paid" : "partial",
+      paidAt: newAmountRemaining === 0 ? new Date() : invoice.paidAt,
+      stripePaymentIntentId: paymentIntentId,
+    },
+  });
+
+  // Create audit log
+  await db.auditLog.create({
+    data: {
+      organizationId: invoice.organizationId,
+      action: "payment_received",
+      entityType: "invoice",
+      entityId: invoice.id,
+      metadata: {
+        paymentId: payment.id,
+        amount: session.amount_total! / 100,
+        paymentMethod: "stripe",
+        invoiceNumber: invoice.invoiceNumber,
+        customerName: `${invoice.customer.firstName} ${invoice.customer.lastName}`,
+      },
+    },
+  });
+
+  console.log(`Payment completed for invoice ${invoice.invoiceNumber}: $${session.amount_total! / 100}`);
+}
+
+async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
+  const invoiceId = paymentIntent.metadata?.invoiceId;
+  if (!invoiceId) {
+    // This might be a subscription payment, which is handled elsewhere
+    return;
+  }
+
+  console.log(`Payment intent succeeded for invoice ${invoiceId}: ${paymentIntent.id}`);
+  // Payment is already recorded in handleCheckoutCompleted
 }

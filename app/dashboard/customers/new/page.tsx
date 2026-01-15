@@ -17,13 +17,13 @@ export default async function NewCustomerPage() {
   return (
     <div className="max-w-2xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Add Customer</h1>
-        <p className="text-gray-600 mt-1">
+        <h1 className="text-2xl font-bold text-white">Add Customer</h1>
+        <p className="text-revnu-gray mt-1">
           Add a new customer to start managing their invoices
         </p>
       </div>
 
-      <div className="bg-white p-6 rounded-lg border border-gray-200">
+      <div className="bg-revnu-slate/40 p-6 rounded-lg border border-revnu-green/20">
         <CustomerForm organizationId={dbUser.organization.id} />
       </div>
     </div>

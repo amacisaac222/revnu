@@ -27,7 +27,10 @@
       "Bash(git checkout:*)",
       "Bash(vercel env add:*)",
       "Bash(vercel link:*)",
-      "Bash(vercel:*)"
+      "Bash(vercel:*)",
+      "Bash(cmd /c \"rmdir /s /q .next 2>nul\")",
+      "Bash(del \"c:\\Users\\amaci\\Desktop\\revenupros.com\\components\\send-reminders\\quick-send-tab.tsx\")",
+      "Bash(cmd /c:*)"
     ],
     "deny": [],
     "ask": []

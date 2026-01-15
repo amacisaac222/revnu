@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import Anthropic from "@anthropic-ai/sdk";
+import { getDefaultSequences } from "@/lib/default-sequences";
 
 // Force dynamic rendering to skip static generation
 export const dynamic = 'force-dynamic'
@@ -62,17 +63,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Build channel list for prompt
-    const channels = Object.entries(preferredChannels)
-      .filter(([_, enabled]) => enabled)
-      .map(([channel, _]) => channel)
-      .join(", ");
+    let aiResponse: any;
+    let generationSource: "ai" | "default" = "default";
 
-    // Determine number of sequences based on frequency
-    const sequenceCount = followUpFrequency === "aggressive" ? 2 : 1;
+    // Try AI generation first
+    try {
+      // Build channel list for prompt
+      const channels = Object.entries(preferredChannels)
+        .filter(([_, enabled]) => enabled)
+        .map(([channel, _]) => channel)
+        .join(", ");
 
-    // Build the AI prompt
-    const prompt = `You are a payment collections specialist with expertise in ${industry || "trades"} businesses.
+      // Determine number of sequences based on frequency
+      const sequenceCount = followUpFrequency === "aggressive" ? 2 : 1;
+
+      // Build the AI prompt
+      const prompt = `You are a payment collections specialist with expertise in ${industry || "trades"} businesses.
 Generate ${sequenceCount} professional payment reminder sequence(s) for "${businessName}".
 
 BUSINESS CONTEXT:
@@ -130,21 +136,37 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks):
   ]
 }`;
 
-    // Call Claude API
-    const anthropic = getAnthropicClient();
-    const message = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 4000,
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    });
+      // Call Claude API
+      const anthropic = getAnthropicClient();
+      const message = await anthropic.messages.create({
+        model: "claude-3-5-sonnet-20250219",
+        max_tokens: 4000,
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+      });
 
-    const responseText = message.content[0].type === "text" ? message.content[0].text : "";
-    const aiResponse = JSON.parse(responseText);
+      const responseText = message.content[0].type === "text" ? message.content[0].text : "";
+      aiResponse = JSON.parse(responseText);
+      generationSource = "ai";
+
+      console.log("✅ AI sequence generation successful");
+    } catch (aiError) {
+      // AI generation failed - fall back to default templates
+      console.warn("⚠️ AI generation failed, using default templates:", aiError);
+
+      aiResponse = getDefaultSequences({
+        businessName,
+        industry,
+        communicationTone: communicationTone as "friendly" | "professional" | "firm" | "casual",
+        followUpFrequency: followUpFrequency as "aggressive" | "moderate" | "relaxed",
+        preferredChannels,
+      });
+      generationSource = "default";
+    }
 
     // Create sequences in database
     const createdSequences = await Promise.all(
@@ -192,6 +214,7 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks):
       success: true,
       sequences: createdSequences,
       count: createdSequences.length,
+      source: generationSource,
     });
   } catch (error) {
     console.error("Sequence generation error:", error);

@@ -12,24 +12,11 @@ export default function FirstTimeExperience({ organizationId }: FirstTimeExperie
   const [loading, setLoading] = useState(false);
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
 
-  const handlePathSelection = async (path: "quick-start" | "import" | "manual") => {
+  const handlePathSelection = async (path: "import" | "manual") => {
     setSelectedPath(path);
     setLoading(true);
 
     try {
-      if (path === "quick-start") {
-        // Generate demo data
-        const response = await fetch("/api/demo-data/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ organizationId }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to generate demo data");
-        }
-      }
-
       // Mark welcome as seen
       await fetch("/api/onboarding/welcome", {
         method: "POST",
@@ -41,9 +28,7 @@ export default function FirstTimeExperience({ organizationId }: FirstTimeExperie
       if (path === "manual") {
         router.push("/dashboard/customers/new");
       } else if (path === "import") {
-        router.push("/dashboard/customers?import=true");
-      } else {
-        router.refresh(); // Refresh to show demo data
+        router.push("/dashboard/customers/import");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -86,23 +71,24 @@ export default function FirstTimeExperience({ organizationId }: FirstTimeExperie
             Choose your path to get started
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            {/* Quick Start with Demo Data */}
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+
+            {/* Add First Customer */}
             <button
-              onClick={() => handlePathSelection("quick-start")}
+              onClick={() => handlePathSelection("manual")}
               disabled={loading}
               className="group relative bg-gradient-to-br from-revnu-green/20 to-revnu-green/5 border-2 border-revnu-green/30 rounded-xl p-6 text-left hover:border-revnu-green hover:from-revnu-green/30 hover:to-revnu-green/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="absolute -top-3 -right-3 bg-revnu-green text-revnu-dark text-xs font-black px-3 py-1 rounded-full">
                 RECOMMENDED
               </div>
-              <div className="text-4xl mb-4">🚀</div>
-              <h3 className="text-xl font-black text-white mb-2">Quick Start</h3>
+              <div className="text-4xl mb-4">➕</div>
+              <h3 className="text-xl font-black text-white mb-2">Add First Customer</h3>
               <p className="text-sm text-revnu-gray mb-4">
-                Explore with sample data. See how REVNU works with realistic customers and invoices.
+                Start fresh. Add your first customer and invoice to get started.
               </p>
               <div className="text-xs text-revnu-green font-bold">
-                {loading && selectedPath === "quick-start" ? "Setting up..." : "~30 seconds"}
+                {loading && selectedPath === "manual" ? "Redirecting..." : "~1 minute"}
               </div>
             </button>
 
@@ -119,22 +105,6 @@ export default function FirstTimeExperience({ organizationId }: FirstTimeExperie
               </p>
               <div className="text-xs text-revnu-green font-bold">
                 {loading && selectedPath === "import" ? "Opening..." : "~2 minutes"}
-              </div>
-            </button>
-
-            {/* Add First Customer */}
-            <button
-              onClick={() => handlePathSelection("manual")}
-              disabled={loading}
-              className="group bg-revnu-slate/40 border-2 border-revnu-green/20 rounded-xl p-6 text-left hover:border-revnu-green hover:bg-revnu-slate/60 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <div className="text-4xl mb-4">➕</div>
-              <h3 className="text-xl font-black text-white mb-2">Add First Customer</h3>
-              <p className="text-sm text-revnu-gray mb-4">
-                Start fresh. Manually add your first customer and invoice right now.
-              </p>
-              <div className="text-xs text-revnu-green font-bold">
-                {loading && selectedPath === "manual" ? "Redirecting..." : "~1 minute"}
               </div>
             </button>
           </div>

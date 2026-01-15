@@ -76,7 +76,7 @@ export default function OnboardingWizard({ userEmail, userName }: OnboardingWiza
 
       const orgData = await orgResponse.json();
 
-      // Step 2: Generate AI sequences
+      // Step 2: Generate sequences (AI or fallback defaults)
       const sequencesResponse = await fetch("/api/onboarding/generate-sequences", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -96,6 +96,13 @@ export default function OnboardingWizard({ userEmail, userName }: OnboardingWiza
 
       if (!sequencesResponse.ok) {
         throw new Error("Failed to generate sequences");
+      }
+
+      const sequencesData = await sequencesResponse.json();
+
+      // Show notification if default templates were used
+      if (sequencesData.source === "default") {
+        console.log("ℹ️ Using default sequence templates (AI generation unavailable)");
       }
 
       // Success! Redirect to dashboard

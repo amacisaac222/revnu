@@ -1,0 +1,146 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import VisualSequenceBuilder from '@/components/sequence-builder/visual-sequence-builder';
+import AIGenerator from '@/components/sequence-builder/ai-generator';
+
+interface CreateSequenceTabProps {
+  organizationId: string;
+  businessName: string;
+  onRefresh: () => void;
+}
+
+export default function CreateSequenceTab({ organizationId, businessName, onRefresh }: CreateSequenceTabProps) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [showSettings, setShowSettings] = useState(true);
+  const [aiGeneratedSteps, setAiGeneratedSteps] = useState<any[] | null>(null);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    triggerDaysPastDue: 0,
+    isActive: true,
+    isDefault: false,
+  });
+
+  const handleSave = async (steps: any[]) => {
+    if (!formData.name.trim()) {
+      alert("Please enter a sequence name");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/sequences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          organizationId,
+          steps: steps.map(({ id, ...step }) => step),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save sequence");
+      }
+
+      onRefresh();
+      // Reset form
+      setFormData({
+        name: "",
+        description: "",
+        triggerDaysPastDue: 0,
+        isActive: true,
+        isDefault: false,
+      });
+      setAiGeneratedSteps(null);
+    } catch (error) {
+      console.error("Error saving sequence:", error);
+      alert("Failed to save sequence. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* AI Generator */}
+      <AIGenerator onGenerate={(steps) => setAiGeneratedSteps(steps)} />
+
+      {/* Sequence Settings */}
+      <div className="bg-revnu-slate/40 border border-revnu-green/20 rounded-xl p-6">
+        <button
+          onClick={() => setShowSettings(!showSettings)}
+          className="w-full flex items-center justify-between mb-4"
+        >
+          <h3 className="text-lg font-bold text-white">Sequence Settings</h3>
+          <span className="text-revnu-green">{showSettings ? "−" : "+"}</span>
+        </button>
+
+        {showSettings && (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-bold text-white mb-2">Sequence Name *</label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-4 py-2 bg-revnu-dark border border-revnu-green/30 rounded-lg text-white focus:border-revnu-green focus:outline-none"
+                placeholder="e.g., Standard 30-Day Reminder"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-white mb-2">Description</label>
+              <input
+                type="text"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full px-4 py-2 bg-revnu-dark border border-revnu-green/30 rounded-lg text-white focus:border-revnu-green focus:outline-none"
+                placeholder="Brief description"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-white mb-2">Start Reminders When</label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-revnu-gray">Invoice is</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.triggerDaysPastDue}
+                  onChange={(e) => setFormData({ ...formData, triggerDaysPastDue: parseInt(e.target.value) || 0 })}
+                  className="w-20 px-3 py-2 bg-revnu-dark border border-revnu-green/30 rounded-lg text-white focus:border-revnu-green focus:outline-none"
+                />
+                <span className="text-sm text-revnu-gray">days past due</span>
+              </div>
+            </div>
+
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={formData.isActive}
+                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                className="h-4 w-4 rounded border-revnu-green/30"
+              />
+              <span className="text-sm text-white">Active (start sending immediately)</span>
+            </label>
+          </div>
+        )}
+      </div>
+
+      {/* Visual Sequence Builder */}
+      <VisualSequenceBuilder
+        businessName={businessName}
+        onSave={handleSave}
+        initialSteps={aiGeneratedSteps}
+        loading={loading}
+      />
+    </div>
+  );
+}

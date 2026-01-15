@@ -1,0 +1,756 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import {
+  Send, ArrowLeft, CheckCircle, AlertTriangle, User, Phone, Mail as MailIcon,
+  DollarSign, Calendar, Filter, CheckSquare, Square, Search, SortAsc, X,
+  MessageSquare, Loader2, Eye
+} from 'lucide-react';
+import Link from 'next/link';
+import MessageTemplateSelector from '@/components/message-template-selector';
+import { MessageTemplate } from '@/lib/message-templates';
+import ConsentWarningModal from '@/app/dashboard/invoices/[id]/consent-warning-modal';
+
+interface Customer {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string | null;
+  phone: string | null;
+  smsConsentGiven: boolean;
+  emailConsentGiven: boolean;
+  smsConsentMethod?: string | null;
+  smsConsentDate?: string | null;
+}
+
+interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  amountRemaining: number;
+  amountDue: number;
+  daysPastDue: number;
+  dueDate: string;
+  status: string;
+  customer: Customer;
+}
+
+interface SequenceTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  isActive: boolean;
+}
+
+interface Organization {
+  businessName: string;
+  phone?: string | null;
+  email?: string | null;
+}
+
+type FilterType = 'all' | 'overdue' | 'has_sms' | 'has_email' | 'no_consent';
+type SortType = 'days_overdue' | 'amount' | 'customer_name';
+
+export default function SendRemindersPage() {
+  // Data state
+  const [allInvoices, setAllInvoices] = useState<Invoice[]>([]);
+  const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
+  const [organization, setOrganization] = useState<Organization | null>(null);
+  const [sequences, setSequences] = useState<SequenceTemplate[]>([]);
+
+  // UI state
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState<FilterType>('overdue');
+  const [sortType, setSortType] = useState<SortType>('days_overdue');
+
+  // Selection state
+  const [selectedInvoices, setSelectedInvoices] = useState<Set<string>>(new Set());
+  const [isBulkMode, setIsBulkMode] = useState(false);
+
+  // Sending state
+  const [channel, setChannel] = useState<'sms' | 'email'>('sms');
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const [showConsentModal, setShowConsentModal] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<MessageTemplate | null>(null);
+  const [messageContent, setMessageContent] = useState<{ sms?: string; emailSubject?: string; emailBody?: string } | null>(null);
+  const [sending, setSending] = useState(false);
+  const [bulkSending, setBulkSending] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0, success: 0, failed: 0 });
+  const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  // Sequence assignment
+  const [showSequenceModal, setShowSequenceModal] = useState(false);
+  const [selectedSequence, setSelectedSequence] = useState<string>('');
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    applyFiltersAndSort();
+  }, [allInvoices, searchQuery, filterType, sortType]);
+
+  const fetchData = async () => {
+    try {
+      const [invoicesRes, orgRes, sequencesRes] = await Promise.all([
+        fetch('/api/invoices?limit=500'),
+        fetch('/api/user/organization'),
+        fetch('/api/sequences'),
+      ]);
+
+      const invoicesData = await invoicesRes.json();
+      const orgData = await orgRes.json();
+      const sequencesData = await sequencesRes.json();
+
+      setAllInvoices(invoicesData.invoices || []);
+      setOrganization(orgData || null);
+      setSequences(sequencesData.sequences || []);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const applyFiltersAndSort = () => {
+    let filtered = [...allInvoices];
+
+    // Apply search
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(inv =>
+        inv.customer.firstName.toLowerCase().includes(query) ||
+        inv.customer.lastName.toLowerCase().includes(query) ||
+        inv.invoiceNumber.toLowerCase().includes(query) ||
+        inv.customer.email?.toLowerCase().includes(query) ||
+        inv.customer.phone?.includes(query)
+      );
+    }
+
+    // Apply filters
+    switch (filterType) {
+      case 'overdue':
+        filtered = filtered.filter(inv => inv.daysPastDue > 0);
+        break;
+      case 'has_sms':
+        filtered = filtered.filter(inv => inv.customer.phone && inv.customer.smsConsentGiven);
+        break;
+      case 'has_email':
+        filtered = filtered.filter(inv => inv.customer.email && inv.customer.emailConsentGiven);
+        break;
+      case 'no_consent':
+        filtered = filtered.filter(inv => !inv.customer.smsConsentGiven && !inv.customer.emailConsentGiven);
+        break;
+    }
+
+    // Apply sort
+    switch (sortType) {
+      case 'days_overdue':
+        filtered.sort((a, b) => b.daysPastDue - a.daysPastDue);
+        break;
+      case 'amount':
+        filtered.sort((a, b) => b.amountRemaining - a.amountRemaining);
+        break;
+      case 'customer_name':
+        filtered.sort((a, b) => {
+          const nameA = `${a.customer.firstName} ${a.customer.lastName}`.toLowerCase();
+          const nameB = `${b.customer.firstName} ${b.customer.lastName}`.toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+        break;
+    }
+
+    setFilteredInvoices(filtered);
+  };
+
+  const toggleInvoiceSelection = (invoiceId: string) => {
+    const newSelected = new Set(selectedInvoices);
+    if (newSelected.has(invoiceId)) {
+      newSelected.delete(invoiceId);
+    } else {
+      newSelected.add(invoiceId);
+    }
+    setSelectedInvoices(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedInvoices.size === filteredInvoices.length) {
+      setSelectedInvoices(new Set());
+    } else {
+      setSelectedInvoices(new Set(filteredInvoices.map(inv => inv.id)));
+    }
+  };
+
+  const handleSingleSend = (invoice: Invoice, selectedChannel: 'sms' | 'email') => {
+    setSelectedInvoice(invoice);
+    setChannel(selectedChannel);
+    setIsBulkMode(false);
+    setShowTemplateSelector(true);
+  };
+
+  const handleBulkSend = (selectedChannel: 'sms' | 'email') => {
+    if (selectedInvoices.size === 0) return;
+    setChannel(selectedChannel);
+    setIsBulkMode(true);
+    setShowTemplateSelector(true);
+  };
+
+  const handleTemplateSelect = (
+    template: MessageTemplate,
+    filledContent: { sms?: string; emailSubject?: string; emailBody?: string }
+  ) => {
+    setSelectedTemplate(template);
+    setMessageContent(filledContent);
+    setShowTemplateSelector(false);
+
+    if (isBulkMode) {
+      confirmBulkSend();
+    } else {
+      setShowConsentModal(true);
+    }
+  };
+
+  const confirmSingleSend = async () => {
+    if (!selectedInvoice || !messageContent) return;
+
+    setSending(true);
+    setShowConsentModal(false);
+    setResult(null);
+
+    try {
+      const response = await fetch(`/api/invoices/${selectedInvoice.id}/send-reminder`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channel,
+          templateId: selectedTemplate?.id,
+          content: messageContent,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setResult({
+          success: true,
+          message: `${channel.toUpperCase()} sent successfully to ${selectedInvoice.customer.firstName} ${selectedInvoice.customer.lastName}!`
+        });
+        fetchData();
+      } else {
+        setResult({ success: false, message: data.error || 'Failed to send message' });
+      }
+    } catch (error) {
+      setResult({ success: false, message: 'Network error. Please try again.' });
+    } finally {
+      setSending(false);
+      setSelectedInvoice(null);
+      setSelectedTemplate(null);
+      setMessageContent(null);
+    }
+  };
+
+  const confirmBulkSend = async () => {
+    if (selectedInvoices.size === 0 || !selectedTemplate) return;
+
+    setBulkSending(true);
+    setBulkProgress({ current: 0, total: selectedInvoices.size, success: 0, failed: 0 });
+
+    const invoicesToSend = filteredInvoices.filter(inv => selectedInvoices.has(inv.id));
+    let success = 0;
+    let failed = 0;
+
+    for (let i = 0; i < invoicesToSend.length; i++) {
+      const invoice = invoicesToSend[i];
+
+      try {
+        // Fill template for this specific invoice
+        const customerName = `${invoice.customer.firstName} ${invoice.customer.lastName}`;
+        const templateData = {
+          customerFirstName: invoice.customer.firstName,
+          customerFullName: customerName,
+          businessName: organization?.businessName || '',
+          invoiceNumber: invoice.invoiceNumber,
+          invoiceAmount: (invoice.amountRemaining / 100).toFixed(2),
+          dueDate: new Date(invoice.dueDate).toLocaleDateString(),
+          daysPastDue: invoice.daysPastDue,
+          paymentLink: `https://pay.revnu.com/${invoice.id}`,
+          businessPhone: organization?.phone || '',
+          businessEmail: organization?.email || '',
+        };
+
+        const response = await fetch(`/api/invoices/${invoice.id}/send-reminder`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            channel,
+            templateId: selectedTemplate.id,
+            content: messageContent,
+          }),
+        });
+
+        if (response.ok) {
+          success++;
+        } else {
+          failed++;
+        }
+      } catch (error) {
+        failed++;
+      }
+
+      setBulkProgress({ current: i + 1, total: selectedInvoices.size, success, failed });
+    }
+
+    setResult({
+      success: true,
+      message: `Bulk send complete: ${success} sent, ${failed} failed`
+    });
+
+    setBulkSending(false);
+    setSelectedInvoices(new Set());
+    setSelectedTemplate(null);
+    setMessageContent(null);
+    fetchData();
+  };
+
+  const handleAssignSequence = async () => {
+    if (!selectedSequence || selectedInvoices.size === 0) return;
+
+    try {
+      const invoiceIds = Array.from(selectedInvoices);
+
+      for (const invoiceId of invoiceIds) {
+        await fetch(`/api/invoices/${invoiceId}/assign-sequence`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sequenceId: selectedSequence }),
+        });
+      }
+
+      setResult({
+        success: true,
+        message: `${invoiceIds.length} invoice(s) assigned to sequence`
+      });
+
+      setShowSequenceModal(false);
+      setSelectedSequence('');
+      setSelectedInvoices(new Set());
+      fetchData();
+    } catch (error) {
+      setResult({ success: false, message: 'Failed to assign sequence' });
+    }
+  };
+
+  const canSendSMS = (invoice: Invoice) => {
+    return invoice.customer.phone && invoice.customer.smsConsentGiven;
+  };
+
+  const canSendEmail = (invoice: Invoice) => {
+    return invoice.customer.email && invoice.customer.emailConsentGiven;
+  };
+
+  const getUrgencyColor = (days: number) => {
+    if (days <= 0) return 'text-revnu-gray';
+    if (days <= 7) return 'text-yellow-400';
+    if (days <= 30) return 'text-orange-400';
+    return 'text-red-400';
+  };
+
+  const selectedCount = selectedInvoices.size;
+  const selectedTotal = filteredInvoices
+    .filter(inv => selectedInvoices.has(inv.id))
+    .reduce((sum, inv) => sum + inv.amountRemaining, 0);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 text-revnu-green animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Link href="/dashboard" className="p-2 hover:bg-revnu-slate/40 rounded-lg transition">
+          <ArrowLeft className="w-5 h-5 text-revnu-gray" />
+        </Link>
+        <div className="flex-1">
+          <h1 className="text-3xl font-black text-white">Send Payment Reminders</h1>
+          <p className="text-revnu-gray mt-1">
+            Filter, sort, and send reminders • {filteredInvoices.length} invoice{filteredInvoices.length !== 1 ? 's' : ''} shown
+          </p>
+        </div>
+      </div>
+
+      {/* Result Message */}
+      {result && (
+        <div
+          className={`p-4 rounded-xl border-2 flex items-start gap-3 ${
+            result.success
+              ? 'bg-revnu-green/10 border-revnu-green/30 text-revnu-green'
+              : 'bg-red-500/10 border-red-500/30 text-red-400'
+          }`}
+        >
+          {result.success ? (
+            <CheckCircle className="w-6 h-6 flex-shrink-0 mt-0.5" />
+          ) : (
+            <AlertTriangle className="w-6 h-6 flex-shrink-0 mt-0.5" />
+          )}
+          <div className="flex-1">
+            <p className="font-bold">{result.message}</p>
+          </div>
+          <button
+            onClick={() => setResult(null)}
+            className="text-current opacity-50 hover:opacity-100 transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+
+      {/* Filters & Controls */}
+      <div className="bg-revnu-slate/40 border border-revnu-green/20 rounded-xl p-6 space-y-4">
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-revnu-gray" />
+          <input
+            type="text"
+            placeholder="Search by customer name, invoice #, email, or phone..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 bg-revnu-dark border border-revnu-green/30 rounded-lg text-white placeholder-revnu-gray focus:outline-none focus:border-revnu-green"
+          />
+        </div>
+
+        {/* Filter & Sort Row */}
+        <div className="grid md:grid-cols-2 gap-4">
+          {/* Filter */}
+          <div>
+            <label className="block text-sm font-bold text-white mb-2">
+              <Filter className="w-4 h-4 inline mr-2" />
+              Filter By
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { value: 'all', label: 'All Invoices' },
+                { value: 'overdue', label: 'Overdue Only' },
+                { value: 'has_sms', label: 'Has SMS' },
+                { value: 'has_email', label: 'Has Email' },
+              ].map((filter) => (
+                <button
+                  key={filter.value}
+                  onClick={() => setFilterType(filter.value as FilterType)}
+                  className={`px-4 py-2 rounded-lg font-semibold text-sm transition ${
+                    filterType === filter.value
+                      ? 'bg-revnu-green text-revnu-dark'
+                      : 'bg-revnu-dark text-revnu-gray border border-revnu-green/20 hover:border-revnu-green/40'
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Sort */}
+          <div>
+            <label className="block text-sm font-bold text-white mb-2">
+              <SortAsc className="w-4 h-4 inline mr-2" />
+              Sort By
+            </label>
+            <select
+              value={sortType}
+              onChange={(e) => setSortType(e.target.value as SortType)}
+              className="w-full px-4 py-2 bg-revnu-dark border border-revnu-green/30 rounded-lg text-white focus:outline-none focus:border-revnu-green"
+            >
+              <option value="days_overdue">Days Overdue (High to Low)</option>
+              <option value="amount">Amount (High to Low)</option>
+              <option value="customer_name">Customer Name (A-Z)</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Bulk Actions */}
+        {selectedCount > 0 && (
+          <div className="flex flex-wrap items-center gap-4 p-4 bg-revnu-green/10 border border-revnu-green/30 rounded-lg">
+            <div className="flex-1">
+              <p className="text-white font-bold">
+                {selectedCount} invoice{selectedCount !== 1 ? 's' : ''} selected
+              </p>
+              <p className="text-revnu-green text-sm">
+                Total: ${(selectedTotal / 100).toLocaleString()}
+              </p>
+            </div>
+            <button
+              onClick={() => handleBulkSend('sms')}
+              className="px-4 py-2 bg-revnu-green/20 border-2 border-revnu-green/30 text-revnu-green font-bold rounded-lg hover:bg-revnu-green/30 transition flex items-center gap-2"
+            >
+              <Phone className="w-4 h-4" />
+              Send {selectedCount} SMS
+            </button>
+            <button
+              onClick={() => handleBulkSend('email')}
+              className="px-4 py-2 bg-revnu-green/20 border-2 border-revnu-green/30 text-revnu-green font-bold rounded-lg hover:bg-revnu-green/30 transition flex items-center gap-2"
+            >
+              <MailIcon className="w-4 h-4" />
+              Send {selectedCount} Email
+            </button>
+            <button
+              onClick={() => setShowSequenceModal(true)}
+              className="px-4 py-2 bg-revnu-dark border border-revnu-green/30 text-revnu-green font-bold rounded-lg hover:bg-revnu-dark/50 transition"
+            >
+              Assign Sequence
+            </button>
+            <button
+              onClick={() => setSelectedInvoices(new Set())}
+              className="px-4 py-2 text-revnu-gray hover:text-white transition"
+            >
+              Clear
+            </button>
+          </div>
+        )}
+
+        {/* Select All */}
+        <button
+          onClick={toggleSelectAll}
+          className="text-sm font-bold text-revnu-green hover:text-revnu-greenLight transition flex items-center gap-2"
+        >
+          {selectedInvoices.size === filteredInvoices.length ? (
+            <>
+              <CheckSquare className="w-4 h-4" />
+              Deselect All
+            </>
+          ) : (
+            <>
+              <Square className="w-4 h-4" />
+              Select All ({filteredInvoices.length})
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* Invoice List */}
+      {filteredInvoices.length === 0 ? (
+        <div className="bg-revnu-slate/40 border border-revnu-green/20 rounded-xl p-12 text-center">
+          <AlertTriangle className="w-16 h-16 mx-auto mb-4 text-revnu-gray opacity-50" />
+          <h3 className="text-xl font-bold text-white mb-2">No Invoices Found</h3>
+          <p className="text-revnu-gray">Try adjusting your filters or search query.</p>
+        </div>
+      ) : (
+        <div className="grid gap-3">
+          {filteredInvoices.map((invoice) => {
+            const hasSMS = canSendSMS(invoice);
+            const hasEmail = canSendEmail(invoice);
+            const isSelected = selectedInvoices.has(invoice.id);
+
+            return (
+              <div
+                key={invoice.id}
+                className={`bg-revnu-slate/40 border-2 rounded-xl p-4 transition ${
+                  isSelected
+                    ? 'border-revnu-green bg-revnu-green/5'
+                    : 'border-revnu-green/20 hover:border-revnu-green/40'
+                }`}
+              >
+                <div className="grid md:grid-cols-[auto_1fr_auto] gap-4 items-center">
+                  {/* Checkbox */}
+                  <button
+                    onClick={() => toggleInvoiceSelection(invoice.id)}
+                    className="p-1"
+                  >
+                    {isSelected ? (
+                      <CheckSquare className="w-6 h-6 text-revnu-green" />
+                    ) : (
+                      <Square className="w-6 h-6 text-revnu-gray" />
+                    )}
+                  </button>
+
+                  {/* Customer & Invoice Info */}
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-white mb-2">
+                        {invoice.customer.firstName} {invoice.customer.lastName}
+                      </h3>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex items-center gap-2 text-revnu-gray">
+                          <Phone className="w-4 h-4" />
+                          {invoice.customer.phone || 'No phone'}
+                          {hasSMS && <span className="text-xs text-revnu-green">✓</span>}
+                        </div>
+                        <div className="flex items-center gap-2 text-revnu-gray">
+                          <MailIcon className="w-4 h-4" />
+                          {invoice.customer.email || 'No email'}
+                          {hasEmail && <span className="text-xs text-revnu-green">✓</span>}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-4 text-sm">
+                      <div>
+                        <span className="text-revnu-gray">Invoice:</span>
+                        <span className="ml-2 font-bold text-white">{invoice.invoiceNumber}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="w-4 h-4 text-revnu-green" />
+                        <span className="font-bold text-revnu-green">
+                          ${(invoice.amountRemaining / 100).toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        <span className={`font-bold ${getUrgencyColor(invoice.daysPastDue)}`}>
+                          {invoice.daysPastDue > 0 ? `${invoice.daysPastDue} days overdue` : 'Current'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleSingleSend(invoice, 'sms')}
+                      disabled={!hasSMS}
+                      className="px-4 py-2 bg-revnu-green/20 border border-revnu-green/30 text-revnu-green font-bold rounded-lg hover:bg-revnu-green/30 transition disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2"
+                      title={!hasSMS ? 'SMS not available' : 'Send SMS'}
+                    >
+                      <Phone className="w-4 h-4" />
+                      SMS
+                    </button>
+                    <button
+                      onClick={() => handleSingleSend(invoice, 'email')}
+                      disabled={!hasEmail}
+                      className="px-4 py-2 bg-revnu-green/20 border border-revnu-green/30 text-revnu-green font-bold rounded-lg hover:bg-revnu-green/30 transition disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2"
+                      title={!hasEmail ? 'Email not available' : 'Send Email'}
+                    >
+                      <MailIcon className="w-4 h-4" />
+                      Email
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Template Selector Modal */}
+      {showTemplateSelector && organization && (
+        <MessageTemplateSelector
+          channel={channel}
+          daysPastDue={isBulkMode ? 7 : (selectedInvoice?.daysPastDue || 0)}
+          customerFirstName={isBulkMode ? '[Customer]' : (selectedInvoice?.customer.firstName || '')}
+          customerFullName={isBulkMode ? '[Customer Name]' : `${selectedInvoice?.customer.firstName || ''} ${selectedInvoice?.customer.lastName || ''}`}
+          businessName={organization.businessName}
+          invoiceNumber={isBulkMode ? '[INV-###]' : (selectedInvoice?.invoiceNumber || '')}
+          invoiceAmount={isBulkMode ? '[Amount]' : (selectedInvoice ? (selectedInvoice.amountRemaining / 100).toFixed(2) : '0')}
+          dueDate={isBulkMode ? '[Date]' : (selectedInvoice ? new Date(selectedInvoice.dueDate).toLocaleDateString() : '')}
+          paymentLink={isBulkMode ? '[Payment Link]' : `https://pay.revnu.com/${selectedInvoice?.id || ''}`}
+          businessPhone={organization.phone || ''}
+          businessEmail={organization.email || ''}
+          onSelect={handleTemplateSelect}
+          onCancel={() => {
+            setShowTemplateSelector(false);
+            setSelectedInvoice(null);
+            setIsBulkMode(false);
+          }}
+        />
+      )}
+
+      {/* Consent Warning Modal (Single Send Only) */}
+      {showConsentModal && selectedInvoice && (
+        <ConsentWarningModal
+          channel={channel}
+          customerName={`${selectedInvoice.customer.firstName} ${selectedInvoice.customer.lastName}`}
+          hasConsent={channel === 'sms' ? canSendSMS(selectedInvoice) : canSendEmail(selectedInvoice)}
+          consentMethod={selectedInvoice.customer.smsConsentMethod}
+          consentDate={selectedInvoice.customer.smsConsentDate ? new Date(selectedInvoice.customer.smsConsentDate) : undefined}
+          onConfirm={confirmSingleSend}
+          onCancel={() => {
+            setShowConsentModal(false);
+            setSelectedInvoice(null);
+            setSelectedTemplate(null);
+            setMessageContent(null);
+          }}
+        />
+      )}
+
+      {/* Sequence Assignment Modal */}
+      {showSequenceModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
+          <div className="bg-revnu-dark border-2 border-revnu-green/30 rounded-xl max-w-md w-full p-6">
+            <h3 className="text-xl font-black text-white mb-4">Assign Sequence</h3>
+            <p className="text-revnu-gray text-sm mb-4">
+              Assign {selectedCount} invoice{selectedCount !== 1 ? 's' : ''} to a payment sequence
+            </p>
+            <select
+              value={selectedSequence}
+              onChange={(e) => setSelectedSequence(e.target.value)}
+              className="w-full px-4 py-3 bg-revnu-dark border border-revnu-green/30 rounded-lg text-white mb-6 focus:outline-none focus:border-revnu-green"
+            >
+              <option value="">Select a sequence...</option>
+              {sequences.filter(s => s.isActive).map((seq) => (
+                <option key={seq.id} value={seq.id}>
+                  {seq.name}
+                </option>
+              ))}
+            </select>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowSequenceModal(false);
+                  setSelectedSequence('');
+                }}
+                className="flex-1 px-4 py-2 bg-revnu-slate/40 text-white font-bold rounded-lg hover:bg-revnu-slate/60 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAssignSequence}
+                disabled={!selectedSequence}
+                className="flex-1 px-4 py-2 bg-revnu-green text-revnu-dark font-bold rounded-lg hover:bg-revnu-greenLight transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Assign
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Sending Progress */}
+      {bulkSending && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+          <div className="bg-revnu-dark border-2 border-revnu-green/30 rounded-xl p-8 max-w-md w-full">
+            <div className="text-center">
+              <Loader2 className="w-12 h-12 mx-auto mb-4 text-revnu-green animate-spin" />
+              <h3 className="text-xl font-bold text-white mb-2">Sending Messages...</h3>
+              <p className="text-revnu-gray mb-4">
+                {bulkProgress.current} of {bulkProgress.total}
+              </p>
+              <div className="w-full bg-revnu-dark/50 rounded-full h-3 mb-4 overflow-hidden">
+                <div
+                  className="bg-revnu-green h-full transition-all duration-300"
+                  style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-revnu-green">✓ {bulkProgress.success} sent</span>
+                <span className="text-red-400">✗ {bulkProgress.failed} failed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Single Sending Overlay */}
+      {sending && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+          <div className="bg-revnu-dark border-2 border-revnu-green/30 rounded-xl p-8 text-center">
+            <Loader2 className="w-12 h-12 mx-auto mb-4 text-revnu-green animate-spin" />
+            <p className="text-white font-bold">Sending {channel.toUpperCase()} reminder...</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

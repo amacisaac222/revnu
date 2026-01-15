@@ -77,16 +77,16 @@ export default function InvoiceForm({ organizationId, customers, sequences }: In
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {customers.length === 0 ? (
-        <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-md">
-          <h3 className="text-sm font-medium text-yellow-800 mb-2">
+        <div className="p-6 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+          <h3 className="text-sm font-medium text-amber-400 mb-2">
             No customers available
           </h3>
-          <p className="text-sm text-yellow-700 mb-4">
+          <p className="text-sm text-revnu-gray mb-4">
             You need to add at least one customer before creating an invoice.
           </p>
           <Link
             href="/dashboard/customers/new"
-            className="inline-block px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 text-sm"
+            className="inline-block px-4 py-2 bg-revnu-green text-revnu-dark font-bold rounded-lg hover:bg-revnu-greenLight text-sm transition"
           >
             Add Customer
           </Link>
@@ -95,7 +95,7 @@ export default function InvoiceForm({ organizationId, customers, sequences }: In
         <>
           {/* Customer Selection */}
           <div>
-            <label htmlFor="customerId" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="customerId" className="block text-sm font-bold text-white mb-2">
               Customer *
             </label>
             <select
@@ -103,7 +103,7 @@ export default function InvoiceForm({ organizationId, customers, sequences }: In
               required
               value={formData.customerId}
               onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              className="w-full px-4 py-2 bg-revnu-dark border border-revnu-green/30 rounded-lg text-white focus:outline-none focus:border-revnu-green"
             >
               <option value="">Select a customer...</option>
               {customers.map((customer) => (
@@ -118,7 +118,7 @@ export default function InvoiceForm({ organizationId, customers, sequences }: In
           {/* Invoice Details */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="invoiceNumber" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="invoiceNumber" className="block text-sm font-bold text-white mb-2">
                 Invoice Number *
               </label>
               <input
@@ -127,16 +127,16 @@ export default function InvoiceForm({ organizationId, customers, sequences }: In
                 required
                 value={formData.invoiceNumber}
                 onChange={(e) => setFormData({ ...formData, invoiceNumber: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full px-4 py-2 bg-revnu-dark border border-revnu-green/30 rounded-lg text-white focus:outline-none focus:border-revnu-green"
                 placeholder="INV-001"
               />
             </div>
             <div>
-              <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="amount" className="block text-sm font-bold text-white mb-2">
                 Amount *
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-2 text-gray-500">$</span>
+                <span className="absolute left-4 top-2 text-revnu-gray">$</span>
                 <input
                   type="number"
                   id="amount"
@@ -145,7 +145,7 @@ export default function InvoiceForm({ organizationId, customers, sequences }: In
                   step="0.01"
                   value={formData.amount}
                   onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                  className="w-full pl-8 pr-4 py-2 bg-revnu-dark border border-revnu-green/30 rounded-lg text-white focus:outline-none focus:border-revnu-green"
                   placeholder="0.00"
                 />
               </div>
@@ -155,7 +155,7 @@ export default function InvoiceForm({ organizationId, customers, sequences }: In
           {/* Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="invoiceDate" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="invoiceDate" className="block text-sm font-bold text-white mb-2">
                 Invoice Date *
               </label>
               <input
@@ -164,11 +164,11 @@ export default function InvoiceForm({ organizationId, customers, sequences }: In
                 required
                 value={formData.invoiceDate}
                 onChange={(e) => setFormData({ ...formData, invoiceDate: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full px-4 py-2 bg-revnu-dark border border-revnu-green/30 rounded-lg text-white focus:outline-none focus:border-revnu-green"
               />
             </div>
             <div>
-              <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="dueDate" className="block text-sm font-bold text-white mb-2">
                 Due Date *
               </label>
               <input
@@ -177,14 +177,14 @@ export default function InvoiceForm({ organizationId, customers, sequences }: In
                 required
                 value={formData.dueDate}
                 onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full px-4 py-2 bg-revnu-dark border border-revnu-green/30 rounded-lg text-white focus:outline-none focus:border-revnu-green"
               />
             </div>
           </div>
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="description" className="block text-sm font-bold text-white mb-2">
               Description
             </label>
             <textarea
@@ -192,14 +192,14 @@ export default function InvoiceForm({ organizationId, customers, sequences }: In
               rows={3}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              className="w-full px-4 py-2 bg-revnu-dark border border-revnu-green/30 rounded-lg text-white focus:outline-none focus:border-revnu-green"
               placeholder="Services provided, work completed, etc."
             />
           </div>
 
           {/* Automated Reminders */}
-          <div className="border-t pt-6">
-            <h3 className="text-sm font-semibold mb-4">Automated Payment Reminders</h3>
+          <div className="border-t border-revnu-green/20 pt-6">
+            <h3 className="text-sm font-bold text-white mb-4">Automated Payment Reminders</h3>
 
             <div className="space-y-4">
               <div className="flex items-start">
@@ -210,11 +210,11 @@ export default function InvoiceForm({ organizationId, customers, sequences }: In
                   onChange={(e) =>
                     setFormData({ ...formData, startReminders: e.target.checked })
                   }
-                  className="mt-1 h-4 w-4 rounded border-gray-300"
+                  className="mt-1 h-4 w-4 rounded border-revnu-green/30"
                 />
                 <label htmlFor="startReminders" className="ml-3 text-sm">
-                  <span className="font-medium">Start automated reminders</span>
-                  <p className="text-gray-600 mt-1">
+                  <span className="font-bold text-white">Start automated reminders</span>
+                  <p className="text-revnu-gray mt-1">
                     Send payment reminder messages from your business automatically
                   </p>
                 </label>
@@ -222,16 +222,16 @@ export default function InvoiceForm({ organizationId, customers, sequences }: In
 
               {formData.startReminders && (
                 <div>
-                  <label htmlFor="sequenceId" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="sequenceId" className="block text-sm font-bold text-white mb-2">
                     Reminder Sequence *
                   </label>
                   {sequences.length === 0 ? (
-                    <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-                      <p className="text-sm text-yellow-800">
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                      <p className="text-sm text-amber-400">
                         No active sequences found.{" "}
                         <Link
                           href="/dashboard/sequences/new"
-                          className="underline font-medium"
+                          className="underline font-bold"
                         >
                           Create one first
                         </Link>
@@ -245,7 +245,7 @@ export default function InvoiceForm({ organizationId, customers, sequences }: In
                       onChange={(e) =>
                         setFormData({ ...formData, sequenceId: e.target.value })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                      className="w-full px-4 py-2 bg-revnu-dark border border-revnu-green/30 rounded-lg text-white focus:outline-none focus:border-revnu-green"
                     >
                       <option value="">Select a sequence...</option>
                       {sequences.map((sequence) => (
@@ -256,7 +256,7 @@ export default function InvoiceForm({ organizationId, customers, sequences }: In
                       ))}
                     </select>
                   )}
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-revnu-gray">
                     Reminders will send based on your sequence settings and respect customer consent
                   </p>
                 </div>
@@ -269,14 +269,14 @@ export default function InvoiceForm({ organizationId, customers, sequences }: In
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 disabled:bg-gray-400"
+              className="px-6 py-2 bg-revnu-green text-revnu-dark font-bold rounded-lg hover:bg-revnu-greenLight disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               {loading ? "Creating..." : "Create Invoice"}
             </button>
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-6 py-2 bg-revnu-slate/40 border border-revnu-green/20 text-white font-bold rounded-lg hover:bg-revnu-slate/60 transition"
             >
               Cancel
             </button>

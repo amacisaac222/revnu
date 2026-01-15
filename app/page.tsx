@@ -108,7 +108,7 @@ export default function HomePage() {
                 </h1>
 
                 <p className="text-xl md:text-2xl text-revnu-gray mb-10 leading-relaxed">
-                  Payment reminder software that sends from <span className="text-white font-bold">your business</span>. Stop chasing, start collecting.
+                  Payment reminder software with <span className="text-white font-bold">mechanics lien protection</span>. Protect your payment rights while automating collections.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 mb-8">
@@ -305,6 +305,11 @@ export default function HomePage() {
               </div>
 
               <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
+                <h4 className="text-xl font-bold text-white mb-2">✓ Mechanics lien protection</h4>
+                <p className="text-revnu-gray">Track deadlines, send lien-aware reminders. Protect your payment rights automatically.</p>
+              </div>
+
+              <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
                 <h4 className="text-xl font-bold text-white mb-2">✓ Legally compliant</h4>
                 <p className="text-revnu-gray">TCPA compliant. Quiet hours enforced. Opt-outs handled automatically.</p>
               </div>
@@ -312,6 +317,11 @@ export default function HomePage() {
               <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
                 <h4 className="text-xl font-bold text-white mb-2">✓ Real-time dashboard</h4>
                 <p className="text-revnu-gray">See who opened messages, who clicked links, who paid. All in one place.</p>
+              </div>
+
+              <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
+                <h4 className="text-xl font-bold text-white mb-2">✓ State-specific lien rules</h4>
+                <p className="text-revnu-gray">Automatic deadline calculations for all 50 states. Never miss a filing window.</p>
               </div>
             </div>
           </div>

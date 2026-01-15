@@ -1,7 +1,48 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { logAudit } from "@/lib/audit";
+
+export const dynamic = 'force-dynamic';
+
+export async function GET() {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const dbUser = await db.user.findUnique({
+      where: { email: user.emailAddresses[0]?.emailAddress },
+      include: { organization: true },
+    });
+
+    if (!dbUser?.organization) {
+      return NextResponse.json(
+        { error: "Organization not found" },
+        { status: 404 }
+      );
+    }
+
+    const customers = await db.customer.findMany({
+      where: { organizationId: dbUser.organization.id },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+      },
+      orderBy: { lastName: "asc" },
+    });
+
+    return NextResponse.json(customers);
+  } catch (error) {
+    console.error("Error fetching customers:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch customers" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(request: Request) {
   try {

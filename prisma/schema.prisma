@@ -65,8 +65,13 @@ model Organization {
   // Onboarding & First-time Experience
   completedOnboarding    Boolean   @default(false)  // Has user completed initial onboarding
   hasSeenWelcome         Boolean   @default(false)  // Has user seen welcome modal
+  hasSeenSequences       Boolean   @default(false)  // Has user seen sequences showcase after onboarding
   usedDemoData           Boolean   @default(false)  // Is using demo/sample data
   onboardingProgress     Json      @default("{}")   // Track checklist completion: {addedCustomer: true, createdInvoice: false, ...}
+
+  // Dashboard Customization
+  dashboardLayout        Json?                       // User's custom widget layouts per tab: {overview: [{id, x, y, w, h}], customers: [...]}
+  widgetSettings         Json      @default("{}")   // Widget-specific settings: {stats: {expanded: true}, chart: {dateRange: '6m'}}
 
   // Collection & Communication Preferences (from onboarding questionnaire)
   collectionMethod       String?                    // "invoicing_software", "manual_invoices", "cash_only", "mixed"
@@ -84,6 +89,7 @@ model Organization {
   messages           Message[]
   sequenceTemplates  SequenceTemplate[]
   auditLogs          AuditLog[]
+  campaignEnrollments CampaignEnrollment[]
 
   @@index([stripeCustomerId])
 }
@@ -130,6 +136,12 @@ model Customer {
   state       String?
   zip         String?
 
+  // Property info (for mechanics liens)
+  propertyAddress     String?
+  propertyCity        String?
+  propertyState       String?
+  propertyZip         String?
+
   // TCPA Compliance
   smsConsentGiven     Boolean   @default(false)
   smsConsentDate      DateTime?
@@ -146,8 +158,10 @@ model Customer {
   tags                String[]  @default([])
 
   // Relations
-  invoices    Invoice[]
-  messages    Message[]
+  invoices            Invoice[]
+  messages            Message[]
+  campaignEnrollments CampaignEnrollment[]
+  scheduledMessages   ScheduledMessage[]
 
   @@unique([organizationId, externalId])
   @@index([organizationId])
@@ -205,9 +219,21 @@ model Invoice {
   externalInvoiceRef      String?  // Reference to external system (QuickBooks, etc.)
   paymentInstructions     String?  // Custom payment instructions for this invoice
 
+  // Mechanics Lien Tracking
+  firstWorkDate           DateTime? // First date work was performed (for lien deadlines)
+  lastWorkDate            DateTime?  // Last date work was performed (completion date)
+  lienEligible            Boolean   @default(false) // Is this invoice eligible for mechanics lien
+  preliminaryNoticeSent   Boolean   @default(false)
+  preliminaryNoticeSentAt DateTime?
+  lienFiled               Boolean   @default(false)
+  lienFiledAt             DateTime?
+  lienFilingReference     String?   // County filing number or reference
+
   // Relations
-  messages    Message[]
-  payments    Payment[]
+  messages            Message[]
+  payments            Payment[]
+  campaignEnrollments CampaignEnrollment[]
+  scheduledMessages   ScheduledMessage[]
 
   @@unique([organizationId, invoiceNumber])
   @@index([organizationId])
@@ -258,14 +284,19 @@ model SequenceTemplate {
   isActive    Boolean @default(true)
   isDefault   Boolean @default(false)
 
+  // NEW: Sequence type
+  sequenceType String @default("invoice") // "invoice" or "customer"
+
   // Trigger rules
   triggerDaysPastDue Int @default(0) // Start when X days past due
 
   // Relations
-  steps    SequenceStep[]
-  invoices Invoice[]
+  steps       SequenceStep[]
+  invoices    Invoice[]
+  enrollments CampaignEnrollment[]
 
   @@index([organizationId])
+  @@index([sequenceType])
 }
 
 model SequenceStep {
@@ -332,11 +363,17 @@ model Message {
   sentFromEmail  String?  // Email address used
   isAutomated    Boolean  @default(false)
 
+  // Relations
+  scheduledMessages ScheduledMessage[]
+
   @@index([organizationId])
   @@index([customerId])
   @@index([invoiceId])
   @@index([createdAt])
   @@index([twilioSid])
+  @@index([organizationId, createdAt, id]) // Composite index for cursor-based pagination
+  @@index([customerId, invoiceId]) // For filtering by customer + invoice
+  @@index([channel, status]) // For filtering by channel and status
 }
 
 // ============================================
@@ -364,4 +401,100 @@ model AuditLog {
   @@index([organizationId])
   @@index([action])
   @@index([createdAt])
+}
+
+// ============================================
+// CAMPAIGN ENROLLMENTS (Supports Invoice & Customer modes)
+// ============================================
+
+model CampaignEnrollment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  sequenceId String
+  sequence   SequenceTemplate @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+
+  // EITHER invoice OR customer (one must be set)
+  invoiceId String?
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  // Campaign metadata
+  campaignId String // Group enrollments by campaign launch
+
+  // Tracking
+  status            String   @default("active") // "active", "paused", "completed", "cancelled", "stopped"
+  enrolledAt        DateTime @default(now())
+  currentStep       Int      @default(0)
+  lastMessageSentAt DateTime?
+  completedAt       DateTime?
+  stoppedAt         DateTime?
+  stoppedReason     String? // "paid", "manual_stop", "opt_out", "customer_request"
+
+  // Relations
+  scheduledMessages ScheduledMessage[]
+
+  @@index([organizationId])
+  @@index([sequenceId])
+  @@index([invoiceId])
+  @@index([customerId])
+  @@index([campaignId])
+  @@index([status])
+  @@index([enrolledAt])
+}
+
+// ============================================
+// SCHEDULED MESSAGES (Message Queue for Automation)
+// ============================================
+
+model ScheduledMessage {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  enrollmentId String
+  enrollment   CampaignEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  sequenceStepId String
+  // Note: Can't add SequenceStep relation here directly due to potential deletion
+  // Store step data separately
+
+  // Recipient info
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  invoiceId String?
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+
+  // Scheduling
+  scheduledFor DateTime
+  sentAt       DateTime?
+  processedAt  DateTime?
+
+  // Message details
+  channel String // "sms", "email"
+  subject String? // Email only
+  body    String // Filled template with variables replaced
+
+  // Status tracking
+  status       String  @default("pending") // "pending", "sent", "skipped_no_consent", "skipped_paid", "failed", "cancelled"
+  failureCount Int     @default(0)
+  errorMessage String?
+
+  // Created message reference (after sending)
+  messageId String?
+  message   Message? @relation(fields: [messageId], references: [id], onDelete: SetNull)
+
+  @@index([enrollmentId])
+  @@index([customerId])
+  @@index([invoiceId])
+  @@index([scheduledFor, status])
+  @@index([status])
+  @@index([processedAt])
 }

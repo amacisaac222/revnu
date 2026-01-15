@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import FirstTimeExperience from "@/components/dashboard/first-time-experience";
 import ProgressChecklist from "@/components/dashboard/progress-checklist";
+import DashboardOverview from "@/components/dashboard/dashboard-overview";
 
 export default async function DashboardPage() {
   const user = await currentUser();
@@ -17,38 +18,151 @@ export default async function DashboardPage() {
     redirect("/onboarding");
   }
 
-  const showWelcome = !dbUser.organization.hasSeenWelcome;
-
-  // Get stats
-  const [totalCustomers, totalInvoices, totalOutstanding, recentMessages] =
-    await Promise.all([
-      db.customer.count({
-        where: { organizationId: dbUser.organization.id },
-      }),
-      db.invoice.count({
-        where: { organizationId: dbUser.organization.id },
-      }),
-      db.invoice.aggregate({
-        where: {
-          organizationId: dbUser.organization.id,
-          status: { in: ["outstanding", "partial"] },
-        },
-        _sum: { amountRemaining: true },
-      }),
-      db.message.findMany({
-        where: { organizationId: dbUser.organization.id },
-        include: { customer: true },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-      }),
-    ]);
-
-  const outstandingAmount = totalOutstanding._sum.amountRemaining || 0;
-
-  // Parse onboarding progress
+  // Parse onboarding progress first
   const onboardingProgress = typeof dbUser.organization.onboardingProgress === 'object' && dbUser.organization.onboardingProgress !== null
     ? dbUser.organization.onboardingProgress as Record<string, boolean>
     : {};
+
+  const showWelcome = !dbUser.organization.hasSeenWelcome;
+  // Disable sequences showcase - users prefer the welcome screen
+  const showSequencesShowcase = false;
+
+  // Get comprehensive data
+  const [
+    totalCustomers,
+    totalInvoices,
+    totalOutstanding,
+    totalPaid,
+    allCustomers,
+    activeSequences,
+    allInvoices,
+  ] = await Promise.all([
+    db.customer.count({
+      where: { organizationId: dbUser.organization.id },
+    }),
+    db.invoice.count({
+      where: { organizationId: dbUser.organization.id },
+    }),
+    db.invoice.aggregate({
+      where: {
+        organizationId: dbUser.organization.id,
+        status: { in: ["outstanding", "partial"] },
+      },
+      _sum: { amountRemaining: true },
+    }),
+    db.invoice.aggregate({
+      where: {
+        organizationId: dbUser.organization.id,
+        status: "paid",
+      },
+      _sum: { amountPaid: true },
+    }),
+    db.customer.findMany({
+      where: { organizationId: dbUser.organization.id },
+      include: {
+        invoices: {
+          select: {
+            id: true,
+            status: true,
+            amountRemaining: true,
+            amountDue: true,
+            amountPaid: true,
+            createdAt: true,
+            invoiceDate: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    db.sequenceTemplate.findMany({
+      where: { organizationId: dbUser.organization.id },
+      include: {
+        steps: true,
+        _count: {
+          select: { invoices: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    }),
+    db.invoice.findMany({
+      where: { organizationId: dbUser.organization.id },
+      select: {
+        createdAt: true,
+        invoiceDate: true,
+        amountDue: true,
+        amountPaid: true,
+        amountRemaining: true,
+        status: true,
+      },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
+
+  const outstandingAmount = totalOutstanding._sum.amountRemaining || 0;
+  const collectedAmount = totalPaid._sum.amountPaid || 0;
+  const totalRevenue = outstandingAmount + collectedAmount;
+
+  // Calculate collection rate
+  const collectionRate = totalRevenue > 0 ? (collectedAmount / totalRevenue) * 100 : 0;
+
+  // Process collection trends data (last 6 months)
+  const trendsByMonth = new Map<string, { invoiced: number; collected: number; outstanding: number }>();
+  const now = new Date();
+
+  // Initialize last 6 months
+  for (let i = 5; i >= 0; i--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    trendsByMonth.set(key, { invoiced: 0, collected: 0, outstanding: 0 });
+  }
+
+  // Aggregate invoice data by month
+  allInvoices.forEach((invoice) => {
+    const date = new Date(invoice.invoiceDate || invoice.createdAt);
+    const key = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+    if (trendsByMonth.has(key)) {
+      const current = trendsByMonth.get(key)!;
+      current.invoiced += invoice.amountDue;
+      current.collected += invoice.amountPaid;
+      if (invoice.status === 'outstanding' || invoice.status === 'partial') {
+        current.outstanding += invoice.amountRemaining;
+      }
+    }
+  });
+
+  const collectionTrendsData = Array.from(trendsByMonth.entries()).map(([month, data]) => ({
+    month,
+    invoiced: data.invoiced / 100,
+    collected: data.collected / 100,
+    outstanding: data.outstanding / 100,
+  }));
+
+  // Calculate top 10 accounts by outstanding balance
+  const top10Accounts = allCustomers
+    .map((customer) => {
+      const totalOwed = customer.invoices
+        .filter(inv => inv.status === 'outstanding' || inv.status === 'partial')
+        .reduce((sum, inv) => sum + inv.amountRemaining, 0);
+
+      const totalInvoiced = customer.invoices.reduce((sum, inv) => sum + inv.amountDue, 0);
+      const totalCollected = customer.invoices.reduce((sum, inv) => sum + inv.amountPaid, 0);
+
+      return {
+        ...customer,
+        totalOwed,
+        totalInvoiced,
+        totalCollected,
+        invoiceCount: customer.invoices.length,
+      };
+    })
+    .filter(customer => customer.totalOwed > 0)
+    .sort((a, b) => b.totalOwed - a.totalOwed)
+    .slice(0, 10);
+
+  // Recent customers for sidebar (last 10)
+  const recentCustomers = allCustomers.slice(0, 10);
 
   return (
     <>
@@ -61,100 +175,33 @@ export default async function DashboardPage() {
         usedDemoData={dbUser.organization.usedDemoData}
       />
 
-      <div className="space-y-6 md:space-y-8">
-      {/* Header - Mobile optimized */}
-      <div>
-        <h1 className="text-2xl md:text-3xl font-black text-white">Dashboard</h1>
-        <p className="text-sm md:text-base text-revnu-gray mt-1">
-          Welcome back, {dbUser.name || "there"}
-        </p>
-      </div>
-
-      {/* Stats Grid - Stack on mobile */}
-      <div className="grid grid-cols-1 gap-4 md:gap-6">
-        {/* Featured Stat - Larger on mobile */}
-        <div className="bg-gradient-to-br from-revnu-green/20 to-revnu-green/5 p-6 md:p-8 rounded-xl border-2 border-revnu-green/30">
-          <div className="text-xs md:text-sm text-revnu-gray font-bold uppercase tracking-wide mb-2">Total Outstanding</div>
-          <div className="text-4xl md:text-5xl font-black text-revnu-green">
-            ${(outstandingAmount / 100).toLocaleString()}
-          </div>
-        </div>
-
-        {/* Secondary Stats - Side by side on mobile */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-revnu-slate/40 p-4 md:p-6 rounded-xl border border-revnu-green/20">
-            <div className="text-xs text-revnu-gray font-bold uppercase tracking-wide mb-1">Active Invoices</div>
-            <div className="text-2xl md:text-3xl font-black text-white">{totalInvoices}</div>
-          </div>
-
-          <div className="bg-revnu-slate/40 p-4 md:p-6 rounded-xl border border-revnu-green/20">
-            <div className="text-xs text-revnu-gray font-bold uppercase tracking-wide mb-1">Total Customers</div>
-            <div className="text-2xl md:text-3xl font-black text-white">{totalCustomers}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions - Mobile optimized */}
-      <div className="bg-revnu-slate/40 p-4 md:p-6 rounded-xl border border-revnu-green/20">
-        <h2 className="text-base md:text-lg font-bold text-white mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 gap-3">
+      <div className="space-y-4">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-black text-white">Dashboard</h1>
           <Link
-            href="/dashboard/customers/new"
-            className="px-6 py-4 bg-revnu-dark/50 border-2 border-revnu-green/30 rounded-lg hover:border-revnu-green hover:bg-revnu-green/10 text-center text-white font-bold transition active:scale-98 text-base"
+            href="/dashboard/customers/import"
+            className="px-3 py-1.5 bg-revnu-green/20 border border-revnu-green/30 rounded-lg text-revnu-green font-semibold hover:bg-revnu-green/30 transition text-xs"
           >
-            Add Customer
-          </Link>
-          <Link
-            href="/dashboard/invoices/new"
-            className="px-6 py-4 bg-revnu-dark/50 border-2 border-revnu-green/30 rounded-lg hover:border-revnu-green hover:bg-revnu-green/10 text-center text-white font-bold transition active:scale-98 text-base"
-          >
-            Create Invoice
-          </Link>
-          <Link
-            href="/dashboard/sequences"
-            className="px-6 py-4 bg-gradient-to-r from-revnu-green to-revnu-greenDark text-revnu-dark font-black rounded-lg hover:from-revnu-greenLight hover:to-revnu-green text-center transition active:scale-98 text-base shadow-lg shadow-revnu-green/20"
-          >
-            Manage Sequences
+            📁 Import
           </Link>
         </div>
-      </div>
 
-      {/* Recent Activity - Mobile optimized */}
-      <div className="bg-revnu-slate/40 rounded-xl border border-revnu-green/20">
-        <div className="p-4 md:p-6 border-b border-revnu-green/10">
-          <h2 className="text-base md:text-lg font-bold text-white">Recent Messages</h2>
-        </div>
-        <div className="divide-y divide-revnu-green/10">
-          {recentMessages.length === 0 ? (
-            <div className="p-6 md:p-8 text-center text-revnu-gray text-sm">
-              No messages yet. Add customers and invoices to get started.
-            </div>
-          ) : (
-            recentMessages.map((message) => (
-              <div key={message.id} className="p-4 active:bg-revnu-dark/30 transition">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-white text-sm md:text-base">
-                      {message.customer.firstName} {message.customer.lastName}
-                    </div>
-                    <div className="text-xs md:text-sm text-revnu-gray mt-1">
-                      {message.channel === "sms" ? "SMS" : "Email"} •{" "}
-                      <span className="text-revnu-green font-semibold">{message.status}</span>
-                    </div>
-                  </div>
-                  <div className="text-xs text-revnu-gray flex-shrink-0">
-                    {new Date(message.createdAt).toLocaleDateString(undefined, {
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+        {/* Dynamic Widget System */}
+        <DashboardOverview
+          organizationId={dbUser.organization.id}
+          stats={{
+            totalRevenue,
+            collectedAmount,
+            outstandingAmount,
+            collectionRate,
+            totalCustomers,
+          }}
+          collectionTrendsData={collectionTrendsData}
+          top10Accounts={top10Accounts}
+          activeSequences={activeSequences}
+        />
       </div>
-    </div>
     </>
   );
 }

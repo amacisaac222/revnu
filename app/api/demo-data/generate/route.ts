@@ -1,24 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import Anthropic from "@anthropic-ai/sdk";
+import { DEFAULT_DEMO_DATA } from "@/lib/default-demo-data";
 
 // Force dynamic rendering to skip static generation
 export const dynamic = 'force-dynamic'
-
-// Lazy-load Anthropic client to avoid initialization during build
-let _anthropic: Anthropic | null = null;
-
-function getAnthropicClient(): Anthropic {
-  if (!_anthropic) {
-    if (!process.env.ANTHROPIC_API_KEY) {
-      throw new Error('ANTHROPIC_API_KEY is not configured');
-    }
-    _anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
-  }
-  return _anthropic;
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -43,61 +28,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Use Claude to generate realistic demo data based on industry
-    const prompt = `Generate realistic sample data for a ${org.industry || "trades"} business named "${org.businessName}".
-
-Create 3-5 customers with:
-- Realistic first and last names
-- Phone numbers (use format: +1 area code and number)
-- Emails
-- Addresses in the United States
-
-For 2-3 of these customers, create unpaid invoices with:
-- Invoice numbers (format: INV-YYYY-####)
-- Realistic amounts for ${org.industry || "trades"} services (between $300-$5000)
-- Due dates that are 5-30 days in the past
-- Brief service descriptions relevant to ${org.industry || "trades"}
-
-Return ONLY valid JSON in this exact format (no markdown, no code blocks):
-{
-  "customers": [
-    {
-      "firstName": "string",
-      "lastName": "string",
-      "email": "string",
-      "phone": "string (E.164 format)",
-      "address": "string",
-      "city": "string",
-      "state": "string (2-letter)",
-      "zip": "string"
-    }
-  ],
-  "invoices": [
-    {
-      "customerIndex": 0,
-      "invoiceNumber": "string",
-      "description": "string",
-      "amount": 0,
-      "dueDate": "YYYY-MM-DD",
-      "daysPastDue": 0
-    }
-  ]
-}`;
-
-    const anthropic = getAnthropicClient();
-    const message = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 2000,
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    });
-
-    const responseText = message.content[0].type === "text" ? message.content[0].text : "";
-    const demoData = JSON.parse(responseText);
+    // Use default demo data (AI generation disabled due to API issues)
+    // Generate unique invoice numbers using timestamp
+    const timestamp = Date.now().toString().slice(-6);
+    const demoData = {
+      customers: DEFAULT_DEMO_DATA.customers,
+      invoices: DEFAULT_DEMO_DATA.invoices.map((inv, idx) => ({
+        ...inv,
+        invoiceNumber: `INV-${timestamp}-${idx + 1}`, // Unique invoice number
+        customerIndex: idx % DEFAULT_DEMO_DATA.customers.length,
+        amount: inv.amount / 100, // Convert from cents to dollars for invoice creation
+        dueDate: new Date(Date.now() + inv.dueDate * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        daysPastDue: inv.dueDate < 0 ? Math.abs(inv.dueDate) : 0
+      }))
+    };
 
     // Create customers
     const createdCustomers = await Promise.all(

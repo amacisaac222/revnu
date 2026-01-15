@@ -2,6 +2,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import DashboardNav from "./dashboard-nav";
+import { PostHogIdentifier } from "@/components/posthog-provider";
 
 export default async function DashboardLayout({
   children,
@@ -26,6 +27,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-revnu-dark">
+      <PostHogIdentifier />
       <DashboardNav
         organization={dbUser.organization}
         userName={dbUser.name || ""}

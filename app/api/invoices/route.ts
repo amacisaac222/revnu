@@ -1,7 +1,73 @@
-import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { logAudit } from "@/lib/audit";
+
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: NextRequest) {
+  try {
+    const user = await currentUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const dbUser = await db.user.findUnique({
+      where: { email: user.emailAddresses[0]?.emailAddress },
+      include: { organization: true },
+    });
+
+    if (!dbUser?.organization) {
+      return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
+    const limit = parseInt(searchParams.get('limit') || '50');
+
+    // Build where clause
+    const where: any = {
+      organizationId: dbUser.organization.id,
+    };
+
+    if (status === 'overdue') {
+      where.status = { in: ['outstanding', 'partial'] };
+      where.daysPastDue = { gt: 0 };
+    } else if (status) {
+      where.status = status;
+    }
+
+    const invoices = await db.invoice.findMany({
+      where,
+      include: {
+        customer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+            smsConsentGiven: true,
+            emailConsentGiven: true,
+            smsConsentMethod: true,
+            smsConsentDate: true,
+          },
+        },
+      },
+      orderBy: { daysPastDue: 'desc' },
+      take: limit,
+    });
+
+    return NextResponse.json({ invoices });
+  } catch (error) {
+    console.error("Error fetching invoices:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch invoices" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(request: Request) {
   try {
