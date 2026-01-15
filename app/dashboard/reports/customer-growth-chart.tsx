@@ -44,7 +44,7 @@ export default function CustomerGrowthChart({ data }: CustomerGrowthChartProps) 
             borderRadius: "8px",
           }}
           labelStyle={{ color: "#E2E8F0" }}
-          formatter={(value: number) => [value, "Customers"]}
+          formatter={(value: number | undefined) => [value ?? 0, "Customers"]}
         />
         <Bar
           dataKey="customers"

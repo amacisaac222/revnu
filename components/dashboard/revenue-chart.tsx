@@ -35,7 +35,7 @@ export default function RevenueChart({ data }: RevenueChartProps) {
               borderRadius: '8px',
               color: '#fff',
             }}
-            formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
+            formatter={(value: number | undefined) => [`$${(value ?? 0).toLocaleString()}`, 'Revenue']}
           />
           <Area
             type="monotone"

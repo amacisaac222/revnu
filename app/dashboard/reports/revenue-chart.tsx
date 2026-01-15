@@ -56,7 +56,7 @@ export default function RevenueChart({ data }: RevenueChartProps) {
             borderRadius: "8px",
           }}
           labelStyle={{ color: "#E2E8F0" }}
-          formatter={(value: number) => [`$${value.toLocaleString()}`, ""]}
+          formatter={(value: number | undefined) => [`$${(value ?? 0).toLocaleString()}`, ""]}
         />
         <Legend
           wrapperStyle={{ fontSize: "12px", color: "#E2E8F0" }}
