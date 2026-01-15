@@ -91,7 +91,7 @@ Return ONLY the JSON object, no other text.`;
     // Call Claude API
     const anthropic = getAnthropicClient();
     const message = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20250219",
+      model: "claude-3-5-sonnet-20241022",
       max_tokens: 2000,
       temperature: 0.7,
       messages: [
