@@ -138,7 +138,7 @@ export default function CreateSequenceTab({ organizationId, businessName, onRefr
       <VisualSequenceBuilder
         businessName={businessName}
         onSave={handleSave}
-        initialSteps={aiGeneratedSteps}
+        initialSteps={aiGeneratedSteps ?? undefined}
         loading={loading}
       />
     </div>
