@@ -150,7 +150,10 @@ export default async function DashboardPage() {
       const totalCollected = customer.invoices.reduce((sum, inv) => sum + inv.amountPaid, 0);
 
       return {
-        ...customer,
+        id: customer.id,
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        email: customer.email || '',
         totalOwed,
         totalInvoiced,
         totalCollected,
