@@ -35,19 +35,14 @@ export default function StatsWidget({ stats, columns = 5 }: StatsWidgetProps) {
   return (
     <div className={gridClass}>
       {stats.map((stat) => {
-        const Component = stat.link ? Link : "div";
         const colorClass = colorClasses[stat.color || "white"];
-        const componentProps = stat.link ? { href: stat.link } : {};
+        const className = `
+          bg-gradient-to-br ${colorClass} p-4 rounded-lg border
+          ${stat.link ? "hover:border-revnu-green transition group cursor-pointer" : ""}
+        `;
 
-        return (
-          <Component
-            key={stat.id}
-            {...componentProps}
-            className={`
-              bg-gradient-to-br ${colorClass} p-4 rounded-lg border
-              ${stat.link ? "hover:border-revnu-green transition group cursor-pointer" : ""}
-            `}
-          >
+        const content = (
+          <>
             <div className="text-xs font-bold uppercase tracking-wide mb-1 text-revnu-gray">
               {stat.label}
             </div>
@@ -79,7 +74,17 @@ export default function StatsWidget({ stats, columns = 5 }: StatsWidgetProps) {
                 )}
               </div>
             )}
-          </Component>
+          </>
+        );
+
+        return stat.link ? (
+          <Link key={stat.id} href={stat.link} className={className}>
+            {content}
+          </Link>
+        ) : (
+          <div key={stat.id} className={className}>
+            {content}
+          </div>
         );
       })}
     </div>
