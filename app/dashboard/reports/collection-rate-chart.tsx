@@ -40,7 +40,7 @@ export default function CollectionRateChart({ data }: CollectionRateChartProps) 
             borderRadius: "8px",
           }}
           labelStyle={{ color: "#E2E8F0" }}
-          formatter={(value: number) => [`${value}%`, "Collection Rate"]}
+          formatter={(value: number | undefined) => [`${value ?? 0}%`, "Collection Rate"]}
         />
         <Line
           type="monotone"
