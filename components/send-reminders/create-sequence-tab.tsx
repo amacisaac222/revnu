@@ -139,7 +139,6 @@ export default function CreateSequenceTab({ organizationId, businessName, onRefr
         businessName={businessName}
         onSave={handleSave}
         initialSteps={aiGeneratedSteps ?? undefined}
-        loading={loading}
       />
     </div>
   );
