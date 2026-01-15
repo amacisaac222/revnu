@@ -41,6 +41,7 @@ interface WizardStep4Props {
   onLaunch: () => void;
   onBack: () => void;
   launching: boolean;
+  campaignMode: 'invoice' | 'customer';
 }
 
 export default function WizardStep4ReviewLaunch({
@@ -50,10 +51,31 @@ export default function WizardStep4ReviewLaunch({
   onLaunch,
   onBack,
   launching,
+  campaignMode,
 }: WizardStep4Props) {
   const invoicesToLaunch = allInvoices.filter((inv) => selectedInvoices.has(inv.id));
   const smsSteps = sequence.steps.filter((s) => s.channel === 'sms').length;
   const emailSteps = sequence.steps.filter((s) => s.channel === 'email').length;
+
+  // Calculate delivery breakdown
+  const canReceiveSMS = invoicesToLaunch.filter(
+    (inv) => inv.customer.phone && inv.customer.smsConsentGiven
+  ).length;
+  const canReceiveEmail = invoicesToLaunch.filter(
+    (inv) => inv.customer.email && inv.customer.emailConsentGiven
+  ).length;
+  const canReceiveBoth = invoicesToLaunch.filter(
+    (inv) =>
+      inv.customer.phone &&
+      inv.customer.smsConsentGiven &&
+      inv.customer.email &&
+      inv.customer.emailConsentGiven
+  ).length;
+  const willBeSkipped = invoicesToLaunch.filter(
+    (inv) =>
+      (!inv.customer.phone || !inv.customer.smsConsentGiven) &&
+      (!inv.customer.email || !inv.customer.emailConsentGiven)
+  ).length;
 
   return (
     <div className="space-y-6">
@@ -98,10 +120,48 @@ export default function WizardStep4ReviewLaunch({
 
         {/* Start Trigger */}
         <div className="mt-6 p-4 bg-revnu-dark/50 border border-revnu-green/20 rounded-lg text-center">
-          <p className="text-revnu-gray text-sm">Messages will start sending when invoice is</p>
-          <p className="text-xl font-bold text-white mt-1">
-            {sequence.triggerDaysPastDue === 0 ? 'On due date' : `${sequence.triggerDaysPastDue} days past due`}
+          <p className="text-revnu-gray text-sm">
+            {campaignMode === 'invoice'
+              ? 'Messages will start sending when invoice is'
+              : 'Messages will start sending'}
           </p>
+          <p className="text-xl font-bold text-white mt-1">
+            {campaignMode === 'invoice'
+              ? sequence.triggerDaysPastDue === 0
+                ? 'On due date'
+                : `${sequence.triggerDaysPastDue} days past due`
+              : 'Immediately upon enrollment'}
+          </p>
+        </div>
+
+        {/* Delivery Breakdown */}
+        <div className="mt-6 p-6 bg-revnu-dark/50 border border-revnu-green/20 rounded-lg">
+          <h4 className="text-lg font-bold text-white mb-4 text-center">Delivery Breakdown</h4>
+          <div className="grid grid-cols-4 gap-3">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-revnu-green">{canReceiveSMS}</div>
+              <div className="text-sm text-revnu-gray mt-1">Can receive SMS</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-400">{canReceiveEmail}</div>
+              <div className="text-sm text-revnu-gray mt-1">Can receive Email</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-cyan-400">{canReceiveBoth}</div>
+              <div className="text-sm text-revnu-gray mt-1">Can receive Both</div>
+            </div>
+            {willBeSkipped > 0 && (
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-400">{willBeSkipped}</div>
+                <div className="text-sm text-revnu-gray mt-1">Will be skipped</div>
+              </div>
+            )}
+          </div>
+          {willBeSkipped > 0 && (
+            <p className="text-sm text-yellow-400 mt-4 text-center">
+              ⚠️ {willBeSkipped} customer{willBeSkipped > 1 ? 's' : ''} will be skipped due to missing contact info
+            </p>
+          )}
         </div>
       </div>
 

@@ -199,6 +199,7 @@ export default function CampaignWizard({ invoices, sequences, organization, onRe
           organizationName={organization.businessName}
           onContinue={handleStep3Continue}
           onBack={() => setCurrentStep(2)}
+          campaignMode={campaignMode}
         />
       )}
 
@@ -210,6 +211,7 @@ export default function CampaignWizard({ invoices, sequences, organization, onRe
           onLaunch={handleLaunch}
           onBack={() => setCurrentStep(3)}
           launching={launching}
+          campaignMode={campaignMode}
         />
       )}
 

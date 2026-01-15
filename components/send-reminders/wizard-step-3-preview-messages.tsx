@@ -51,6 +51,7 @@ interface WizardStep3Props {
   organizationName: string;
   onContinue: () => void;
   onBack: () => void;
+  campaignMode: 'invoice' | 'customer';
 }
 
 export default function WizardStep3PreviewMessages({
@@ -60,6 +61,7 @@ export default function WizardStep3PreviewMessages({
   organizationName,
   onContinue,
   onBack,
+  campaignMode,
 }: WizardStep3Props) {
   const invoicesToPreview = allInvoices.filter((inv) => selectedInvoices.has(inv.id));
   const [currentInvoiceIndex, setCurrentInvoiceIndex] = useState(0);
@@ -67,17 +69,25 @@ export default function WizardStep3PreviewMessages({
 
   const fillVariables = (text: string, invoice: Invoice) => {
     if (!invoice) return text;
-    return text
+
+    let filled = text
       .replace(/\{\{customerName\}\}/g, `${invoice.customer.firstName} ${invoice.customer.lastName}`)
       .replace(/\{\{customerFirstName\}\}/g, invoice.customer.firstName)
       .replace(/\{\{businessName\}\}/g, organizationName)
-      .replace(/\{\{invoiceNumber\}\}/g, invoice.invoiceNumber)
-      .replace(/\{\{invoiceAmount\}\}/g, `$${(invoice.amountRemaining / 100).toFixed(2)}`)
-      .replace(/\{\{amountDue\}\}/g, `$${(invoice.amountDue / 100).toFixed(2)}`)
-      .replace(/\{\{dueDate\}\}/g, new Date(invoice.dueDate).toLocaleDateString())
-      .replace(/\{\{paymentLink\}\}/g, `https://pay.revnu.com/${invoice.id}`)
       .replace(/\{\{businessPhone\}\}/g, '(555) 123-4567')
       .replace(/\{\{businessEmail\}\}/g, 'billing@company.com');
+
+    // Only fill invoice variables in invoice mode
+    if (campaignMode === 'invoice') {
+      filled = filled
+        .replace(/\{\{invoiceNumber\}\}/g, invoice.invoiceNumber)
+        .replace(/\{\{invoiceAmount\}\}/g, `$${(invoice.amountRemaining / 100).toFixed(2)}`)
+        .replace(/\{\{amountDue\}\}/g, `$${(invoice.amountDue / 100).toFixed(2)}`)
+        .replace(/\{\{dueDate\}\}/g, new Date(invoice.dueDate).toLocaleDateString())
+        .replace(/\{\{paymentLink\}\}/g, `https://pay.revnu.com/${invoice.id}`);
+    }
+
+    return filled;
   };
 
   const getDayLabel = (stepNumber: number, delayDays: number) => {
