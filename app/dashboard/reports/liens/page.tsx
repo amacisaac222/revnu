@@ -394,16 +394,24 @@ export default function LienReportPage() {
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-center gap-2">
                         {lien.preliminaryNoticeSent ? (
-                          <CheckCircle className="w-4 h-4 text-revnu-green" title="Notice sent" />
+                          <span title="Notice sent">
+                            <CheckCircle className="w-4 h-4 text-revnu-green" />
+                          </span>
                         ) : lien.preliminaryNoticeRequired ? (
-                          <XCircle className="w-4 h-4 text-amber-400" title="Notice required" />
+                          <span title="Notice required">
+                            <XCircle className="w-4 h-4 text-amber-400" />
+                          </span>
                         ) : (
                           <span className="text-xs text-revnu-gray">N/A</span>
                         )}
                         {lien.lienFiled ? (
-                          <Shield className="w-4 h-4 text-revnu-green" title="Lien filed" />
+                          <span title="Lien filed">
+                            <Shield className="w-4 h-4 text-revnu-green" />
+                          </span>
                         ) : (
-                          <AlertTriangle className="w-4 h-4 text-amber-400" title="Not filed" />
+                          <span title="Not filed">
+                            <AlertTriangle className="w-4 h-4 text-amber-400" />
+                          </span>
                         )}
                       </div>
                     </td>
