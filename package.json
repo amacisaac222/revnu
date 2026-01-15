@@ -24,6 +24,7 @@
     "@prisma/client": "^5.22.0",
     "@stripe/stripe-js": "^4.8.0",
     "@types/papaparse": "^5.5.2",
+    "csv-stringify": "^6.6.0",
     "lucide-react": "^0.562.0",
     "next": "^15.1.2",
     "papaparse": "^5.5.3",

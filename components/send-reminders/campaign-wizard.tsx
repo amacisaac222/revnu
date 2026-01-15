@@ -93,20 +93,34 @@ export default function CampaignWizard({ invoices, sequences, organization, onRe
 
     setLaunching(true);
     try {
-      let successCount = 0;
-      for (const invoiceId of Array.from(selectedInvoices)) {
-        const response = await fetch(`/api/invoices/${invoiceId}/assign-sequence`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sequenceId: selectedSequence.id }),
-        });
-        if (response.ok) successCount++;
+      const response = await fetch('/api/campaigns/enroll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sequenceId: selectedSequence.id,
+          mode: campaignMode,
+          invoiceIds: campaignMode === 'invoice' ? Array.from(selectedInvoices) : undefined,
+          customerIds: campaignMode === 'customer' ? Array.from(selectedInvoices) : undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to enroll in campaign');
       }
 
-      setEnrolledCount(successCount);
+      const result = await response.json();
+      setEnrolledCount(result.enrollments);
+
+      // Show warnings if some were skipped
+      if (result.skipped > 0 || result.errors > 0) {
+        const message = `Campaign launched!\n\n✅ ${result.enrollments} enrolled\n⚠️ ${result.skipped} skipped (already enrolled or no contact info)\n❌ ${result.errors} failed`;
+        alert(message);
+      }
+
       onRefresh();
       setCurrentStep(5);
     } catch (error) {
+      console.error('Campaign launch error:', error);
       alert('Failed to launch campaign. Please try again.');
     } finally {
       setLaunching(false);
@@ -173,6 +187,7 @@ export default function CampaignWizard({ invoices, sequences, organization, onRe
           onContinue={handleStep2Continue}
           onBack={() => setCurrentStep(1)}
           onRefresh={onRefresh}
+          campaignMode={campaignMode}
         />
       )}
 

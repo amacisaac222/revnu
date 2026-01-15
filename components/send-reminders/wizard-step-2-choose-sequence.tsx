@@ -28,6 +28,7 @@ interface WizardStep2Props {
   onContinue: () => void;
   onBack: () => void;
   onRefresh: () => void;
+  campaignMode: 'invoice' | 'customer';
 }
 
 type OptionType = 'select' | 'create' | 'edit';
@@ -41,7 +42,12 @@ export default function WizardStep2ChooseSequence({
   onContinue,
   onBack,
   onRefresh,
+  campaignMode,
 }: WizardStep2Props) {
+  // Filter sequences by campaign mode
+  const filteredSequences = sequences.filter(
+    (seq: any) => seq.sequenceType === campaignMode || !seq.sequenceType
+  );
   const [selectedOption, setSelectedOption] = useState<OptionType>('select');
   const [sequenceToEdit, setSequenceToEdit] = useState<SequenceTemplate | null>(null);
   const [aiGeneratedSteps, setAiGeneratedSteps] = useState<any[] | null>(null);
@@ -184,13 +190,15 @@ export default function WizardStep2ChooseSequence({
         {selectedOption === 'select' && (
           <div className="space-y-4">
             <h3 className="text-lg font-bold text-white">Available Sequences</h3>
-            {sequences.length === 0 ? (
+            {filteredSequences.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-revnu-gray">No sequences available. Create one first!</p>
+                <p className="text-revnu-gray">
+                  No {campaignMode === 'invoice' ? 'invoice-based' : 'customer-based'} sequences available. Create one first!
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
-                {sequences.map((seq) => (
+                {filteredSequences.map((seq) => (
                   <div key={seq.id} className="relative">
                     <SequencePreviewCard
                       sequence={seq}
@@ -277,7 +285,7 @@ export default function WizardStep2ChooseSequence({
               <>
                 <h3 className="text-lg font-bold text-white">Select Sequence to Edit</h3>
                 <div className="space-y-3">
-                  {sequences.map((seq) => (
+                  {filteredSequences.map((seq) => (
                     <button
                       key={seq.id}
                       onClick={() => setSequenceToEdit(seq)}
