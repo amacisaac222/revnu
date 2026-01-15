@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { currentUser } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
 import { nanoid } from 'nanoid';
 
@@ -18,8 +18,8 @@ import { nanoid } from 'nanoid';
  */
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const user = await currentUser();
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -49,13 +49,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Get user's organization
-    const organization = await db.organization.findFirst({
-      where: { clerkUserId: userId },
+    const dbUser = await db.user.findUnique({
+      where: { email: user.emailAddresses[0]?.emailAddress },
+      include: { organization: true },
     });
 
-    if (!organization) {
+    if (!dbUser?.organization) {
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
     }
+
+    const organization = dbUser.organization;
 
     // Verify sequence exists and belongs to organization
     const sequence = await db.sequenceTemplate.findFirst({
