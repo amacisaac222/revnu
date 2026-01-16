@@ -272,8 +272,7 @@ export default function WizardStep2ChooseSequence({
             <VisualSequenceBuilder
               businessName={organizationName}
               onSave={handleCreateNew}
-              initialSteps={aiGeneratedSteps}
-              loading={saving}
+              initialSteps={aiGeneratedSteps ?? undefined}
             />
           </div>
         )}
