@@ -316,7 +316,6 @@ export default function WizardStep2ChooseSequence({
                   businessName={organizationName}
                   onSave={handleEditSequence}
                   initialSteps={sequenceToEdit.steps}
-                  loading={saving}
                 />
               </div>
             )}
