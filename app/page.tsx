@@ -325,11 +325,11 @@ export default function HomePage() {
               <div className="text-6xl font-black text-white mb-2 mt-4">
                 $99<span className="text-2xl text-revnu-gray font-normal">/month</span>
               </div>
-              <p className="text-revnu-green font-bold uppercase tracking-wide text-sm mb-8">Everything Unlimited</p>
+              <p className="text-revnu-green font-bold uppercase tracking-wide text-sm mb-8">Everything included</p>
 
               <ul className="text-left space-y-4 mb-8">
                 {[
-                  "Unlimited SMS & email reminders",
+                  "2,500 SMS + 5,000 emails/month",
                   "Unlimited customers & invoices",
                   "Unlimited reminder sequences",
                   "QuickBooks integration",
