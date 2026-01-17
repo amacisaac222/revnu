@@ -29,13 +29,10 @@ export default function HomePage() {
           <nav className="flex items-center gap-8">
             <SignedOut>
               <a href="#how-it-works" className="text-sm font-medium text-revnu-gray hover:text-white transition">
-                Products
+                How It Works
               </a>
               <a href="#features" className="text-sm font-medium text-revnu-gray hover:text-white transition">
-                Solutions
-              </a>
-              <a href="#lien-calculator" className="text-sm font-medium text-revnu-gray hover:text-white transition">
-                Lien Calculator
+                Features
               </a>
               <a href="#pricing" className="text-sm font-medium text-revnu-gray hover:text-white transition">
                 Pricing
@@ -55,13 +52,10 @@ export default function HomePage() {
             </SignedOut>
             <SignedIn>
               <a href="#how-it-works" className="text-sm font-medium text-revnu-gray hover:text-white transition">
-                Products
+                How It Works
               </a>
               <a href="#features" className="text-sm font-medium text-revnu-gray hover:text-white transition">
-                Solutions
-              </a>
-              <a href="#lien-calculator" className="text-sm font-medium text-revnu-gray hover:text-white transition">
-                Lien Calculator
+                Features
               </a>
               <a href="#pricing" className="text-sm font-medium text-revnu-gray hover:text-white transition">
                 Pricing
@@ -116,7 +110,7 @@ export default function HomePage() {
                 </h1>
 
                 <p className="text-xl md:text-2xl text-revnu-gray mb-10 leading-relaxed">
-                  Payment reminder software with <span className="text-white font-bold">mechanics lien protection</span>. Protect your payment rights while automating collections.
+                  Automated payment reminders for contractors. Get paid faster, chase less.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 mb-8">
@@ -137,11 +131,8 @@ export default function HomePage() {
                   </a>
                 </div>
 
-                <p className="text-sm text-revnu-gray mb-4">
+                <p className="text-sm text-revnu-gray">
                   No credit card required • 5-minute setup • Cancel anytime
-                </p>
-                <p className="text-xs text-gray-500 max-w-lg">
-                  REVNU is a software platform only and is NOT a debt collection agency. You are responsible for TCPA compliance and obtaining proper consent before sending messages.
                 </p>
               </div>
 
@@ -229,6 +220,148 @@ export default function HomePage() {
         {/* Trusted By Section - Scrolling Logos */}
         <ScrollingLogos />
 
+        {/* How It Works - Simplified */}
+        <section id="how-it-works" className="py-20 bg-revnu-dark border-t border-revnu-slate/50">
+          <div className="max-w-5xl mx-auto px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+                How it works
+              </h2>
+              <p className="text-xl text-revnu-gray">
+                Set up in 5 minutes. Collect on autopilot.
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="flex items-start gap-6 p-6 bg-revnu-slate/40 border border-revnu-green/20 rounded-xl hover:border-revnu-green/40 transition-all">
+                <div className="flex-shrink-0 w-12 h-12 bg-revnu-green rounded-lg flex items-center justify-center text-revnu-dark text-xl font-black">
+                  1
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-2">Add your invoices</h3>
+                  <p className="text-revnu-gray">CSV upload or add manually. Link customer phone/email. Done in 2 minutes.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-6 p-6 bg-revnu-slate/40 border border-revnu-green/20 rounded-xl hover:border-revnu-green/40 transition-all">
+                <div className="flex-shrink-0 w-12 h-12 bg-revnu-green rounded-lg flex items-center justify-center text-revnu-dark text-xl font-black">
+                  2
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-2">Choose your reminder schedule</h3>
+                  <p className="text-revnu-gray">Pick a template or create your own. Friendly first, firmer later. All sent from YOUR business name.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-6 p-6 bg-revnu-slate/40 border border-revnu-green/20 rounded-xl hover:border-revnu-green/40 transition-all">
+                <div className="flex-shrink-0 w-12 h-12 bg-revnu-green rounded-lg flex items-center justify-center text-revnu-dark text-xl font-black">
+                  3
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-2">Get paid automatically</h3>
+                  <p className="text-revnu-gray">REVNU sends reminders with Stripe payment links. Customers click, pay, done. Zero chasing.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features - Benefit-Focused */}
+        <section id="features" className="py-20 bg-revnu-darker border-t border-revnu-slate/50">
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+                Why contractors choose REVNU
+              </h2>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
+                <h4 className="text-xl font-bold text-white mb-2">✓ Automated SMS & Email Reminders</h4>
+                <p className="text-revnu-gray">Sent from YOUR business name with one-click Stripe payment links. Not a third-party collector.</p>
+              </div>
+
+              <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
+                <h4 className="text-xl font-bold text-white mb-2">✓ Mechanics Lien Protection</h4>
+                <p className="text-revnu-gray">Track deadlines for all 50 states. Send lien-aware reminders. Never miss a filing window.</p>
+              </div>
+
+              <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
+                <h4 className="text-xl font-bold text-white mb-2">✓ TCPA Compliant & Dashboard</h4>
+                <p className="text-revnu-gray">Legal compliance built-in. Quiet hours enforced. Real-time tracking of opens, clicks, and payments.</p>
+              </div>
+
+              <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
+                <h4 className="text-xl font-bold text-white mb-2">✓ Built for Contractors, Not Corporations</h4>
+                <p className="text-revnu-gray">Simple enough for solo contractors. Powerful enough for growing businesses. No collections department needed.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing - Dark Theme */}
+        <section id="pricing" className="py-20 bg-revnu-darker border-t border-revnu-slate/50 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-1/4 w-96 h-96 bg-revnu-green rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-revnu-green rounded-full blur-3xl"></div>
+          </div>
+
+          <div className="relative max-w-4xl mx-auto px-6 lg:px-8 text-center">
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+              Simple, transparent pricing
+            </h2>
+            <p className="text-xl text-revnu-gray mb-12">
+              No setup fees. No per-message charges. Cancel anytime.
+            </p>
+
+            <div className="max-w-lg mx-auto bg-revnu-slate/60 backdrop-blur-lg border-2 border-revnu-green/30 rounded-2xl p-8 shadow-2xl shadow-revnu-green/20 relative">
+              {/* 30-Day Free Trial Badge */}
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <span className="inline-flex items-center gap-2 px-6 py-2 bg-revnu-green text-revnu-dark rounded-full text-sm font-black uppercase tracking-wide shadow-lg">
+                  30-Day Free Trial
+                </span>
+              </div>
+
+              <div className="text-6xl font-black text-white mb-2 mt-4">
+                $99<span className="text-2xl text-revnu-gray font-normal">/month</span>
+              </div>
+              <p className="text-revnu-green font-bold uppercase tracking-wide text-sm mb-8">Everything Unlimited</p>
+
+              <ul className="text-left space-y-4 mb-8">
+                {[
+                  "Unlimited SMS & email reminders",
+                  "Unlimited customers & invoices",
+                  "Unlimited reminder sequences",
+                  "QuickBooks integration",
+                  "Up to 5 team members",
+                  "Full TCPA compliance tools"
+                ].map((item, idx) => (
+                  <li key={idx} className="flex items-center gap-3 text-white">
+                    <svg className="w-5 h-5 text-revnu-green flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/sign-up"
+                className="block w-full px-8 py-4 text-lg font-bold text-revnu-dark bg-revnu-green rounded-lg hover:bg-revnu-greenLight transition-all hover:scale-105 transform shadow-2xl shadow-revnu-green/30 mb-4"
+              >
+                Start Free Trial
+              </Link>
+
+              <Link
+                href="/pricing"
+                className="block text-center text-sm text-revnu-green hover:text-revnu-greenLight transition underline"
+              >
+                View full pricing details →
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* Testimonials Section */}
         <section className="py-20 bg-revnu-dark border-t border-revnu-slate/50">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -296,109 +429,20 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* How It Works - Simplified */}
-        <section id="how-it-works" className="py-20 bg-revnu-dark border-t border-revnu-slate/50">
-          <div className="max-w-5xl mx-auto px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                How it works
-              </h2>
-              <p className="text-xl text-revnu-gray">
-                Set up in 5 minutes. Collect on autopilot.
-              </p>
-            </div>
-
-            <div className="space-y-6">
-              <div className="flex items-start gap-6 p-6 bg-revnu-slate/40 border border-revnu-green/20 rounded-xl hover:border-revnu-green/40 transition-all">
-                <div className="flex-shrink-0 w-12 h-12 bg-revnu-green rounded-lg flex items-center justify-center text-revnu-dark text-xl font-black">
-                  1
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">Import your unpaid invoices</h3>
-                  <p className="text-revnu-gray">CSV upload or add manually. Link customer phone/email. Done in 2 minutes.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-6 p-6 bg-revnu-slate/40 border border-revnu-green/20 rounded-xl hover:border-revnu-green/40 transition-all">
-                <div className="flex-shrink-0 w-12 h-12 bg-revnu-green rounded-lg flex items-center justify-center text-revnu-dark text-xl font-black">
-                  2
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">Choose your reminder schedule</h3>
-                  <p className="text-revnu-gray">Pick a template or create your own. Friendly first, firmer later. All sent from YOUR business name.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-6 p-6 bg-revnu-slate/40 border border-revnu-green/20 rounded-xl hover:border-revnu-green/40 transition-all">
-                <div className="flex-shrink-0 w-12 h-12 bg-revnu-green rounded-lg flex items-center justify-center text-revnu-dark text-xl font-black">
-                  3
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">Get paid automatically</h3>
-                  <p className="text-revnu-gray">REVNU sends reminders. Customers click to pay. Money hits your account. Zero chasing.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Features - Benefit-Focused */}
-        <section id="features" className="py-20 bg-revnu-darker border-t border-revnu-slate/50">
-          <div className="max-w-6xl mx-auto px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                Why contractors choose REVNU
-              </h2>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
-                <h4 className="text-xl font-bold text-white mb-2">✓ Sends from YOUR business</h4>
-                <p className="text-revnu-gray">Not a third-party collector. Customers see your name, not ours.</p>
-              </div>
-
-              <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
-                <h4 className="text-xl font-bold text-white mb-2">✓ One-click payment links</h4>
-                <p className="text-revnu-gray">SMS includes Stripe link. Customer taps, pays, done.</p>
-              </div>
-
-              <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
-                <h4 className="text-xl font-bold text-white mb-2">✓ Mechanics lien protection</h4>
-                <p className="text-revnu-gray">Track deadlines, send lien-aware reminders. Protect your payment rights automatically.</p>
-              </div>
-
-              <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
-                <h4 className="text-xl font-bold text-white mb-2">✓ Legally compliant</h4>
-                <p className="text-revnu-gray">TCPA compliant. Quiet hours enforced. Opt-outs handled automatically.</p>
-              </div>
-
-              <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
-                <h4 className="text-xl font-bold text-white mb-2">✓ Real-time dashboard</h4>
-                <p className="text-revnu-gray">See who opened messages, who clicked links, who paid. All in one place.</p>
-              </div>
-
-              <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
-                <h4 className="text-xl font-bold text-white mb-2">✓ State-specific lien rules</h4>
-                <p className="text-revnu-gray">Automatic deadline calculations for all 50 states. Never miss a filing window.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* Lien Calculator Section - Dark Theme */}
-        <section id="lien-calculator" className="py-20 bg-revnu-dark border-t border-revnu-slate/50">
+        <section id="lien-calculator" className="py-20 bg-revnu-darker border-t border-revnu-slate/50">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="text-center mb-12">
               <div className="inline-block mb-4">
                 <span className="inline-flex items-center gap-2 px-4 py-2 bg-revnu-green/10 border border-revnu-green/30 rounded-full text-sm font-semibold text-revnu-green">
-                  Free Tool
+                  Bonus: Free Tool
                 </span>
               </div>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
                 Mechanics Lien Deadline Calculator
               </h2>
               <p className="text-xl text-revnu-gray max-w-3xl mx-auto">
-                Know your deadlines. Protect your payment rights. Calculate state-specific lien deadlines in seconds.
+                Calculate state-specific lien deadlines in seconds. No signup required.
               </p>
             </div>
 
@@ -406,82 +450,14 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Trust Section - Dark Theme */}
-        <section className="py-20 bg-revnu-darker border-t border-revnu-slate/50">
-          <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-            <h3 className="text-3xl md:text-4xl font-black text-white mb-6">
-              Built for trades businesses
-            </h3>
-            <p className="text-xl text-revnu-gray leading-relaxed">
-              We get it. You're not a big corporation with a collections department. You're a small business owner who needs to get paid without the awkward conversations. <span className="text-white font-bold">REVNU</span> handles the reminders automatically, so you can focus on the work you're good at.
-            </p>
-          </div>
-        </section>
-
-        {/* Pricing - Dark Theme */}
-        <section id="pricing" className="py-20 bg-revnu-darker border-t border-revnu-slate/50 relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 left-1/4 w-96 h-96 bg-revnu-green rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-revnu-green rounded-full blur-3xl"></div>
-          </div>
-
-          <div className="relative max-w-4xl mx-auto px-6 lg:px-8 text-center">
-            <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-              Simple, transparent pricing
-            </h2>
-            <p className="text-xl text-revnu-gray mb-12">
-              No setup fees. No per-message charges. Cancel anytime.
-            </p>
-
-            <div className="max-w-lg mx-auto bg-revnu-slate/60 backdrop-blur-lg border-2 border-revnu-green/30 rounded-2xl p-8 shadow-2xl shadow-revnu-green/20">
-              <div className="text-6xl font-black text-white mb-2">
-                $99<span className="text-2xl text-revnu-gray font-normal">/month</span>
-              </div>
-              <p className="text-revnu-green font-bold uppercase tracking-wide text-sm mb-8">Everything included</p>
-
-              <ul className="text-left space-y-4 mb-8">
-                {[
-                  "500 SMS + 1,000 emails/month",
-                  "Unlimited customers & invoices",
-                  "Unlimited reminder sequences",
-                  "QuickBooks integration",
-                  "Up to 5 team members",
-                  "Full TCPA compliance tools"
-                ].map((item, idx) => (
-                  <li key={idx} className="flex items-center gap-3 text-white">
-                    <svg className="w-5 h-5 text-revnu-green flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                href="/sign-up"
-                className="block w-full px-8 py-4 text-lg font-bold text-revnu-dark bg-revnu-green rounded-lg hover:bg-revnu-greenLight transition-all hover:scale-105 transform shadow-2xl shadow-revnu-green/30 mb-4"
-              >
-                Start Free Trial
-              </Link>
-
-              <Link
-                href="/pricing"
-                className="block text-center text-sm text-revnu-green hover:text-revnu-greenLight transition underline"
-              >
-                View full pricing details →
-              </Link>
-            </div>
-          </div>
-        </section>
-
         {/* Final CTA - Dark Theme */}
         <section className="py-24 bg-revnu-dark border-t border-revnu-slate/50">
           <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
             <h2 className="text-5xl md:text-6xl font-black text-white mb-6">
-              Ready to stop chasing payments?
+              Ready to get paid on time?
             </h2>
             <p className="text-xl text-revnu-gray mb-10">
-              Join contractors who are getting paid faster with automated reminders.
+              Join hundreds of contractors collecting faster with automated reminders.
             </p>
             <Link
               href="/sign-up"
