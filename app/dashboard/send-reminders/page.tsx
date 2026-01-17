@@ -45,6 +45,7 @@ interface Organization {
   businessName: string;
   phone?: string | null;
   email?: string | null;
+  subscriptionStatus?: string | null;
 }
 
 export default function SendRemindersPage() {

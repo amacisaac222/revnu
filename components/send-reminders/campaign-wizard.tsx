@@ -46,6 +46,7 @@ interface SequenceTemplate {
 interface Organization {
   id: string;
   businessName: string;
+  subscriptionStatus?: string | null;
 }
 
 interface CampaignWizardProps {
@@ -212,6 +213,7 @@ export default function CampaignWizard({ invoices, sequences, organization, onRe
           onBack={() => setCurrentStep(3)}
           launching={launching}
           campaignMode={campaignMode}
+          subscriptionStatus={organization.subscriptionStatus}
         />
       )}
 

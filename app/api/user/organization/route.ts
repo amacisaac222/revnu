@@ -21,6 +21,7 @@ export async function GET() {
             businessName: true,
             phone: true,
             email: true,
+            subscriptionStatus: true,
           },
         },
       },

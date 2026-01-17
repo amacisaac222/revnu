@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ArrowLeft, Rocket, Loader2, User, Mail, MessageSquare } from 'lucide-react';
+import SubscriptionGateModal from '@/components/payment/subscription-gate-modal';
 
 interface Customer {
   id: string;
@@ -42,6 +43,7 @@ interface WizardStep4Props {
   onBack: () => void;
   launching: boolean;
   campaignMode: 'invoice' | 'customer';
+  subscriptionStatus?: string | null;
 }
 
 export default function WizardStep4ReviewLaunch({
@@ -52,7 +54,9 @@ export default function WizardStep4ReviewLaunch({
   onBack,
   launching,
   campaignMode,
+  subscriptionStatus,
 }: WizardStep4Props) {
+  const [showSubscriptionGate, setShowSubscriptionGate] = useState(false);
   const invoicesToLaunch = allInvoices.filter((inv) => selectedInvoices.has(inv.id));
   const smsSteps = sequence.steps.filter((s) => s.channel === 'sms').length;
   const emailSteps = sequence.steps.filter((s) => s.channel === 'email').length;
@@ -76,6 +80,37 @@ export default function WizardStep4ReviewLaunch({
       (!inv.customer.phone || !inv.customer.smsConsentGiven) &&
       (!inv.customer.email || !inv.customer.emailConsentGiven)
   ).length;
+
+  const isSubscriptionActive = subscriptionStatus === 'active' || subscriptionStatus === 'trialing';
+
+  const handleLaunchClick = () => {
+    if (!isSubscriptionActive) {
+      setShowSubscriptionGate(true);
+    } else {
+      onLaunch();
+    }
+  };
+
+  const handleSubscribe = async (promoCode?: string) => {
+    try {
+      const response = await fetch('/api/subscription/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ promoCode }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to start checkout');
+      }
+
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      throw error;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -215,7 +250,7 @@ export default function WizardStep4ReviewLaunch({
           Back to Preview
         </button>
         <button
-          onClick={onLaunch}
+          onClick={handleLaunchClick}
           disabled={launching}
           className="px-12 py-5 bg-revnu-green text-revnu-dark font-bold rounded-lg text-xl hover:bg-revnu-green/90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 shadow-lg shadow-revnu-green/30"
         >
@@ -232,6 +267,15 @@ export default function WizardStep4ReviewLaunch({
           )}
         </button>
       </div>
+
+      {/* Subscription Gate Modal */}
+      <SubscriptionGateModal
+        isOpen={showSubscriptionGate}
+        onClose={() => setShowSubscriptionGate(false)}
+        onSubscribe={handleSubscribe}
+        title="Subscribe to Send Messages"
+        message="Start your free trial to launch campaigns and automate your payment collections."
+      />
     </div>
   );
 }

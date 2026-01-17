@@ -192,7 +192,8 @@ export class SubscriptionService {
   static async createCheckoutSession(
     organizationId: string,
     successUrl: string,
-    cancelUrl: string
+    cancelUrl: string,
+    promoCode?: string
   ): Promise<string> {
     const org = await db.organization.findUnique({
       where: { id: organizationId },
@@ -222,6 +223,28 @@ export class SubscriptionService {
       });
     }
 
+    // Validate promo code if provided
+    let discountOptions: { discounts?: { promotion_code: string }[] } = {};
+    if (promoCode) {
+      try {
+        // Look up promotion code in Stripe
+        const promoCodes = await getStripeClient().promotionCodes.list({
+          code: promoCode,
+          active: true,
+          limit: 1,
+        });
+
+        if (promoCodes.data.length > 0) {
+          discountOptions = {
+            discounts: [{ promotion_code: promoCodes.data[0].id }],
+          };
+        }
+      } catch (error) {
+        console.error("Error validating promo code:", error);
+        // Continue without discount if promo code is invalid
+      }
+    }
+
     // Create checkout session
     const session = await getStripeClient().checkout.sessions.create({
       customer: customerId,
@@ -234,15 +257,17 @@ export class SubscriptionService {
         },
       ],
       subscription_data: {
-        trial_period_days: 14,
+        trial_period_days: promoCode ? 30 : 14, // Extended trial for promo users
         metadata: {
           organizationId: org.id,
           tier: "pro",
+          promoCode: promoCode || "none",
         },
       },
       success_url: successUrl,
       cancel_url: cancelUrl,
-      allow_promotion_codes: true,
+      allow_promotion_codes: !promoCode, // Allow manual entry if no code provided
+      ...discountOptions,
     });
 
     return session.url!;
