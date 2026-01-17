@@ -53,6 +53,7 @@ export default function SendRemindersPage() {
   const [allInvoices, setAllInvoices] = useState<Invoice[]>([]);
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [sequences, setSequences] = useState<SequenceTemplate[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
 
   useEffect(() => {
     fetchData();
@@ -60,19 +61,22 @@ export default function SendRemindersPage() {
 
   const fetchData = async () => {
     try {
-      const [invoicesRes, orgRes, sequencesRes] = await Promise.all([
+      const [invoicesRes, orgRes, sequencesRes, customersRes] = await Promise.all([
         fetch('/api/invoices?limit=500'),
         fetch('/api/user/organization'),
         fetch('/api/sequences'),
+        fetch('/api/customers?limit=500'),
       ]);
 
       const invoicesData = await invoicesRes.json();
       const orgData = await orgRes.json();
       const sequencesData = await sequencesRes.json();
+      const customersData = await customersRes.json();
 
       setAllInvoices(invoicesData.invoices || []);
       setOrganization(orgData || null);
       setSequences(sequencesData.sequences || []);
+      setCustomers(customersData.customers || []);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -109,6 +113,7 @@ export default function SendRemindersPage() {
         invoices={allInvoices}
         sequences={sequences}
         organization={organization}
+        customers={customers}
         onRefresh={fetchData}
       />
     </div>

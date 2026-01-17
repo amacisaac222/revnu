@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, CheckSquare, Square, Search, ArrowRight } from 'lucide-react';
+import { AlertTriangle, CheckSquare, Square, Search, ArrowRight, Plus } from 'lucide-react';
+import QuickInvoiceModal from './quick-invoice-modal';
 
 interface Customer {
   id: string;
@@ -31,6 +32,8 @@ interface WizardStep1Props {
   onContinue: () => void;
   campaignMode: 'invoice' | 'customer';
   onCampaignModeChange: (mode: 'invoice' | 'customer') => void;
+  customers: Customer[];
+  onInvoiceCreated: (invoice: any) => void;
 }
 
 type FilterType = 'all' | 'overdue' | 'has_sms' | 'has_email';
@@ -42,9 +45,12 @@ export default function WizardStep1SelectRecipients({
   onContinue,
   campaignMode,
   onCampaignModeChange,
+  customers,
+  onInvoiceCreated,
 }: WizardStep1Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('overdue');
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
   const getFilteredInvoices = () => {
     let filtered = [...invoices];
@@ -173,7 +179,7 @@ export default function WizardStep1SelectRecipients({
         </div>
 
         {/* Search and Filters */}
-        <div className="grid md:grid-cols-[1fr_auto] gap-4">
+        <div className="grid md:grid-cols-[1fr_auto_auto] gap-4">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-revnu-gray" />
             <input
@@ -205,6 +211,17 @@ export default function WizardStep1SelectRecipients({
               </button>
             ))}
           </div>
+
+          {/* Create Invoice Button */}
+          {campaignMode === 'invoice' && (
+            <button
+              onClick={() => setShowInvoiceModal(true)}
+              className="px-4 py-2 bg-revnu-green text-revnu-dark font-bold rounded-lg hover:bg-revnu-greenLight transition-all flex items-center gap-2 hover:shadow-lg hover:shadow-revnu-green/20 whitespace-nowrap"
+            >
+              <Plus className="w-5 h-5" />
+              New Invoice
+            </button>
+          )}
         </div>
 
         {/* Bulk Actions */}
@@ -314,6 +331,21 @@ export default function WizardStep1SelectRecipients({
           <ArrowRight className="w-6 h-6" />
         </button>
       </div>
+
+      {/* Quick Invoice Modal */}
+      <QuickInvoiceModal
+        isOpen={showInvoiceModal}
+        onClose={() => setShowInvoiceModal(false)}
+        onInvoiceCreated={(invoice) => {
+          onInvoiceCreated(invoice);
+          setShowInvoiceModal(false);
+          // Auto-select the newly created invoice
+          const newSelected = new Set(selectedInvoices);
+          newSelected.add(invoice.id);
+          onSelectionChange(newSelected);
+        }}
+        customers={customers}
+      />
     </div>
   );
 }

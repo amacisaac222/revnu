@@ -53,6 +53,7 @@ interface CampaignWizardProps {
   invoices: Invoice[];
   sequences: SequenceTemplate[];
   organization: Organization;
+  customers: Customer[];
   onRefresh: () => void;
 }
 
@@ -64,7 +65,7 @@ const WIZARD_STEPS = [
   { number: 5, label: 'Success' },
 ];
 
-export default function CampaignWizard({ invoices, sequences, organization, onRefresh }: CampaignWizardProps) {
+export default function CampaignWizard({ invoices, sequences, organization, customers, onRefresh }: CampaignWizardProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedInvoices, setSelectedInvoices] = useState<Set<string>>(new Set());
   const [selectedSequence, setSelectedSequence] = useState<SequenceTemplate | null>(null);
@@ -175,6 +176,8 @@ export default function CampaignWizard({ invoices, sequences, organization, onRe
           onContinue={handleStep1Continue}
           campaignMode={campaignMode}
           onCampaignModeChange={setCampaignMode}
+          customers={customers}
+          onInvoiceCreated={onRefresh}
         />
       )}
 
