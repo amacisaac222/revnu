@@ -1,6 +1,7 @@
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import Footer from "@/components/footer";
+import PublicLienCalculator from "@/components/lien/public-lien-calculator";
 
 export default function HomePage() {
   return (
@@ -32,6 +33,9 @@ export default function HomePage() {
               <a href="#features" className="text-sm font-medium text-revnu-gray hover:text-white transition">
                 Solutions
               </a>
+              <a href="#lien-calculator" className="text-sm font-medium text-revnu-gray hover:text-white transition">
+                Lien Calculator
+              </a>
               <a href="#pricing" className="text-sm font-medium text-revnu-gray hover:text-white transition">
                 Pricing
               </a>
@@ -54,6 +58,9 @@ export default function HomePage() {
               </a>
               <a href="#features" className="text-sm font-medium text-revnu-gray hover:text-white transition">
                 Solutions
+              </a>
+              <a href="#lien-calculator" className="text-sm font-medium text-revnu-gray hover:text-white transition">
+                Lien Calculator
               </a>
               <a href="#pricing" className="text-sm font-medium text-revnu-gray hover:text-white transition">
                 Pricing
@@ -327,8 +334,29 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Lien Calculator Section - Dark Theme */}
+        <section id="lien-calculator" className="py-20 bg-revnu-dark border-t border-revnu-slate/50">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <div className="inline-block mb-4">
+                <span className="inline-flex items-center gap-2 px-4 py-2 bg-revnu-green/10 border border-revnu-green/30 rounded-full text-sm font-semibold text-revnu-green">
+                  Free Tool
+                </span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+                Mechanics Lien Deadline Calculator
+              </h2>
+              <p className="text-xl text-revnu-gray max-w-3xl mx-auto">
+                Know your deadlines. Protect your payment rights. Calculate state-specific lien deadlines in seconds.
+              </p>
+            </div>
+
+            <PublicLienCalculator />
+          </div>
+        </section>
+
         {/* Trust Section - Dark Theme */}
-        <section className="py-20 bg-revnu-dark border-t border-revnu-slate/50">
+        <section className="py-20 bg-revnu-darker border-t border-revnu-slate/50">
           <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
             <h3 className="text-3xl md:text-4xl font-black text-white mb-6">
               Built for trades businesses
