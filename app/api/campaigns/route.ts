@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
         else if (msg.status === 'pending') campaign.stats.messagesPending++;
         else if (msg.status === 'failed') campaign.stats.messagesFailed++;
       }
-    });
+    }
 
     const campaigns = Array.from(campaignsMap.values()).map((campaign) => {
       // Remove detailed enrollments from response, just send summary
