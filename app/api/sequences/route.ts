@@ -11,14 +11,30 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Get organization ID from query params or from user's organization
     const { searchParams } = new URL(request.url);
-    const organizationId = searchParams.get("organizationId");
+    let organizationId = searchParams.get("organizationId");
 
     if (!organizationId) {
-      return NextResponse.json(
-        { error: "Organization ID required" },
-        { status: 400 }
-      );
+      // Fetch from user's organization if not provided
+      const user = await db.user.findFirst({
+        where: {
+          OR: [
+            { clerkUserId: userId },
+            { email: { contains: userId } }
+          ]
+        },
+        select: { organizationId: true },
+      });
+
+      if (!user?.organizationId) {
+        return NextResponse.json(
+          { error: "Organization not found" },
+          { status: 404 }
+        );
+      }
+
+      organizationId = user.organizationId;
     }
 
     const sequences = await db.sequenceTemplate.findMany({
@@ -27,11 +43,14 @@ export async function GET(request: Request) {
         steps: {
           orderBy: { stepNumber: "asc" },
         },
+        _count: {
+          select: { invoices: true },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(sequences);
+    return NextResponse.json({ sequences });
   } catch (error) {
     console.error("Error fetching sequences:", error);
     return NextResponse.json(
