@@ -116,12 +116,12 @@ export default function CampaignsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3 flex-wrap">
+      <div className="flex gap-2 flex-wrap">
         {['all', 'active', 'paused', 'completed', 'stopped'].map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-lg font-bold text-sm transition ${
+            className={`px-3 py-1.5 rounded-md font-semibold text-xs transition ${
               filter === f
                 ? 'bg-revnu-green text-revnu-dark'
                 : 'bg-revnu-dark border border-revnu-slate/30 text-revnu-gray hover:text-white'
@@ -129,7 +129,7 @@ export default function CampaignsPage() {
           >
             {f.charAt(0).toUpperCase() + f.slice(1)}
             {f !== 'all' && (
-              <span className="ml-2 opacity-70">
+              <span className="ml-1.5 opacity-70">
                 ({campaigns.filter((c) => {
                   if (f === 'active') return c.stats.active > 0;
                   if (f === 'paused') return c.stats.paused > 0;

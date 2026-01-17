@@ -237,17 +237,17 @@ export default function CampaignDetailPage({ params }: CampaignDetailProps) {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {canPause && (
               <button
                 onClick={() => handleAction('pause')}
                 disabled={actionLoading}
-                className="px-4 py-2 bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 font-bold rounded-lg hover:bg-yellow-500/30 transition disabled:opacity-50 flex items-center gap-2"
+                className="px-3 py-1.5 bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 font-semibold text-sm rounded-md hover:bg-yellow-500/30 transition disabled:opacity-50 flex items-center gap-1.5"
               >
                 {actionLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : (
-                  <Pause className="w-4 h-4" />
+                  <Pause className="w-3.5 h-3.5" />
                 )}
                 Pause
               </button>
@@ -256,12 +256,12 @@ export default function CampaignDetailPage({ params }: CampaignDetailProps) {
               <button
                 onClick={() => handleAction('resume')}
                 disabled={actionLoading}
-                className="px-4 py-2 bg-green-500/20 border border-green-500/30 text-green-400 font-bold rounded-lg hover:bg-green-500/30 transition disabled:opacity-50 flex items-center gap-2"
+                className="px-3 py-1.5 bg-green-500/20 border border-green-500/30 text-green-400 font-semibold text-sm rounded-md hover:bg-green-500/30 transition disabled:opacity-50 flex items-center gap-1.5"
               >
                 {actionLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : (
-                  <Play className="w-4 h-4" />
+                  <Play className="w-3.5 h-3.5" />
                 )}
                 Resume
               </button>
@@ -270,12 +270,12 @@ export default function CampaignDetailPage({ params }: CampaignDetailProps) {
               <button
                 onClick={() => handleAction('stop')}
                 disabled={actionLoading}
-                className="px-4 py-2 bg-red-500/20 border border-red-500/30 text-red-400 font-bold rounded-lg hover:bg-red-500/30 transition disabled:opacity-50 flex items-center gap-2"
+                className="px-3 py-1.5 bg-red-500/20 border border-red-500/30 text-red-400 font-semibold text-sm rounded-md hover:bg-red-500/30 transition disabled:opacity-50 flex items-center gap-1.5"
               >
                 {actionLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : (
-                  <StopCircle className="w-4 h-4" />
+                  <StopCircle className="w-3.5 h-3.5" />
                 )}
                 Stop
               </button>
@@ -305,19 +305,19 @@ export default function CampaignDetailPage({ params }: CampaignDetailProps) {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3 flex-wrap">
+      <div className="flex gap-2 flex-wrap">
         {['all', 'active', 'paused', 'completed', 'stopped', 'cancelled'].map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-lg font-bold text-sm transition ${
+            className={`px-3 py-1.5 rounded-md font-semibold text-xs transition ${
               filter === f
                 ? 'bg-revnu-green text-revnu-dark'
                 : 'bg-revnu-dark border border-revnu-slate/30 text-revnu-gray hover:text-white'
             }`}
           >
             {f.charAt(0).toUpperCase() + f.slice(1)}
-            <span className="ml-2 opacity-70">
+            <span className="ml-1.5 opacity-70">
               ({f === 'all' ? campaign.enrollments.length : campaign.stats[f as keyof typeof campaign.stats]})
             </span>
           </button>
