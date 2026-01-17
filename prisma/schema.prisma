@@ -426,7 +426,8 @@ model CampaignEnrollment {
   customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   // Campaign metadata
-  campaignId String // Group enrollments by campaign launch
+  campaignId   String  // Group enrollments by campaign launch
+  campaignName String? // User-friendly campaign name
 
   // Tracking
   status            String   @default("active") // "active", "paused", "completed", "cancelled", "stopped"

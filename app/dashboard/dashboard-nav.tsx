@@ -23,6 +23,7 @@ export default function DashboardNav({ organization }: DashboardNavProps) {
     { href: "/dashboard/customers", label: "Customers", icon: "👥", match: (p: string) => p.startsWith("/dashboard/customers") },
     { href: "/dashboard/invoices", label: "Invoices", icon: "📄", match: (p: string) => p.startsWith("/dashboard/invoices") },
     { href: "/dashboard/send-reminders", label: "Send Reminders", icon: "💌", match: (p: string) => p.startsWith("/dashboard/send-reminders") },
+    { href: "/dashboard/campaigns", label: "Campaigns", icon: "🎯", match: (p: string) => p.startsWith("/dashboard/campaigns") },
     { href: "/dashboard/sequences", label: "Sequences", icon: "📬", match: (p: string) => p.startsWith("/dashboard/sequences") },
     { href: "/dashboard/reports", label: "Reports", icon: "📈", match: (p: string) => p.startsWith("/dashboard/reports") },
     { href: "/dashboard/communications", label: "Communications", icon: "💬", match: (p: string) => p.startsWith("/dashboard/communications") },
@@ -78,7 +79,7 @@ export default function DashboardNav({ organization }: DashboardNavProps) {
 
       {/* Mobile Bottom Navigation - Fixed at bottom */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-revnu-darker border-t border-revnu-slate/50 safe-area-inset-bottom">
-        <div className="grid grid-cols-6 gap-1 px-2 py-2">
+        <div className="grid grid-cols-7 gap-1 px-2 py-2">
           {navLinks.map((link) => (
             <Link
               key={link.href}

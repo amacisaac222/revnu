@@ -14,6 +14,7 @@ import { nanoid } from 'nanoid';
  *   mode: 'invoice' | 'customer',
  *   invoiceIds?: string[],  // Required for invoice mode
  *   customerIds?: string[], // Required for customer mode
+ *   campaignName?: string,  // Optional user-friendly name
  * }
  */
 export async function POST(req: NextRequest) {
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { sequenceId, mode, invoiceIds, customerIds } = body;
+    const { sequenceId, mode, invoiceIds, customerIds, campaignName } = body;
 
     // Validate inputs
     if (!sequenceId || !mode) {
@@ -151,6 +152,7 @@ export async function POST(req: NextRequest) {
               invoiceId,
               customerId: invoice.customerId,
               campaignId,
+              campaignName,
               status: 'active',
             },
           });
@@ -217,6 +219,7 @@ export async function POST(req: NextRequest) {
               sequenceId,
               customerId,
               campaignId,
+              campaignName,
               status: 'active',
               // No invoiceId for customer-based campaigns
             },

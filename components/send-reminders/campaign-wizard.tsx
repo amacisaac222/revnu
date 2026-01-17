@@ -73,6 +73,7 @@ export default function CampaignWizard({ invoices, sequences, organization, cust
   const [enrolledCount, setEnrolledCount] = useState(0);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [campaignMode, setCampaignMode] = useState<'invoice' | 'customer'>('invoice');
+  const [campaignName, setCampaignName] = useState('');
 
   const handleStep1Continue = () => {
     if (selectedInvoices.size > 0) {
@@ -103,6 +104,7 @@ export default function CampaignWizard({ invoices, sequences, organization, cust
           mode: campaignMode,
           invoiceIds: campaignMode === 'invoice' ? Array.from(selectedInvoices) : undefined,
           customerIds: campaignMode === 'customer' ? Array.from(selectedInvoices) : undefined,
+          campaignName: campaignName.trim() || undefined,
         }),
       });
 
@@ -134,6 +136,7 @@ export default function CampaignWizard({ invoices, sequences, organization, cust
     setSelectedInvoices(new Set());
     setSelectedSequence(null);
     setEnrolledCount(0);
+    setCampaignName('');
   };
 
   const handleCancel = () => {
@@ -217,6 +220,8 @@ export default function CampaignWizard({ invoices, sequences, organization, cust
           launching={launching}
           campaignMode={campaignMode}
           subscriptionStatus={organization.subscriptionStatus}
+          campaignName={campaignName}
+          onCampaignNameChange={setCampaignName}
         />
       )}
 

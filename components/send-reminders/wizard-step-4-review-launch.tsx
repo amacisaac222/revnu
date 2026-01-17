@@ -44,6 +44,8 @@ interface WizardStep4Props {
   launching: boolean;
   campaignMode: 'invoice' | 'customer';
   subscriptionStatus?: string | null;
+  campaignName: string;
+  onCampaignNameChange: (name: string) => void;
 }
 
 export default function WizardStep4ReviewLaunch({
@@ -55,6 +57,8 @@ export default function WizardStep4ReviewLaunch({
   launching,
   campaignMode,
   subscriptionStatus,
+  campaignName,
+  onCampaignNameChange,
 }: WizardStep4Props) {
   const [showSubscriptionGate, setShowSubscriptionGate] = useState(false);
   const invoicesToLaunch = allInvoices.filter((inv) => selectedInvoices.has(inv.id));
@@ -118,6 +122,23 @@ export default function WizardStep4ReviewLaunch({
       <div className="bg-revnu-slate/40 border-2 border-revnu-green/30 rounded-xl p-6">
         <h2 className="text-2xl font-bold text-white mb-2">Review & Launch Campaign</h2>
         <p className="text-revnu-gray">Double-check everything before launching your campaign</p>
+      </div>
+
+      {/* Campaign Name Input */}
+      <div className="bg-revnu-dark border border-revnu-slate/30 rounded-xl p-6">
+        <label className="block text-sm font-bold text-white mb-2">
+          Campaign Name (Optional)
+        </label>
+        <input
+          type="text"
+          value={campaignName}
+          onChange={(e) => onCampaignNameChange(e.target.value)}
+          placeholder="e.g. January Overdue Campaign, Q1 Friendly Reminders..."
+          className="w-full px-4 py-3 bg-revnu-darker border border-revnu-slate/30 rounded-lg text-white placeholder-revnu-gray/50 focus:outline-none focus:border-revnu-green transition"
+        />
+        <p className="text-xs text-revnu-gray/70 mt-2">
+          Give this campaign a friendly name to easily identify it later. If left blank, we'll use the sequence name and date.
+        </p>
       </div>
 
       {/* Summary Card */}
