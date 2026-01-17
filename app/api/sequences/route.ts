@@ -1,13 +1,13 @@
-import { auth } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { logAudit } from "@/lib/audit";
 
 export async function GET(request: Request) {
   try {
-    const { userId } = await auth();
+    const user = await currentUser();
 
-    if (!userId) {
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -17,24 +17,19 @@ export async function GET(request: Request) {
 
     if (!organizationId) {
       // Fetch from user's organization if not provided
-      const user = await db.user.findFirst({
-        where: {
-          OR: [
-            { clerkUserId: userId },
-            { email: { contains: userId } }
-          ]
-        },
+      const dbUser = await db.user.findUnique({
+        where: { email: user.emailAddresses[0]?.emailAddress },
         select: { organizationId: true },
       });
 
-      if (!user?.organizationId) {
+      if (!dbUser?.organizationId) {
         return NextResponse.json(
           { error: "Organization not found" },
           { status: 404 }
         );
       }
 
-      organizationId = user.organizationId;
+      organizationId = dbUser.organizationId;
     }
 
     const sequences = await db.sequenceTemplate.findMany({
@@ -62,9 +57,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth();
+    const user = await currentUser();
 
-    if (!userId) {
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
