@@ -26,12 +26,21 @@ export default function QuickInvoiceModal({
 }: QuickInvoiceModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showNewCustomer, setShowNewCustomer] = useState(false);
   const [formData, setFormData] = useState({
     customerId: "",
     invoiceNumber: "",
     amountDue: "",
     dueDate: "",
     description: "",
+  });
+  const [newCustomerData, setNewCustomerData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    smsConsentGiven: false,
+    emailConsentGiven: false,
   });
 
   if (!isOpen) return null;
@@ -42,11 +51,38 @@ export default function QuickInvoiceModal({
     setError("");
 
     try {
+      let customerId = formData.customerId;
+
+      // If creating a new customer, create them first
+      if (showNewCustomer) {
+        if (!newCustomerData.firstName || !newCustomerData.lastName) {
+          throw new Error("First and last name are required for new customer");
+        }
+        if (!newCustomerData.email && !newCustomerData.phone) {
+          throw new Error("Either email or phone is required for new customer");
+        }
+
+        const customerResponse = await fetch("/api/customers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newCustomerData),
+        });
+
+        if (!customerResponse.ok) {
+          const data = await customerResponse.json();
+          throw new Error(data.error || "Failed to create customer");
+        }
+
+        const newCustomer = await customerResponse.json();
+        customerId = newCustomer.id;
+      }
+
+      // Create the invoice
       const response = await fetch("/api/invoices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customerId: formData.customerId,
+          customerId,
           invoiceNumber: formData.invoiceNumber,
           amountDue: parseFloat(formData.amountDue) * 100, // Convert to cents
           dueDate: formData.dueDate,
@@ -71,6 +107,15 @@ export default function QuickInvoiceModal({
         dueDate: "",
         description: "",
       });
+      setNewCustomerData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        smsConsentGiven: false,
+        emailConsentGiven: false,
+      });
+      setShowNewCustomer(false);
       onClose();
     } catch (err: any) {
       setError(err.message || "Failed to create invoice");
@@ -110,30 +155,131 @@ export default function QuickInvoiceModal({
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           {/* Customer Selection */}
           <div>
-            <label className="block text-sm font-bold text-white mb-2">
-              Customer <span className="text-revnu-green">*</span>
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-revnu-gray pointer-events-none" />
-              <select
-                value={formData.customerId}
-                onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
-                required
-                className="w-full pl-10 pr-4 py-3 bg-revnu-slate/40 border border-revnu-grayLight/20 rounded-lg text-white focus:outline-none focus:border-revnu-green transition"
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-bold text-white">
+                Customer <span className="text-revnu-green">*</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowNewCustomer(!showNewCustomer);
+                  setFormData({ ...formData, customerId: "" });
+                }}
+                className="text-xs font-semibold text-revnu-green hover:text-revnu-greenLight transition flex items-center gap-1"
               >
-                <option value="">Select a customer...</option>
-                {customers.map((customer) => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.firstName} {customer.lastName}
-                    {customer.email && ` (${customer.email})`}
-                  </option>
-                ))}
-              </select>
+                {showNewCustomer ? (
+                  <>
+                    <X className="w-3 h-3" />
+                    Cancel
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-3 h-3" />
+                    New Customer
+                  </>
+                )}
+              </button>
             </div>
-            {selectedCustomer && (
-              <p className="text-xs text-revnu-gray mt-2">
-                Contact: {selectedCustomer.phone || selectedCustomer.email || "No contact info"}
-              </p>
+
+            {showNewCustomer ? (
+              <div className="space-y-4 p-4 bg-revnu-slate/20 border border-revnu-green/20 rounded-lg">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-revnu-gray mb-1">
+                      First Name <span className="text-revnu-green">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={newCustomerData.firstName}
+                      onChange={(e) => setNewCustomerData({ ...newCustomerData, firstName: e.target.value })}
+                      required={showNewCustomer}
+                      placeholder="John"
+                      className="w-full px-3 py-2 bg-revnu-dark border border-revnu-grayLight/20 rounded-lg text-white text-sm placeholder-revnu-gray focus:outline-none focus:border-revnu-green transition"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-revnu-gray mb-1">
+                      Last Name <span className="text-revnu-green">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={newCustomerData.lastName}
+                      onChange={(e) => setNewCustomerData({ ...newCustomerData, lastName: e.target.value })}
+                      required={showNewCustomer}
+                      placeholder="Doe"
+                      className="w-full px-3 py-2 bg-revnu-dark border border-revnu-grayLight/20 rounded-lg text-white text-sm placeholder-revnu-gray focus:outline-none focus:border-revnu-green transition"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-revnu-gray mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={newCustomerData.email}
+                    onChange={(e) => setNewCustomerData({ ...newCustomerData, email: e.target.value })}
+                    placeholder="john@example.com"
+                    className="w-full px-3 py-2 bg-revnu-dark border border-revnu-grayLight/20 rounded-lg text-white text-sm placeholder-revnu-gray focus:outline-none focus:border-revnu-green transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-revnu-gray mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    value={newCustomerData.phone}
+                    onChange={(e) => setNewCustomerData({ ...newCustomerData, phone: e.target.value })}
+                    placeholder="+1 (555) 123-4567"
+                    className="w-full px-3 py-2 bg-revnu-dark border border-revnu-grayLight/20 rounded-lg text-white text-sm placeholder-revnu-gray focus:outline-none focus:border-revnu-green transition"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm text-revnu-gray cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={newCustomerData.smsConsentGiven}
+                      onChange={(e) => setNewCustomerData({ ...newCustomerData, smsConsentGiven: e.target.checked })}
+                      className="w-4 h-4 rounded border-revnu-grayLight/20 bg-revnu-dark text-revnu-green focus:ring-2 focus:ring-revnu-green"
+                    />
+                    SMS consent given
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-revnu-gray cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={newCustomerData.emailConsentGiven}
+                      onChange={(e) => setNewCustomerData({ ...newCustomerData, emailConsentGiven: e.target.checked })}
+                      className="w-4 h-4 rounded border-revnu-grayLight/20 bg-revnu-dark text-revnu-green focus:ring-2 focus:ring-revnu-green"
+                    />
+                    Email consent given
+                  </label>
+                </div>
+                <p className="text-xs text-revnu-gray/70">
+                  Email or phone required. Consent needed to send reminders.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-revnu-gray pointer-events-none" />
+                  <select
+                    value={formData.customerId}
+                    onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
+                    required={!showNewCustomer}
+                    className="w-full pl-10 pr-4 py-3 bg-revnu-slate/40 border border-revnu-grayLight/20 rounded-lg text-white focus:outline-none focus:border-revnu-green transition"
+                  >
+                    <option value="">Select a customer...</option>
+                    {customers.map((customer) => (
+                      <option key={customer.id} value={customer.id}>
+                        {customer.firstName} {customer.lastName}
+                        {customer.email && ` (${customer.email})`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {selectedCustomer && (
+                  <p className="text-xs text-revnu-gray mt-2">
+                    Contact: {selectedCustomer.phone || selectedCustomer.email || "No contact info"}
+                  </p>
+                )}
+              </>
             )}
           </div>
 
