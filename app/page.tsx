@@ -105,7 +105,7 @@ export default function HomePage() {
                 <div className="inline-block mb-6">
                   <span className="inline-flex items-center gap-2 px-4 py-2 bg-revnu-slate/60 border border-revnu-green/20 rounded-full text-sm font-semibold text-revnu-green">
                     <span className="w-2 h-2 bg-revnu-green rounded-full animate-pulse"></span>
-                    Built for Tradies
+                    Built for Contractors
                   </span>
                 </div>
 
@@ -231,7 +231,7 @@ export default function HomePage() {
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center p-8 bg-revnu-slate/40 border border-revnu-green/20 rounded-xl">
                 <div className="text-5xl font-black text-revnu-green mb-2">$2.4M+</div>
-                <p className="text-revnu-gray font-semibold">Collected for tradies</p>
+                <p className="text-revnu-gray font-semibold">Collected for contractors</p>
               </div>
               <div className="text-center p-8 bg-revnu-slate/40 border border-revnu-green/20 rounded-xl">
                 <div className="text-5xl font-black text-revnu-green mb-2">87%</div>
@@ -239,7 +239,7 @@ export default function HomePage() {
               </div>
               <div className="text-center p-8 bg-revnu-slate/40 border border-revnu-green/20 rounded-xl">
                 <div className="text-5xl font-black text-revnu-green mb-2">12hrs</div>
-                <p className="text-revnu-gray font-semibold">Saved per week per tradie</p>
+                <p className="text-revnu-gray font-semibold">Saved per week per contractor</p>
               </div>
             </div>
           </div>
@@ -296,7 +296,7 @@ export default function HomePage() {
           <div className="max-w-6xl mx-auto px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                Why tradies choose REVNU
+                Why contractors choose REVNU
               </h2>
             </div>
 
@@ -430,7 +430,7 @@ export default function HomePage() {
               Ready to stop chasing payments?
             </h2>
             <p className="text-xl text-revnu-gray mb-10">
-              Join tradies who are getting paid faster with automated reminders.
+              Join contractors who are getting paid faster with automated reminders.
             </p>
             <Link
               href="/sign-up"
