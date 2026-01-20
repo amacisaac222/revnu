@@ -118,7 +118,7 @@ export default function HomePage() {
                     href="/sign-up"
                     className="group inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-bold text-revnu-dark bg-revnu-green rounded-lg hover:bg-revnu-greenLight transition-all hover:shadow-2xl hover:shadow-revnu-green/30 hover:scale-105 transform"
                   >
-                    Start Free Trial
+                    Get Started
                     <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
@@ -132,7 +132,7 @@ export default function HomePage() {
                 </div>
 
                 <p className="text-sm text-revnu-gray">
-                  No credit card required • 5-minute setup • Cancel anytime
+                  5-minute setup • Cancel anytime
                 </p>
               </div>
 
@@ -314,15 +314,8 @@ export default function HomePage() {
               No setup fees. No per-message charges. Cancel anytime.
             </p>
 
-            <div className="max-w-lg mx-auto bg-revnu-slate/60 backdrop-blur-lg border-2 border-revnu-green/30 rounded-2xl p-8 shadow-2xl shadow-revnu-green/20 relative">
-              {/* 30-Day Free Trial Badge */}
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <span className="inline-flex items-center gap-2 px-6 py-2 bg-revnu-green text-revnu-dark rounded-full text-sm font-black uppercase tracking-wide shadow-lg">
-                  30-Day Free Trial
-                </span>
-              </div>
-
-              <div className="text-6xl font-black text-white mb-2 mt-4">
+            <div className="max-w-lg mx-auto bg-revnu-slate/60 backdrop-blur-lg border-2 border-revnu-green/30 rounded-2xl p-8 shadow-2xl shadow-revnu-green/20">
+              <div className="text-6xl font-black text-white mb-2">
                 $99<span className="text-2xl text-revnu-gray font-normal">/month</span>
               </div>
               <p className="text-revnu-green font-bold uppercase tracking-wide text-sm mb-8">Everything included</p>
@@ -349,7 +342,7 @@ export default function HomePage() {
                 href="/sign-up"
                 className="block w-full px-8 py-4 text-lg font-bold text-revnu-dark bg-revnu-green rounded-lg hover:bg-revnu-greenLight transition-all hover:scale-105 transform shadow-2xl shadow-revnu-green/30 mb-4"
               >
-                Start Free Trial
+                Get Started
               </Link>
 
               <Link
@@ -463,13 +456,13 @@ export default function HomePage() {
               href="/sign-up"
               className="inline-flex items-center gap-2 px-10 py-5 text-xl font-bold text-revnu-dark bg-revnu-green rounded-lg hover:bg-revnu-greenLight transition-all hover:shadow-2xl hover:shadow-revnu-green/30 hover:scale-105 transform"
             >
-              Start Free Trial
+              Get Started
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
             </Link>
             <p className="text-sm text-revnu-gray mt-6">
-              No credit card required • 5-minute setup • Cancel anytime
+              5-minute setup • Cancel anytime
             </p>
           </div>
         </section>
