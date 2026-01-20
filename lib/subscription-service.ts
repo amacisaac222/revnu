@@ -23,8 +23,8 @@ function getStripeClient(): Stripe {
 export const TIER = {
   name: "Pro",
   price: 99,
-  smsCredits: 500,
-  emailCredits: 1000,
+  smsCredits: 2500,
+  emailCredits: 5000,
   features: {
     quickBooksIntegration: true,
     customBranding: false,
@@ -257,7 +257,6 @@ export class SubscriptionService {
         },
       ],
       subscription_data: {
-        trial_period_days: promoCode ? 30 : 14, // Extended trial for promo users
         metadata: {
           organizationId: org.id,
           tier: "pro",
