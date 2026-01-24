@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "REVNU - Payment Reminder Software for Contractors",
   description: "Automated payment reminder software for electricians, HVAC, plumbers, and contractors. Send reminders from your own business.",
   icons: {
-    icon: '/logo.png',
+    icon: '/logo.svg',
   },
 };
 

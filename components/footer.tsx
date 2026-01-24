@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company */}
           <div>
-            <img src="/logo.png" alt="REVNU" className="h-8 mb-4" />
+            <img src="/logo.svg" alt="REVNU" className="h-8 mb-4" />
             <p className="text-sm text-gray-400">
               Professional payment reminder software for modern businesses.
             </p>
