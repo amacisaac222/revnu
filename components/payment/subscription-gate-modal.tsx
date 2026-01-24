@@ -38,23 +38,23 @@ export default function SubscriptionGateModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className="relative bg-revnu-dark border-2 border-revnu-green/30 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white border-2 border-revnu-green/30 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-revnu-slate/40 transition text-revnu-gray hover:text-white"
+          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-revnu-slate transition text-revnu-gray hover:text-revnu-dark"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header */}
-        <div className="p-8 border-b border-revnu-slate/30">
+        <div className="p-8 border-b border-revnu-grayLight">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-14 h-14 bg-revnu-green/20 border border-revnu-green/40 rounded-xl flex items-center justify-center">
               <CreditCard className="w-7 h-7 text-revnu-green" />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-white">{title}</h2>
+              <h2 className="text-2xl font-black text-revnu-darker">{title}</h2>
               <p className="text-revnu-gray mt-1">{message}</p>
             </div>
           </div>
@@ -62,9 +62,9 @@ export default function SubscriptionGateModal({
 
         {/* Pricing Card */}
         <div className="p-8">
-          <div className="bg-gradient-to-br from-revnu-green/10 to-revnu-slate/20 border-2 border-revnu-green/40 rounded-xl p-6 mb-6">
+          <div className="bg-revnu-slate border-2 border-revnu-green/40 rounded-xl p-6 mb-6">
             <div className="text-center mb-6">
-              <div className="text-5xl font-black text-white mb-2">
+              <div className="text-5xl font-black text-revnu-darker mb-2">
                 $99<span className="text-xl text-revnu-gray font-normal">/month</span>
               </div>
               <p className="text-revnu-green font-bold uppercase tracking-wide text-sm">
@@ -84,17 +84,17 @@ export default function SubscriptionGateModal({
               ].map((feature, idx) => (
                 <div key={idx} className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-revnu-green flex-shrink-0" />
-                  <span className="text-white">{feature}</span>
+                  <span className="text-revnu-darker">{feature}</span>
                 </div>
               ))}
             </div>
 
             {/* Why Subscribe Banner */}
-            <div className="bg-revnu-dark/60 border border-revnu-grayLight/20 rounded-lg p-4 mb-4">
+            <div className="bg-white border border-revnu-grayLight rounded-lg p-4 mb-4">
               <div className="flex items-start gap-3">
-                <Zap className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
+                <Zap className="w-5 h-5 text-yellow-500 mt-0.5 flex-shrink-0" />
                 <div className="text-sm">
-                  <p className="text-white font-semibold mb-1">Get paid faster, stress less</p>
+                  <p className="text-revnu-darker font-semibold mb-1">Get paid faster, stress less</p>
                   <p className="text-revnu-gray">
                     Automate your collections and protect your payment rights with mechanics lien tracking
                   </p>
@@ -106,7 +106,7 @@ export default function SubscriptionGateModal({
           {/* Promo Code Section - Hidden for now */}
           {showPromoInput && (
             <div className="mb-4">
-              <label className="block text-sm font-bold text-white mb-2">
+              <label className="block text-sm font-bold text-revnu-darker mb-2">
                 Promo Code
               </label>
               <input
@@ -114,14 +114,14 @@ export default function SubscriptionGateModal({
                 value={promoCode}
                 onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                 placeholder="Enter promo code"
-                className="w-full px-4 py-3 bg-revnu-slate/40 border border-revnu-grayLight/20 rounded-lg text-white placeholder-revnu-gray focus:outline-none focus:border-revnu-green transition"
+                className="w-full px-4 py-3 bg-white border border-revnu-grayLight rounded-lg text-revnu-darker placeholder-revnu-gray focus:outline-none focus:border-revnu-green transition"
               />
             </div>
           )}
 
           {error && (
             <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-4">
-              <p className="text-sm text-red-400">{error}</p>
+              <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
@@ -130,7 +130,7 @@ export default function SubscriptionGateModal({
             <button
               onClick={handleSubscribe}
               disabled={loading}
-              className="w-full px-6 py-4 bg-revnu-green text-revnu-dark font-bold rounded-lg hover:bg-revnu-greenLight transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-revnu-green/20"
+              className="w-full px-6 py-4 bg-revnu-green text-white font-bold rounded-lg hover:bg-revnu-greenDark transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:shadow-lg"
             >
               {loading ? (
                 <>
@@ -147,14 +147,14 @@ export default function SubscriptionGateModal({
 
             <button
               onClick={onClose}
-              className="w-full px-6 py-3 bg-transparent border border-revnu-grayLight/20 text-white font-semibold rounded-lg hover:bg-revnu-slate/40 transition"
+              className="w-full px-6 py-3 bg-transparent border border-revnu-grayLight text-revnu-darker font-semibold rounded-lg hover:bg-revnu-slate transition"
             >
               Maybe Later
             </button>
           </div>
 
           {/* Trust Badges */}
-          <div className="mt-6 pt-6 border-t border-revnu-slate/30">
+          <div className="mt-6 pt-6 border-t border-revnu-grayLight">
             <div className="flex items-center justify-center gap-6 text-xs text-revnu-gray">
               <div className="flex items-center gap-2">
                 <Shield className="w-4 h-4 text-revnu-green" />

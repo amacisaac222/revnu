@@ -32,7 +32,7 @@ export default function DashboardNav({ organization }: DashboardNavProps) {
   return (
     <>
       {/* Desktop Top Nav */}
-      <div className="bg-revnu-darker border-b border-revnu-slate/50">
+      <div className="bg-white border-b border-revnu-grayLight">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo - Always visible */}
@@ -49,7 +49,7 @@ export default function DashboardNav({ organization }: DashboardNavProps) {
                   className={`text-sm font-semibold ${
                     link.match(pathname)
                       ? "text-revnu-green"
-                      : "text-revnu-gray hover:text-white"
+                      : "text-revnu-gray hover:text-revnu-dark"
                   } transition`}
                 >
                   {link.label}
@@ -60,7 +60,7 @@ export default function DashboardNav({ organization }: DashboardNavProps) {
             {/* Right Side */}
             <div className="flex items-center gap-3">
               <div className="hidden md:block text-right">
-                <div className="text-sm font-bold text-white">{organization.businessName}</div>
+                <div className="text-sm font-bold text-revnu-darker">{organization.businessName}</div>
               </div>
               <UserButton />
             </div>
@@ -69,7 +69,7 @@ export default function DashboardNav({ organization }: DashboardNavProps) {
       </div>
 
       {/* Mobile Bottom Navigation - Fixed at bottom */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-revnu-darker border-t border-revnu-slate/50 safe-area-inset-bottom">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-revnu-grayLight safe-area-inset-bottom">
         <div className="grid grid-cols-7 gap-1 px-2 py-2">
           {navLinks.map((link) => (
             <Link
@@ -79,7 +79,7 @@ export default function DashboardNav({ organization }: DashboardNavProps) {
               className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg transition-all active:scale-95 ${
                 link.match(pathname)
                   ? "bg-revnu-green/20 text-revnu-green"
-                  : "text-revnu-gray active:bg-revnu-slate/30"
+                  : "text-revnu-gray active:bg-revnu-slate"
               }`}
             >
               <span className="text-xl mb-1">{link.icon}</span>
