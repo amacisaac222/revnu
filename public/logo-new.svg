@@ -1,0 +1,20 @@
+<svg width="200" height="50" viewBox="0 0 200 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Icon: Growth chart with upward trend -->
+  <g transform="translate(5, 10)">
+    <!-- Bar 1 -->
+    <rect x="0" y="20" width="6" height="10" rx="1.5" fill="#4ade80"/>
+    <!-- Bar 2 -->
+    <rect x="8" y="15" width="6" height="15" rx="1.5" fill="#4ade80"/>
+    <!-- Bar 3 -->
+    <rect x="16" y="8" width="6" height="22" rx="1.5" fill="#4ade80"/>
+
+    <!-- Trend arrow -->
+    <path d="M 2 24 L 11 17 L 19 12" stroke="#86efac" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M 14 10 L 20 10 L 20 16" stroke="#86efac" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+
+  <!-- Text: REVNU -->
+  <text x="45" y="35" font-family="Arial, sans-serif" font-weight="900" font-size="28" fill="#ffffff" letter-spacing="-1">
+    REV<tspan fill="#4ade80">NU</tspan>
+  </text>
+</svg>

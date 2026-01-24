@@ -37,7 +37,7 @@ export default function DashboardNav({ organization }: DashboardNavProps) {
           <div className="flex items-center justify-between h-16">
             {/* Logo - Always visible */}
             <Link href="/dashboard" className="hover:opacity-90 transition">
-              <img src="/logo.png" alt="REVNU" className="h-8" />
+              <img src="/logo-new.svg" alt="REVNU" className="h-8" />
             </Link>
 
             {/* Desktop Nav - Hidden on mobile */}

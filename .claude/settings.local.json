@@ -32,7 +32,8 @@
       "Bash(del \"c:\\Users\\amaci\\Desktop\\revenupros.com\\components\\send-reminders\\quick-send-tab.tsx\")",
       "Bash(cmd /c:*)",
       "Read(//c/Users/amaci/Desktop/**)",
-      "Bash(copy:*)"
+      "Bash(copy:*)",
+      "Bash(git revert:*)"
     ],
     "deny": [],
     "ask": []
