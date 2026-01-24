@@ -12,16 +12,14 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
         revnu: {
-          dark: "#1e293b",      // Dark text (WCAG AAA compliant on white)
-          darker: "#0f172a",    // Darker text variant
-          slate: "#f8fafc",     // Light card backgrounds
-          green: "#16a34a",     // Primary green (WCAG AA compliant)
-          greenDark: "#15803d", // Darker green (WCAG AAA compliant)
-          greenLight: "#22c55e", // Light green accent
-          gray: "#64748b",      // Secondary text (WCAG AA compliant)
+          dark: "#0a0f1a",      // Deep charcoal background
+          darker: "#060a12",    // Darker variant
+          slate: "#1a2332",     // Card backgrounds
+          green: "#4ade80",     // Primary green (money/success)
+          greenDark: "#22c55e", // Darker green
+          greenLight: "#86efac", // Light green accent
+          gray: "#94a3b8",      // Secondary text
           grayLight: "#cbd5e1", // Border colors
-          white: "#ffffff",     // White background
-          lightGray: "#f1f5f9", // Light gray for subtle backgrounds
         },
       },
       borderRadius: {

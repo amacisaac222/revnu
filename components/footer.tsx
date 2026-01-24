@@ -4,25 +4,25 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-revnu-grayLight bg-revnu-lightGray">
+    <footer className="border-t border-revnu-green/20 bg-revnu-darker">
       <div className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company */}
           <div>
             <img src="/logo.svg" alt="REVNU" className="h-8 mb-4" />
-            <p className="text-sm text-revnu-gray">
+            <p className="text-sm text-gray-400">
               Professional payment reminder software for modern businesses.
             </p>
           </div>
 
           {/* Product */}
           <div>
-            <h3 className="text-revnu-darker font-semibold mb-4">Product</h3>
+            <h3 className="text-white font-semibold mb-4">Product</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/dashboard"
-                  className="text-revnu-gray hover:text-revnu-green transition-colors"
+                  className="text-gray-400 hover:text-revnu-green transition-colors"
                 >
                   Dashboard
                 </Link>
@@ -30,7 +30,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/dashboard/sequences"
-                  className="text-revnu-gray hover:text-revnu-green transition-colors"
+                  className="text-gray-400 hover:text-revnu-green transition-colors"
                 >
                   Sequences
                 </Link>
@@ -38,7 +38,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/dashboard/customers"
-                  className="text-revnu-gray hover:text-revnu-green transition-colors"
+                  className="text-gray-400 hover:text-revnu-green transition-colors"
                 >
                   Customers
                 </Link>
@@ -46,7 +46,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/dashboard/invoices"
-                  className="text-revnu-gray hover:text-revnu-green transition-colors"
+                  className="text-gray-400 hover:text-revnu-green transition-colors"
                 >
                   Invoices
                 </Link>
@@ -56,12 +56,12 @@ export default function Footer() {
 
           {/* Legal */}
           <div>
-            <h3 className="text-revnu-darker font-semibold mb-4">Legal</h3>
+            <h3 className="text-white font-semibold mb-4">Legal</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/terms"
-                  className="text-revnu-gray hover:text-revnu-green transition-colors"
+                  className="text-gray-400 hover:text-revnu-green transition-colors"
                 >
                   Terms of Service
                 </Link>
@@ -69,7 +69,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/privacy"
-                  className="text-revnu-gray hover:text-revnu-green transition-colors"
+                  className="text-gray-400 hover:text-revnu-green transition-colors"
                 >
                   Privacy Policy
                 </Link>
@@ -77,7 +77,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/acceptable-use"
-                  className="text-revnu-gray hover:text-revnu-green transition-colors"
+                  className="text-gray-400 hover:text-revnu-green transition-colors"
                 >
                   Acceptable Use Policy
                 </Link>
@@ -87,12 +87,12 @@ export default function Footer() {
 
           {/* Support */}
           <div>
-            <h3 className="text-revnu-darker font-semibold mb-4">Support</h3>
+            <h3 className="text-white font-semibold mb-4">Support</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <a
                   href="mailto:support@revnu.com"
-                  className="text-revnu-gray hover:text-revnu-green transition-colors"
+                  className="text-gray-400 hover:text-revnu-green transition-colors"
                 >
                   Contact Support
                 </a>
@@ -100,7 +100,7 @@ export default function Footer() {
               <li>
                 <a
                   href="mailto:compliance@revnu.com"
-                  className="text-revnu-gray hover:text-revnu-green transition-colors"
+                  className="text-gray-400 hover:text-revnu-green transition-colors"
                 >
                   Compliance
                 </a>
@@ -108,7 +108,7 @@ export default function Footer() {
               <li>
                 <a
                   href="mailto:abuse@revnu.com"
-                  className="text-revnu-gray hover:text-revnu-green transition-colors"
+                  className="text-gray-400 hover:text-revnu-green transition-colors"
                 >
                   Report Abuse
                 </a>
@@ -118,12 +118,12 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-revnu-grayLight">
+        <div className="mt-12 pt-8 border-t border-revnu-green/20">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-revnu-gray">
+            <p className="text-sm text-gray-500">
               © {currentYear} REVNU. All rights reserved.
             </p>
-            <p className="text-xs text-revnu-gray text-center md:text-right max-w-2xl">
+            <p className="text-xs text-gray-500 text-center md:text-right max-w-2xl">
               REVNU is a software platform only and is NOT a debt collection agency.
               Users are responsible for TCPA compliance and obtaining proper consent.
             </p>
