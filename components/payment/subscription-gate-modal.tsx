@@ -68,20 +68,19 @@ export default function SubscriptionGateModal({
                 $99<span className="text-xl text-revnu-gray font-normal">/month</span>
               </div>
               <p className="text-revnu-green font-bold uppercase tracking-wide text-sm">
-                14-Day Free Trial
+                Everything included
               </p>
             </div>
 
             {/* Features */}
             <div className="space-y-3 mb-6">
               {[
-                "500 SMS + 1,000 emails/month",
+                "2,500 SMS + 5,000 emails/month",
                 "Unlimited customers & invoices",
-                "Automated reminder sequences",
+                "Unlimited reminder sequences",
                 "QuickBooks integration",
                 "Up to 5 team members",
-                "TCPA compliance tools",
-                "Mechanics lien tracking",
+                "Full TCPA compliance tools",
               ].map((feature, idx) => (
                 <div key={idx} className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-revnu-green flex-shrink-0" />
@@ -104,15 +103,8 @@ export default function SubscriptionGateModal({
             </div>
           </div>
 
-          {/* Promo Code Section */}
-          {!showPromoInput ? (
-            <button
-              onClick={() => setShowPromoInput(true)}
-              className="text-sm text-revnu-green hover:text-revnu-greenLight transition mb-4 underline"
-            >
-              Have a promo code?
-            </button>
-          ) : (
+          {/* Promo Code Section - Hidden for now */}
+          {showPromoInput && (
             <div className="mb-4">
               <label className="block text-sm font-bold text-white mb-2">
                 Promo Code
@@ -124,11 +116,6 @@ export default function SubscriptionGateModal({
                 placeholder="Enter promo code"
                 className="w-full px-4 py-3 bg-revnu-slate/40 border border-revnu-grayLight/20 rounded-lg text-white placeholder-revnu-gray focus:outline-none focus:border-revnu-green transition"
               />
-              {promoCode && (
-                <p className="text-xs text-revnu-green mt-2">
-                  ✓ Extended 30-day trial will be applied
-                </p>
-              )}
             </div>
           )}
 
@@ -153,7 +140,7 @@ export default function SubscriptionGateModal({
               ) : (
                 <>
                   <CreditCard className="w-5 h-5" />
-                  Start 14-Day Free Trial
+                  Get Started
                 </>
               )}
             </button>
@@ -183,7 +170,7 @@ export default function SubscriptionGateModal({
               </div>
             </div>
             <p className="text-center text-xs text-revnu-gray mt-4">
-              No credit card required for trial • Powered by Stripe
+              Powered by Stripe
             </p>
           </div>
         </div>

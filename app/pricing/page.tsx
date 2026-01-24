@@ -7,8 +7,8 @@ export default function PricingPage() {
       {/* Header */}
       <div className="border-b border-revnu-green/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-black text-revnu-green">
-            REVNU
+          <Link href="/" className="hover:opacity-90 transition">
+            <img src="/logo.png" alt="REVNU" className="h-10" />
           </Link>
           <div className="flex items-center gap-4">
             <Link

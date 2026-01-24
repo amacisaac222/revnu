@@ -36,17 +36,8 @@ export default function DashboardNav({ organization }: DashboardNavProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo - Always visible */}
-            <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-90 transition">
-              <svg width="28" height="28" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="4" y="20" width="5" height="12" rx="1" fill="#4ade80"/>
-                <rect x="11" y="14" width="5" height="18" rx="1" fill="#4ade80"/>
-                <rect x="18" y="8" width="5" height="24" rx="1" fill="#4ade80"/>
-                <path d="M28 18L32 10L24 10L28 18Z" fill="#86efac" opacity="0.9"/>
-                <path d="M25 16C25 16 27 12 30 8" stroke="#86efac" strokeWidth="2.5" strokeLinecap="round"/>
-              </svg>
-              <span className="text-xl font-black text-white">
-                REV<span className="text-revnu-green">NU</span>
-              </span>
+            <Link href="/dashboard" className="hover:opacity-90 transition">
+              <img src="/logo.png" alt="REVNU" className="h-8" />
             </Link>
 
             {/* Desktop Nav - Hidden on mobile */}

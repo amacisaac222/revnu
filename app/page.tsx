@@ -10,21 +10,8 @@ export default function HomePage() {
       {/* Header - Dark Theme */}
       <header className="bg-revnu-darker/80 backdrop-blur-sm border-b border-revnu-slate/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-5 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition group">
-            {/* Logo Icon - Chart with Arrow */}
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-              {/* Chart bars */}
-              <rect x="4" y="20" width="5" height="12" rx="1" fill="#4ade80"/>
-              <rect x="11" y="14" width="5" height="18" rx="1" fill="#4ade80"/>
-              <rect x="18" y="8" width="5" height="24" rx="1" fill="#4ade80"/>
-              {/* Upward arrow */}
-              <path d="M28 18L32 10L24 10L28 18Z" fill="#86efac" opacity="0.9"/>
-              <path d="M25 16C25 16 27 12 30 8" stroke="#86efac" strokeWidth="2.5" strokeLinecap="round"/>
-            </svg>
-            {/* Wordmark */}
-            <span className="text-2xl font-black tracking-tight text-white">
-              REV<span className="text-revnu-green">NU</span>
-            </span>
+          <Link href="/" className="hover:opacity-90 transition">
+            <img src="/logo.png" alt="REVNU" className="h-10" />
           </Link>
           <nav className="flex items-center gap-8">
             <SignedOut>

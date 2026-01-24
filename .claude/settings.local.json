@@ -30,7 +30,9 @@
       "Bash(vercel:*)",
       "Bash(cmd /c \"rmdir /s /q .next 2>nul\")",
       "Bash(del \"c:\\Users\\amaci\\Desktop\\revenupros.com\\components\\send-reminders\\quick-send-tab.tsx\")",
-      "Bash(cmd /c:*)"
+      "Bash(cmd /c:*)",
+      "Read(//c/Users/amaci/Desktop/**)",
+      "Bash(copy:*)"
     ],
     "deny": [],
     "ask": []
