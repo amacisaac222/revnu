@@ -11,7 +11,7 @@ export default function HomePage() {
       <header className="bg-revnu-darker/80 backdrop-blur-sm border-b border-revnu-slate/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-5 flex items-center justify-between">
           <Link href="/" className="hover:opacity-90 transition">
-            <img src="/logo.svg" alt="REVNU" className="h-10" />
+            <img src="/logo.png" alt="REVNU" className="h-10" />
           </Link>
           <nav className="flex items-center gap-8">
             <SignedOut>

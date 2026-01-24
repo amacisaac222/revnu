@@ -8,7 +8,7 @@ export default function PricingPage() {
       <div className="border-b border-revnu-green/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <Link href="/" className="hover:opacity-90 transition">
-            <img src="/logo.svg" alt="REVNU" className="h-10" />
+            <img src="/logo.png" alt="REVNU" className="h-10" />
           </Link>
           <div className="flex items-center gap-4">
             <Link
