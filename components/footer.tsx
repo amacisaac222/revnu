@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -15,44 +18,79 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Product */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">Product</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  href="/dashboard"
-                  className="text-gray-400 hover:text-revnu-green transition-colors"
-                >
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/dashboard/sequences"
-                  className="text-gray-400 hover:text-revnu-green transition-colors"
-                >
-                  Sequences
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/dashboard/customers"
-                  className="text-gray-400 hover:text-revnu-green transition-colors"
-                >
-                  Customers
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/dashboard/invoices"
-                  className="text-gray-400 hover:text-revnu-green transition-colors"
-                >
-                  Invoices
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {/* Product - Only for signed in users */}
+          <SignedIn>
+            <div>
+              <h3 className="text-white font-semibold mb-4">Product</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link
+                    href="/dashboard"
+                    className="text-gray-400 hover:text-revnu-green transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard/sequences"
+                    className="text-gray-400 hover:text-revnu-green transition-colors"
+                  >
+                    Sequences
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard/customers"
+                    className="text-gray-400 hover:text-revnu-green transition-colors"
+                  >
+                    Customers
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard/invoices"
+                    className="text-gray-400 hover:text-revnu-green transition-colors"
+                  >
+                    Invoices
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </SignedIn>
+
+          {/* Pricing - Only for signed out users */}
+          <SignedOut>
+            <div>
+              <h3 className="text-white font-semibold mb-4">Pricing</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link
+                    href="/pricing"
+                    className="text-gray-400 hover:text-revnu-green transition-colors"
+                  >
+                    Pricing
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/sign-up"
+                    className="text-gray-400 hover:text-revnu-green transition-colors"
+                  >
+                    Get Started
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/sign-in"
+                    className="text-gray-400 hover:text-revnu-green transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </SignedOut>
 
           {/* Legal */}
           <div>

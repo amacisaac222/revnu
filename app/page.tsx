@@ -80,10 +80,11 @@ export default function HomePage() {
             </SignedIn>
           </nav>
         </div>
+      </header>
 
-        {/* Mobile Menu Overlay */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 z-[60] bg-revnu-darker">
+      {/* Mobile Menu Overlay - Outside header for proper z-index */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 z-[100] bg-revnu-darker">
             <div className="flex flex-col h-full">
               {/* Mobile Menu Header */}
               <div className="flex items-center justify-between p-6 border-b border-revnu-slate/50">
@@ -168,8 +169,7 @@ export default function HomePage() {
               </nav>
             </div>
           </div>
-        )}
-      </header>
+      )}
 
       <main className="flex-1">
         {/* Hero Section - Dark Theme */}

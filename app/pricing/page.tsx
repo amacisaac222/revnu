@@ -47,10 +47,11 @@ export default function PricingPage() {
             </Link>
           </nav>
         </div>
+      </header>
 
-        {/* Mobile Menu Overlay */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 z-[60] bg-revnu-darker">
+      {/* Mobile Menu Overlay - Outside header for proper z-index */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 z-[100] bg-revnu-darker">
             <div className="flex flex-col h-full">
               {/* Mobile Menu Header */}
               <div className="flex items-center justify-between p-6 border-b border-revnu-slate/50">
@@ -83,8 +84,7 @@ export default function PricingPage() {
               </nav>
             </div>
           </div>
-        )}
-      </header>
+      )}
 
       {/* Hero Section */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
