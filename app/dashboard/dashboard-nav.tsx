@@ -19,14 +19,26 @@ export default function DashboardNav({ organization }: DashboardNavProps) {
   const isActive = (path: string) => pathname === path;
 
   const navLinks = [
-    { href: "/dashboard", label: "Overview", icon: "📊", match: (p: string) => p === "/dashboard" },
+    {
+      href: "/dashboard/send-reminders",
+      label: "Send Reminders",
+      icon: "💌",
+      match: (p: string) => p.startsWith("/dashboard/send-reminders") || p === "/dashboard"
+    },
     { href: "/dashboard/customers", label: "Customers", icon: "👥", match: (p: string) => p.startsWith("/dashboard/customers") },
     { href: "/dashboard/invoices", label: "Invoices", icon: "📄", match: (p: string) => p.startsWith("/dashboard/invoices") },
-    { href: "/dashboard/send-reminders", label: "Send Reminders", icon: "💌", match: (p: string) => p.startsWith("/dashboard/send-reminders") },
-    { href: "/dashboard/campaigns", label: "Campaigns", icon: "🎯", match: (p: string) => p.startsWith("/dashboard/campaigns") },
-    { href: "/dashboard/sequences", label: "Sequences", icon: "📬", match: (p: string) => p.startsWith("/dashboard/sequences") },
-    { href: "/dashboard/reports", label: "Reports", icon: "📈", match: (p: string) => p.startsWith("/dashboard/reports") },
-    { href: "/dashboard/communications", label: "Communications", icon: "💬", match: (p: string) => p.startsWith("/dashboard/communications") },
+    {
+      href: "/dashboard/campaigns",
+      label: "Campaigns",
+      icon: "🎯",
+      match: (p: string) => p.startsWith("/dashboard/campaigns") || p.startsWith("/dashboard/sequences")
+    },
+    {
+      href: "/dashboard/reports",
+      label: "Reports",
+      icon: "📈",
+      match: (p: string) => p.startsWith("/dashboard/reports") || p.startsWith("/dashboard/communications")
+    },
   ];
 
   return (
