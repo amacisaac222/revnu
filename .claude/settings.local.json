@@ -33,7 +33,8 @@
       "Bash(cmd /c:*)",
       "Read(//c/Users/amaci/Desktop/**)",
       "Bash(copy:*)",
-      "Bash(git revert:*)"
+      "Bash(git revert:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

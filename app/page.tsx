@@ -6,6 +6,7 @@ import Link from "next/link";
 import Footer from "@/components/footer";
 import PublicLienCalculator from "@/components/lien/public-lien-calculator";
 import ScrollingLogos from "@/components/scrolling-logos";
+import HowItWorksTabs from "@/components/how-it-works-tabs";
 
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -318,51 +319,8 @@ export default function HomePage() {
         {/* Trusted By Section - Scrolling Logos */}
         <ScrollingLogos />
 
-        {/* How It Works - Simplified */}
-        <section id="how-it-works" className="py-20 bg-revnu-dark border-t border-revnu-slate/50">
-          <div className="max-w-5xl mx-auto px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                How it works
-              </h2>
-              <p className="text-xl text-revnu-gray">
-                Set up in 5 minutes. Collect on autopilot.
-              </p>
-            </div>
-
-            <div className="space-y-6">
-              <div className="flex items-start gap-6 p-6 bg-revnu-slate/40 border border-revnu-green/20 rounded-xl hover:border-revnu-green/40 transition-all">
-                <div className="flex-shrink-0 w-12 h-12 bg-revnu-green rounded-lg flex items-center justify-center text-revnu-dark text-xl font-black">
-                  1
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">Add your invoices</h3>
-                  <p className="text-revnu-gray">CSV upload or add manually. Link customer phone/email. Done in 2 minutes.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-6 p-6 bg-revnu-slate/40 border border-revnu-green/20 rounded-xl hover:border-revnu-green/40 transition-all">
-                <div className="flex-shrink-0 w-12 h-12 bg-revnu-green rounded-lg flex items-center justify-center text-revnu-dark text-xl font-black">
-                  2
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">Choose your reminder schedule</h3>
-                  <p className="text-revnu-gray">Pick a template or create your own. Friendly first, firmer later. All sent from YOUR business name.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-6 p-6 bg-revnu-slate/40 border border-revnu-green/20 rounded-xl hover:border-revnu-green/40 transition-all">
-                <div className="flex-shrink-0 w-12 h-12 bg-revnu-green rounded-lg flex items-center justify-center text-revnu-dark text-xl font-black">
-                  3
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">Get paid automatically</h3>
-                  <p className="text-revnu-gray">REVNU sends reminders with Stripe payment links. Customers click, pay, done. Zero chasing.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* How It Works - Interactive Tabs */}
+        <HowItWorksTabs />
 
         {/* Features - Benefit-Focused */}
         <section id="features" className="py-20 bg-revnu-darker border-t border-revnu-slate/50">
