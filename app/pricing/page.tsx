@@ -1,31 +1,90 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { Check } from "lucide-react";
 
 export default function PricingPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-revnu-dark text-white">
       {/* Header */}
-      <div className="border-b border-revnu-green/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+      <header className="bg-revnu-darker/80 backdrop-blur-sm border-b border-revnu-slate/50 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
           <Link href="/" className="hover:opacity-90 transition">
-            <img src="/logo-new.svg" alt="REVNU" className="h-10" />
+            <img src="/logo-new.svg" alt="REVNU" className="h-8 sm:h-10" />
           </Link>
-          <div className="flex items-center gap-4">
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden p-2 text-revnu-gray hover:text-white transition min-h-[44px] min-w-[44px]"
+            aria-label="Toggle menu"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {mobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-4">
             <Link
               href="/sign-in"
-              className="text-sm font-bold text-revnu-gray hover:text-white transition"
+              className="text-sm font-bold text-revnu-gray hover:text-white transition min-h-[44px] flex items-center"
             >
               Sign In
             </Link>
             <Link
               href="/sign-up"
-              className="px-4 py-2 bg-revnu-green text-revnu-dark font-black rounded-lg hover:bg-revnu-greenLight transition text-sm"
+              className="px-5 py-3 bg-revnu-green text-revnu-dark font-black rounded-lg hover:bg-revnu-greenLight transition text-sm min-h-[44px] flex items-center"
             >
               Get Started
             </Link>
-          </div>
+          </nav>
         </div>
-      </div>
+
+        {/* Mobile Menu Overlay */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden fixed inset-0 z-50 bg-revnu-darker">
+            <div className="flex flex-col h-full">
+              {/* Mobile Menu Header */}
+              <div className="flex items-center justify-between p-6 border-b border-revnu-slate/50">
+                <img src="/logo-new.svg" alt="REVNU" className="h-8" />
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 text-revnu-gray hover:text-white transition min-h-[44px] min-w-[44px]"
+                  aria-label="Close menu"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Mobile Menu Links */}
+              <nav className="flex flex-col p-6 space-y-2 overflow-y-auto">
+                <Link
+                  href="/sign-in"
+                  className="text-base font-medium text-revnu-gray hover:text-white py-4 px-4 rounded-lg hover:bg-revnu-slate/40 transition min-h-[48px] flex items-center"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/sign-up"
+                  className="mt-4 px-6 py-4 text-base font-bold text-white bg-revnu-green rounded-lg hover:bg-revnu-greenDark transition-all min-h-[52px] flex items-center justify-center"
+                >
+                  Get Started
+                </Link>
+              </nav>
+            </div>
+          </div>
+        )}
+      </header>
 
       {/* Hero Section */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">

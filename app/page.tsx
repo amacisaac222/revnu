@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import Footer from "@/components/footer";
@@ -5,15 +8,34 @@ import PublicLienCalculator from "@/components/lien/public-lien-calculator";
 import ScrollingLogos from "@/components/scrolling-logos";
 
 export default function HomePage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen flex flex-col bg-revnu-dark">
       {/* Header - Dark Theme */}
       <header className="bg-revnu-darker/80 backdrop-blur-sm border-b border-revnu-slate/50 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-5 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
           <Link href="/" className="hover:opacity-90 transition">
-            <img src="/logo-new.svg" alt="REVNU" className="h-10" />
+            <img src="/logo-new.svg" alt="REVNU" className="h-8 sm:h-10" />
           </Link>
-          <nav className="flex items-center gap-8">
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden p-2 text-revnu-gray hover:text-white transition"
+            aria-label="Toggle menu"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {mobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-6">
             <SignedOut>
               <a href="#how-it-works" className="text-sm font-medium text-revnu-gray hover:text-white transition">
                 How It Works
@@ -32,7 +54,7 @@ export default function HomePage() {
               </Link>
               <Link
                 href="/sign-up"
-                className="px-5 py-2.5 text-sm font-bold text-revnu-dark bg-revnu-green rounded-lg hover:bg-revnu-greenLight transition-all hover:shadow-lg hover:shadow-revnu-green/20"
+                className="px-5 py-3 text-sm font-bold text-white bg-revnu-green rounded-lg hover:bg-revnu-greenDark transition-all min-h-[44px] flex items-center"
               >
                 Get Started
               </Link>
@@ -49,7 +71,7 @@ export default function HomePage() {
               </a>
               <Link
                 href="/dashboard"
-                className="px-5 py-2.5 text-sm font-bold text-revnu-dark bg-revnu-green rounded-lg hover:bg-revnu-greenLight transition-all hover:shadow-lg hover:shadow-revnu-green/20"
+                className="px-5 py-3 text-sm font-bold text-white bg-revnu-green rounded-lg hover:bg-revnu-greenDark transition-all min-h-[44px] flex items-center"
               >
                 Dashboard
               </Link>
@@ -57,6 +79,95 @@ export default function HomePage() {
             </SignedIn>
           </nav>
         </div>
+
+        {/* Mobile Menu Overlay */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden fixed inset-0 z-50 bg-revnu-darker">
+            <div className="flex flex-col h-full">
+              {/* Mobile Menu Header */}
+              <div className="flex items-center justify-between p-6 border-b border-revnu-slate/50">
+                <img src="/logo-new.svg" alt="REVNU" className="h-8" />
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 text-revnu-gray hover:text-white transition"
+                  aria-label="Close menu"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Mobile Menu Links */}
+              <nav className="flex flex-col p-6 space-y-2 overflow-y-auto">
+                <SignedOut>
+                  <a
+                    href="#how-it-works"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-base font-medium text-revnu-gray hover:text-white py-4 px-4 rounded-lg hover:bg-revnu-slate/40 transition min-h-[48px] flex items-center"
+                  >
+                    How It Works
+                  </a>
+                  <a
+                    href="#features"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-base font-medium text-revnu-gray hover:text-white py-4 px-4 rounded-lg hover:bg-revnu-slate/40 transition min-h-[48px] flex items-center"
+                  >
+                    Features
+                  </a>
+                  <a
+                    href="#pricing"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-base font-medium text-revnu-gray hover:text-white py-4 px-4 rounded-lg hover:bg-revnu-slate/40 transition min-h-[48px] flex items-center"
+                  >
+                    Pricing
+                  </a>
+                  <Link
+                    href="/sign-in"
+                    className="text-base font-medium text-revnu-gray hover:text-white py-4 px-4 rounded-lg hover:bg-revnu-slate/40 transition min-h-[48px] flex items-center"
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    href="/sign-up"
+                    className="mt-4 px-6 py-4 text-base font-bold text-white bg-revnu-green rounded-lg hover:bg-revnu-greenDark transition-all min-h-[52px] flex items-center justify-center"
+                  >
+                    Get Started
+                  </Link>
+                </SignedOut>
+                <SignedIn>
+                  <a
+                    href="#how-it-works"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-base font-medium text-revnu-gray hover:text-white py-4 px-4 rounded-lg hover:bg-revnu-slate/40 transition min-h-[48px] flex items-center"
+                  >
+                    How It Works
+                  </a>
+                  <a
+                    href="#features"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-base font-medium text-revnu-gray hover:text-white py-4 px-4 rounded-lg hover:bg-revnu-slate/40 transition min-h-[48px] flex items-center"
+                  >
+                    Features
+                  </a>
+                  <a
+                    href="#pricing"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-base font-medium text-revnu-gray hover:text-white py-4 px-4 rounded-lg hover:bg-revnu-slate/40 transition min-h-[48px] flex items-center"
+                  >
+                    Pricing
+                  </a>
+                  <Link
+                    href="/dashboard"
+                    className="mt-4 px-6 py-4 text-base font-bold text-white bg-revnu-green rounded-lg hover:bg-revnu-greenDark transition-all min-h-[52px] flex items-center justify-center"
+                  >
+                    Dashboard
+                  </Link>
+                </SignedIn>
+              </nav>
+            </div>
+          </div>
+        )}
       </header>
 
       <main className="flex-1">
@@ -91,19 +202,19 @@ export default function HomePage() {
                   </span>
                 </div>
 
-                <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-[1.05] tracking-tight">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-[1.05] tracking-tight">
                   Get Paid.
                   <span className="block mt-2 bg-gradient-to-r from-revnu-green to-revnu-greenLight bg-clip-text text-transparent">No Chasing.</span>
                 </h1>
 
-                <p className="text-xl md:text-2xl text-revnu-gray mb-10 leading-relaxed">
+                <p className="text-lg sm:text-xl md:text-2xl text-revnu-gray mb-10 leading-relaxed">
                   Automated payment reminders for contractors. Get paid faster, chase less.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 mb-8">
                   <Link
                     href="/sign-up"
-                    className="group inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-bold text-revnu-dark bg-revnu-green rounded-lg hover:bg-revnu-greenLight transition-all hover:shadow-2xl hover:shadow-revnu-green/30 hover:scale-105 transform"
+                    className="group flex items-center justify-center gap-2 px-6 sm:px-8 py-4 text-base font-bold text-white bg-revnu-green rounded-lg hover:bg-revnu-greenDark transition-all min-h-[52px] sm:hover:scale-105 transform"
                   >
                     Get Started
                     <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,7 +223,7 @@ export default function HomePage() {
                   </Link>
                   <a
                     href="#how-it-works"
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white border-2 border-revnu-slate hover:border-revnu-green/50 rounded-lg transition-all"
+                    className="flex items-center justify-center gap-2 px-6 sm:px-8 py-4 text-base font-semibold text-white border-2 border-revnu-slate hover:border-revnu-green/50 rounded-lg transition-all min-h-[52px]"
                   >
                     See How It Works
                   </a>

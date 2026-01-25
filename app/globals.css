@@ -25,3 +25,36 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Mobile Optimizations */
+
+/* Prevent iOS zoom on input focus */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="date"],
+input[type="number"],
+select,
+textarea {
+  font-size: 16px;
+}
+
+/* Safe area insets for notched devices */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Improve tap highlight on mobile */
+* {
+  -webkit-tap-highlight-color: rgba(74, 222, 128, 0.1);
+}
+
+/* Smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}
