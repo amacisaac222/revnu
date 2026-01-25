@@ -25,10 +25,18 @@ export default function Footer() {
               <ul className="space-y-2 text-sm">
                 <li>
                   <Link
-                    href="/dashboard/send-reminders"
+                    href="/dashboard"
                     className="text-gray-400 hover:text-revnu-green transition-colors"
                   >
-                    Send Reminders
+                    Dashboard
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard/sequences"
+                    className="text-gray-400 hover:text-revnu-green transition-colors"
+                  >
+                    Sequences
                   </Link>
                 </li>
                 <li>
@@ -45,22 +53,6 @@ export default function Footer() {
                     className="text-gray-400 hover:text-revnu-green transition-colors"
                   >
                     Invoices
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/dashboard/campaigns"
-                    className="text-gray-400 hover:text-revnu-green transition-colors"
-                  >
-                    Campaigns
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/dashboard/reports"
-                    className="text-gray-400 hover:text-revnu-green transition-colors"
-                  >
-                    Reports
                   </Link>
                 </li>
               </ul>
