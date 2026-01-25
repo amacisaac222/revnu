@@ -50,7 +50,7 @@ export default function PricingPage() {
 
         {/* Mobile Menu Overlay */}
         {mobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 bg-revnu-darker">
+          <div className="lg:hidden fixed inset-0 z-[60] bg-revnu-darker">
             <div className="flex flex-col h-full">
               {/* Mobile Menu Header */}
               <div className="flex items-center justify-between p-6 border-b border-revnu-slate/50">
