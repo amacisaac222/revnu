@@ -82,6 +82,12 @@ model Organization {
   averageInvoiceAmount   Int?                       // In cents, helps AI calibrate messaging
   typicalPaymentTerms    Int       @default(30)     // Days (e.g., Net 30)
 
+  // Business Metrics & State (for sequence tuning and lien flows)
+  primaryState           String?                    // Two-letter state code (e.g., "CA", "TX") for lien law application
+  invoicesPerYear        Int?                       // Volume metric: 1-50, 51-200, 201-500, 500+
+  latePaymentsPerMonth   Int?                       // Delinquency metric: 0-5, 6-15, 16-30, 30+
+  timeSpentChasing       Int?                       // Hours per week spent chasing invoices
+
   // Relations
   users              User[]
   customers          Customer[]
@@ -286,6 +292,13 @@ model SequenceTemplate {
 
   // NEW: Sequence type
   sequenceType String @default("invoice") // "invoice" or "customer"
+
+  // Source tracking
+  source       String  @default("user_created") // "standard", "ai_generated", "user_created"
+
+  // Lien-specific fields
+  isLienSequence Boolean @default(false) // Is this a mechanic's lien protection sequence
+  applicableStates String? // Comma-separated state codes (e.g., "CA,TX,FL") or null for all states
 
   // Trigger rules
   triggerDaysPastDue Int @default(0) // Start when X days past due

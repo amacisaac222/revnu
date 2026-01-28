@@ -22,12 +22,9 @@ export default function OnboardingWizard({ userEmail, userName }: OnboardingWiza
     industry: "electrical",
     phone: "",
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York",
-    primaryState: "", // NEW: State for lien laws
 
-    // Step 2: Business Volume Metrics (UPDATED)
-    invoicesPerYear: 0, // NEW: Volume metric
-    latePaymentsPerMonth: 0, // NEW: Delinquency metric
-    timeSpentChasing: 0, // NEW: Hours per week
+    // Step 2: Collection Process
+    collectionMethod: "",
     hasExistingInvoices: false,
     typicalPaymentTerms: 30,
     averageInvoiceAmount: 1000, // in dollars, will convert to cents
@@ -38,14 +35,10 @@ export default function OnboardingWizard({ userEmail, userName }: OnboardingWiza
       email: false,
       phone: false,
     },
+    followUpFrequency: "",
 
     // Step 4: Brand Voice
     communicationTone: "",
-
-    // Step 5: Payment & Contact Info (NEW)
-    businessEmail: userEmail, // Pre-filled from Clerk
-    paymentInstructions: "", // Custom payment text
-    paymentLink: "", // Optional payment URL
   });
 
   const nextStep = () => {
@@ -126,19 +119,20 @@ export default function OnboardingWizard({ userEmail, userName }: OnboardingWiza
   const isStepValid = () => {
     switch (currentStep) {
       case 1:
-        return formData.businessName.trim().length > 0 && formData.primaryState !== "";
+        return formData.businessName.trim().length > 0;
       case 2:
-        return formData.invoicesPerYear > 0 && formData.latePaymentsPerMonth >= 0 && formData.timeSpentChasing >= 0;
+        return formData.collectionMethod !== "";
       case 3:
         return (
-          formData.preferredChannels.sms ||
-          formData.preferredChannels.email ||
-          formData.preferredChannels.phone
+          (formData.preferredChannels.sms ||
+           formData.preferredChannels.email ||
+           formData.preferredChannels.phone) &&
+          formData.followUpFrequency !== ""
         );
       case 4:
         return formData.communicationTone !== "";
       case 5:
-        return true; // Review step
+        return true;
       default:
         return false;
     }
