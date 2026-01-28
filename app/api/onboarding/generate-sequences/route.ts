@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import Anthropic from "@anthropic-ai/sdk";
-import { getDefaultSequences } from "@/lib/default-sequences";
+import { generateStandardFlows } from "@/lib/standard-flows";
+import { generateLienFlow } from "@/lib/lien-flow-generator";
 
 // Force dynamic rendering to skip static generation
 export const dynamic = 'force-dynamic'
@@ -25,13 +26,20 @@ interface OnboardingData {
   organizationId: string;
   businessName: string;
   industry: string;
-  collectionMethod: string;
   hasExistingInvoices: boolean;
   preferredChannels: { sms?: boolean; email?: boolean; phone?: boolean };
   communicationTone: string;
-  followUpFrequency: string;
   averageInvoiceAmount: number;
   typicalPaymentTerms: number;
+  // NEW fields
+  primaryState: string;
+  invoicesPerYear: number;
+  latePaymentsPerMonth: number;
+  timeSpentChasing: number;
+  businessEmail: string;
+  contactPhone: string;
+  paymentInstructions?: string;
+  paymentLink?: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -42,13 +50,19 @@ export async function POST(req: NextRequest) {
       organizationId,
       businessName,
       industry,
-      collectionMethod,
       hasExistingInvoices,
       preferredChannels,
       communicationTone,
-      followUpFrequency,
       averageInvoiceAmount,
       typicalPaymentTerms,
+      primaryState,
+      invoicesPerYear,
+      latePaymentsPerMonth,
+      timeSpentChasing,
+      businessEmail,
+      contactPhone,
+      paymentInstructions,
+      paymentLink,
     } = data;
 
     // Verify organization exists
@@ -63,70 +77,183 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let aiResponse: any;
-    let generationSource: "ai" | "default" = "default";
+    // ============================================
+    // STEP 1: Generate 5 Standard Flows
+    // ============================================
+    console.log("✨ Generating 5 standard flows...");
 
-    // Try AI generation first
+    const standardFlows = generateStandardFlows({
+      businessName,
+      contactEmail: businessEmail,
+      contactPhone: contactPhone || "",
+      paymentInstructions,
+      paymentLink,
+      communicationTone: communicationTone as any,
+      preferredChannels,
+      invoicesPerYear,
+      latePaymentsPerMonth,
+      timeSpentChasing,
+    });
+
+    // Save standard flows to database
+    const createdStandardFlows = await Promise.all(
+      standardFlows.map(async (flow, index) => {
+        return db.sequenceTemplate.create({
+          data: {
+            organizationId: org.id,
+            name: flow.name,
+            description: flow.description,
+            triggerDaysPastDue: flow.triggerDaysPastDue,
+            isActive: true,
+            isDefault: flow.isDefault,
+            source: "standard",
+            steps: {
+              create: flow.steps.map((step) => ({
+                stepNumber: step.stepNumber,
+                delayDays: step.delayDays,
+                channel: step.channel,
+                subject: step.subject || null,
+                body: step.body,
+                isActive: true,
+              })),
+            },
+          },
+          include: {
+            steps: {
+              orderBy: { stepNumber: "asc" },
+            },
+          },
+        });
+      })
+    );
+
+    console.log(`✅ Created ${createdStandardFlows.length} standard flows`);
+
+    // ============================================
+    // STEP 2: Generate State-Specific Lien Flow
+    // ============================================
+    console.log(`✨ Generating mechanic's lien flow for ${primaryState}...`);
+
+    const lienFlow = generateLienFlow({
+      businessName,
+      contactEmail: businessEmail,
+      contactPhone: contactPhone || "",
+      paymentInstructions,
+      paymentLink,
+      communicationTone: communicationTone as any,
+      preferredChannels,
+      primaryState,
+    });
+
+    // Save lien flow to database
+    const createdLienFlow = await db.sequenceTemplate.create({
+      data: {
+        organizationId: org.id,
+        name: lienFlow.name,
+        description: lienFlow.description,
+        triggerDaysPastDue: lienFlow.triggerDaysPastDue,
+        isActive: true,
+        isDefault: false,
+        source: "standard",
+        isLienSequence: true,
+        applicableStates: lienFlow.applicableStates,
+        steps: {
+          create: lienFlow.steps.map((step) => ({
+            stepNumber: step.stepNumber,
+            delayDays: step.delayDays,
+            channel: step.channel,
+            subject: step.subject || null,
+            body: step.body,
+            isActive: true,
+          })),
+        },
+      },
+      include: {
+        steps: {
+          orderBy: { stepNumber: "asc" },
+        },
+      },
+    });
+
+    console.log(`✅ Created mechanic's lien flow for ${primaryState}`);
+
+    // ============================================
+    // STEP 3: Try AI Custom Generation (1-2 sequences)
+    // ============================================
+    let aiSequences: any[] = [];
+    let generationSource: "ai" | "standard" = "standard";
+
     try {
-      // Build channel list for prompt
+      console.log("✨ Attempting AI custom sequence generation...");
+
       const channels = Object.entries(preferredChannels)
         .filter(([_, enabled]) => enabled)
         .map(([channel, _]) => channel)
         .join(", ");
 
-      // Determine number of sequences based on frequency
-      const sequenceCount = followUpFrequency === "aggressive" ? 2 : 1;
-
-      // Build the AI prompt
+      // Enhanced AI prompt with business metrics
       const prompt = `You are a payment collections specialist with expertise in ${industry || "trades"} businesses.
-Generate ${sequenceCount} professional payment reminder sequence(s) for "${businessName}".
 
-BUSINESS CONTEXT:
+BUSINESS PROFILE:
+- Name: ${businessName}
 - Industry: ${industry || "general trades"}
-- Current collection method: ${collectionMethod}
-- Has existing outstanding invoices: ${hasExistingInvoices ? "Yes" : "No"}
-- Average invoice amount: $${(averageInvoiceAmount / 100).toFixed(0)}
-- Standard payment terms: Net ${typicalPaymentTerms} days
-- Communication tone preference: ${communicationTone}
-- Follow-up frequency: ${followUpFrequency}
-- Available channels: ${channels}
+- Primary State: ${primaryState}
+- Invoices per year: ${invoicesPerYear}
+- Late payments per month: ${latePaymentsPerMonth}
+- Time spent chasing: ${timeSpentChasing} hours/week
+- Average invoice: $${(averageInvoiceAmount / 100).toFixed(0)}
+- Payment terms: Net ${typicalPaymentTerms} days
+- Communication tone: ${communicationTone}
+- Channels: ${channels}
+
+BUSINESS INSIGHTS:
+${latePaymentsPerMonth > 15 ? "• High delinquency rate - needs aggressive follow-up strategy" : ""}
+${timeSpentChasing > 5 ? "• Significant time burden - automation is critical" : ""}
+${invoicesPerYear > 200 ? "• High volume business - efficiency is key" : ""}
+${primaryState ? `• Operating in ${primaryState} - mechanic's lien leverage available` : ""}
+
+EXISTING SEQUENCES (DO NOT DUPLICATE):
+1. Standard Collections (0 days past due) - general purpose
+2. Urgent Collections (15 days past due) - accelerated
+3. New Customer Welcome (manual) - relationship building
+4. Partial Payment Follow-up (when partial paid)
+5. High-Value Invoice (-3 days, 2x average) - premium touch
+6. Mechanic's Lien Protection (${primaryState}, 30 days) - lien threats
+
+YOUR TASK:
+Generate 1-2 COMPLEMENTARY sequences that fill gaps or address this business's unique needs.
+
+Examples of useful complementary sequences:
+- Pre-emptive sequence (starts 7 days BEFORE due date for proactive businesses)
+- Repeat customer appreciation flow (for loyal customers with occasional late payment)
+- Industry-specific (e.g., seasonal construction payment patterns)
+- Payment plan enrollment sequence (for large balances)
+- VIP customer sequence (white-glove service for top customers)
+
+Choose sequences that would benefit THIS specific business based on their profile.
 
 REQUIREMENTS:
-1. Create ${sequenceCount} complete sequence template(s)
+1. Create 1-2 sequences (focus on quality over quantity)
 2. Each sequence should have 3-5 steps
-3. Start with a ${communicationTone} tone and gradually escalate professionally
-4. Use "${businessName}" naturally in messages (not repetitively)
-5. Include specific timing delays appropriate for ${followUpFrequency} follow-up
-6. Alternate between channels when possible (${channels})
-7. Include payment link placeholder: {{paymentLink}}
-8. Include customer name placeholder: {{customerName}}
-9. Include invoice number placeholder: {{invoiceNumber}}
-10. Include amount placeholder: {{amount}}
-11. Be TCPA compliant - include opt-out language for SMS
-12. Keep messages concise and actionable
-13. Respect the ${communicationTone} voice throughout
-
-${followUpFrequency === "aggressive"
-  ? "- First sequence: Standard collections (starts at invoice due date)\n- Second sequence: Urgent collections (starts at 15 days past due)"
-  : "- Create one comprehensive standard collections sequence"}
-
-TONE GUIDELINES:
-${communicationTone === "friendly" ? "- Warm, understanding, conversational\n- Use phrases like 'just a friendly reminder', 'we understand'\n- Maintain positivity even when escalating" : ""}
-${communicationTone === "professional" ? "- Business-like, respectful, clear\n- Use formal greetings and closings\n- Focus on facts and deadlines" : ""}
-${communicationTone === "firm" ? "- Direct, assertive, no-nonsense\n- Use phrases like 'payment is required', 'immediate attention needed'\n- Professional but more urgent language" : ""}
-${communicationTone === "casual" ? "- Relaxed, conversational, friendly\n- Use contractions and informal language\n- Like talking to a friend who owes you money" : ""}
+3. Maintain the ${communicationTone} tone
+4. Use "${businessName}" naturally
+5. Include timing delays
+6. Alternate between channels: ${channels}
+7. Include template variables: {{customerName}}, {{invoiceNumber}}, {{amount}}, {{daysPastDue}}, {{dueDate}}, {{paymentLink}}
+8. For SMS: Include opt-out language
+9. Make them DIFFERENT from the 6 existing sequences
 
 Return ONLY valid JSON in this exact format (no markdown, no code blocks):
 {
   "sequences": [
     {
-      "name": "string (e.g., 'Standard Collections - BusinessName')",
+      "name": "string (e.g., 'Pre-Due Courtesy Reminder - BusinessName')",
       "description": "string (brief description of when to use this sequence)",
-      "triggerDaysPastDue": number (0 for on due date, 15 for 15 days past due, etc.),
+      "triggerDaysPastDue": number (-7 for before due, 0 for on due, 15 for 15 days past, etc.),
       "steps": [
         {
           "stepNumber": 1,
-          "delayDays": number (days after trigger before sending this step),
+          "delayDays": number,
           "channel": "sms" | "email",
           "subject": "string (for email only, omit for SMS)",
           "body": "string (the actual message template)"
@@ -150,56 +277,50 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks):
       });
 
       const responseText = message.content[0].type === "text" ? message.content[0].text : "";
-      aiResponse = JSON.parse(responseText);
+      const aiResponse = JSON.parse(responseText);
       generationSource = "ai";
 
-      console.log("✅ AI sequence generation successful");
-    } catch (aiError) {
-      // AI generation failed - fall back to default templates
-      console.warn("⚠️ AI generation failed, using default templates:", aiError);
+      // Save AI-generated sequences
+      aiSequences = await Promise.all(
+        aiResponse.sequences.map(async (sequence: any) => {
+          return db.sequenceTemplate.create({
+            data: {
+              organizationId: org.id,
+              name: sequence.name,
+              description: sequence.description,
+              triggerDaysPastDue: sequence.triggerDaysPastDue,
+              isActive: true,
+              isDefault: false,
+              source: "ai_generated",
+              steps: {
+                create: sequence.steps.map((step: any) => ({
+                  stepNumber: step.stepNumber,
+                  delayDays: step.delayDays,
+                  channel: step.channel,
+                  subject: step.subject || null,
+                  body: step.body,
+                  isActive: true,
+                })),
+              },
+            },
+            include: {
+              steps: {
+                orderBy: { stepNumber: "asc" },
+              },
+            },
+          });
+        })
+      );
 
-      aiResponse = getDefaultSequences({
-        businessName,
-        industry,
-        communicationTone: communicationTone as "friendly" | "professional" | "firm" | "casual",
-        followUpFrequency: followUpFrequency as "aggressive" | "moderate" | "relaxed",
-        preferredChannels,
-      });
-      generationSource = "default";
+      console.log(`✅ AI generated ${aiSequences.length} custom sequences`);
+    } catch (aiError) {
+      console.warn("⚠️ AI generation failed, using standard flows only:", aiError);
+      // Continue without AI sequences - we already have 6 solid standard flows
     }
 
-    // Create sequences in database
-    const createdSequences = await Promise.all(
-      aiResponse.sequences.map(async (sequence: any, index: number) => {
-        return db.sequenceTemplate.create({
-          data: {
-            organizationId: org.id,
-            name: sequence.name,
-            description: sequence.description,
-            triggerDaysPastDue: sequence.triggerDaysPastDue,
-            isActive: true,
-            isDefault: index === 0, // First sequence is default
-            steps: {
-              create: sequence.steps.map((step: any) => ({
-                stepNumber: step.stepNumber,
-                delayDays: step.delayDays,
-                channel: step.channel,
-                subject: step.subject || null,
-                body: step.body,
-                isActive: true,
-              })),
-            },
-          },
-          include: {
-            steps: {
-              orderBy: { stepNumber: "asc" },
-            },
-          },
-        });
-      })
-    );
-
-    // Mark onboarding as having created sequences
+    // ============================================
+    // STEP 4: Mark onboarding progress
+    // ============================================
     await db.organization.update({
       where: { id: org.id },
       data: {
@@ -210,11 +331,23 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks):
       },
     });
 
+    // ============================================
+    // RETURN RESULTS
+    // ============================================
+    const totalSequences = createdStandardFlows.length + (createdLienFlow ? 1 : 0) + aiSequences.length;
+
     return NextResponse.json({
       success: true,
-      sequences: createdSequences,
-      count: createdSequences.length,
+      standardFlows: createdStandardFlows,
+      lienFlow: createdLienFlow,
+      aiCustomFlows: aiSequences,
+      totalCount: totalSequences,
       source: generationSource,
+      breakdown: {
+        standard: createdStandardFlows.length,
+        lien: 1,
+        aiCustom: aiSequences.length,
+      },
     });
   } catch (error) {
     console.error("Sequence generation error:", error);

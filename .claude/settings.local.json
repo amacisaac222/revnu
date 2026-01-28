@@ -34,7 +34,8 @@
       "Read(//c/Users/amaci/Desktop/**)",
       "Bash(copy:*)",
       "Bash(git revert:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(del \"C:\\Users\\amaci\\Desktop\\revenupros.com\\app\\api\\onboarding\\generate-sequences\\route-new.ts\")"
     ],
     "deny": [],
     "ask": []
