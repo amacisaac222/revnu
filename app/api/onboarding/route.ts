@@ -18,12 +18,19 @@ export async function POST(request: Request) {
       timezone,
       userEmail,
       userName,
-      // New questionnaire fields
-      collectionMethod,
+      // Business metrics (NEW)
+      primaryState,
+      invoicesPerYear,
+      latePaymentsPerMonth,
+      timeSpentChasing,
+      // Payment & contact (NEW)
+      businessEmail,
+      paymentInstructions,
+      paymentLink,
+      // Existing questionnaire fields
       hasExistingInvoices,
       preferredChannels,
       communicationTone,
-      followUpFrequency,
       averageInvoiceAmount,
       typicalPaymentTerms,
     } = body;
@@ -50,14 +57,21 @@ export async function POST(request: Request) {
           businessName,
           industry,
           phone,
+          email: businessEmail,
           timezone,
           subscriptionTier: "starter",
+          // Business metrics (NEW)
+          primaryState,
+          invoicesPerYear,
+          latePaymentsPerMonth,
+          timeSpentChasing,
+          // Payment settings (NEW)
+          defaultPaymentUrl: paymentLink || null,
+          paymentInstructions: paymentInstructions || null,
           // Collection preferences
-          collectionMethod,
           hasExistingInvoices: hasExistingInvoices || false,
           preferredChannels: preferredChannels || {},
           communicationTone,
-          followUpFrequency,
           averageInvoiceAmount: averageInvoiceAmount || null,
           typicalPaymentTerms: typicalPaymentTerms || 30,
           completedOnboarding: true,
