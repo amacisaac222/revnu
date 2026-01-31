@@ -1,0 +1,25 @@
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+
+/**
+ * Twilio SMS Reply Webhook
+ *
+ * Handles inbound SMS messages from customers:
+ * - Opt-out keywords: STOP, STOPALL, UNSUBSCRIBE, CANCEL, END, QUIT
+ * - Opt-in keywords: START, UNSTOP, YES
+ * - All messages are logged for compliance
+ *
+ * Twilio sends form data (not JSON), so we parse URLSearchParams
+ */
+
+export async function POST(req: NextRequest) {
+  try {
+    // Parse form data from Twilio
+    const formData = await req.formData();
+
+    const from = formData.get("From") as string; // Customer phone number
+    const to = formData.get("To") as string; // Your Twilio number
+    const body = (formData.get("Body") as string)?.trim().toUpperCase() || "";
+    const messageSid = formData.get("MessageSid") as string;
+
+    console.log("=

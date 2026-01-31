@@ -67,7 +67,7 @@ export async function scheduleEnrollmentMessages(
   }
 
   console.log(
-    `=Å Scheduling ${sequence.steps.length} messages for enrollment ${enrollmentId}`
+    `= Scheduling ${sequence.steps.length} messages for enrollment ${enrollmentId}`
   );
 
   const scheduledMessages = [];
@@ -78,14 +78,14 @@ export async function scheduleEnrollmentMessages(
       // Skip if step channel doesn't match customer consent
       if (step.channel === "sms") {
         if (!customer.phone || !customer.smsConsentGiven || customer.smsOptedOut) {
-          console.log(`í  Skipping step ${step.stepNumber} - no SMS consent`);
+          console.log(`  Skipping step ${step.stepNumber} - no SMS consent`);
           continue;
         }
       }
 
       if (step.channel === "email") {
         if (!customer.email || !customer.emailConsentGiven || customer.emailOptedOut) {
-          console.log(`í  Skipping step ${step.stepNumber} - no email consent`);
+          console.log(`  Skipping step ${step.stepNumber} - no email consent`);
           continue;
         }
       }

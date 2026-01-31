@@ -37,7 +37,10 @@
       "Bash(cat:*)",
       "Bash(del \"C:\\Users\\amaci\\Desktop\\revenupros.com\\app\\api\\onboarding\\generate-sequences\\route-new.ts\")",
       "Bash(node:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(git config:*)",
+      "Bash(git restore:*)",
+      "Bash(del \"app\\api\\cron\\process-scheduled-messages\\route.ts\")"
     ],
     "deny": [],
     "ask": []

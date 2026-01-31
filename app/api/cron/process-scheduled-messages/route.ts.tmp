@@ -1,0 +1,78 @@
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { sendSMS } from "@/lib/twilio";
+import { sendEmail } from "@/lib/email";
+
+/**
+ * Scheduled Message Processor (Cron Job)
+ *
+ * Processes ScheduledMessage records that are ready to send (scheduledFor <= now)
+ * Handles messages queued due to quiet hours enforcement
+ *
+ * HOW TO RUN:
+ * - Vercel Cron: Add to vercel.json
+ * - Manual: Call /api/cron/process-scheduled-messages?cron_secret=YOUR_SECRET
+ * - Local: node scripts/process-scheduled-messages.js
+ */
+
+export async function GET(req: NextRequest) {
+  try {
+    // Verify cron secret (security)
+    const authHeader = req.headers.get("authorization");
+    const cronSecret = process.env.CRON_SECRET;
+
+    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    console.log("[CRON] Starting scheduled message processor...");
+
+    const now = new Date();
+
+    // Find all pending messages that are ready to send
+    const pendingMessages = await db.scheduledMessage.findMany({
+      where: {
+        status: "pending",
+        scheduledFor: {
+          lte: now,
+        },
+      },
+      include: {
+        customer: {
+          include: {
+            organization: true,
+          },
+        },
+        invoice: true,
+        enrollment: true,
+      },
+      take: 100, // Process in batches of 100
+      orderBy: {
+        scheduledFor: "asc", // Oldest first
+      },
+    });
+
+    console.log(`[CRON] Found ${pendingMessages.length} messages to process`);
+
+    const results = {
+      sent: 0,
+      skipped: 0,
+      failed: 0,
+      rescheduled: 0,
+    };
+
+    // Process each message
+    for (const scheduledMsg of pendingMessages) {
+      try {
+        // Skip if customer has opted out
+        if (scheduledMsg.channel === "sms" && scheduledMsg.customer.smsOptedOut) {
+          await db.scheduledMessage.update({
+            where: { id: scheduledMsg.id },
+            data: {
+              status: "skipped_no_consent",
+              processedAt: now,
+              errorMessage: "Customer opted out of SMS",
+            },
+          });
+          results.skipped++;
+          console.log(`

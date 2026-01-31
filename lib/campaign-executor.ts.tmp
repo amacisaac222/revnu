@@ -1,0 +1,70 @@
+/**
+ * Campaign Executor
+ *
+ * Schedules messages for campaign enrollments with quiet hours enforcement
+ * Creates ScheduledMessage records for each step in the sequence
+ */
+
+import { db } from "@/lib/db";
+import { addDays, addHours } from "date-fns";
+import { calculateScheduledSendTime } from "./quiet-hours";
+
+export interface ScheduleEnrollmentParams {
+  enrollmentId: string;
+  startImmediately?: boolean; // Default: true
+}
+
+/**
+ * Schedule all messages for a campaign enrollment
+ * Creates ScheduledMessage records for each step in the sequence
+ */
+export async function scheduleEnrollmentMessages(
+  params: ScheduleEnrollmentParams
+) {
+  const { enrollmentId, startImmediately = true } = params;
+
+  // Get enrollment with sequence steps
+  const enrollment = await db.campaignEnrollment.findUnique({
+    where: { id: enrollmentId },
+    include: {
+      sequence: {
+        include: {
+          steps: {
+            orderBy: {
+              delayDays: "asc",
+            },
+          },
+        },
+      },
+      customer: {
+        include: {
+          organization: true,
+        },
+      },
+      invoice: true,
+    },
+  });
+
+  if (!enrollment) {
+    throw new Error(`Enrollment ${enrollmentId} not found`);
+  }
+
+  const { sequence, customer, invoice } = enrollment;
+  const timezone = customer.organization.timezone || "America/New_York";
+  const now = new Date();
+
+  // Determine base date for scheduling
+  let baseDate: Date;
+
+  if (startImmediately) {
+    baseDate = now;
+  } else if (invoice) {
+    // For invoice-based campaigns, start from due date or invoice date
+    baseDate = invoice.dueDate || invoice.invoiceDate;
+  } else {
+    // For customer-based campaigns, start now
+    baseDate = now;
+  }
+
+  console.log(
+    `=

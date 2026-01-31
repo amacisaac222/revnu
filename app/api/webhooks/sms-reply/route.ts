@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     const body = (formData.get("Body") as string)?.trim().toUpperCase() || "";
     const messageSid = formData.get("MessageSid") as string;
 
-    console.log("=ñ Inbound SMS:", { from, to, body, messageSid });
+    console.log("= Inbound SMS:", { from, to, body, messageSid });
 
     // Find customer by phone number
     const customer = await db.customer.findFirst({
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!customer) {
-      console.warn("  Customer not found for phone:", from);
+      console.warn(" Customer not found for phone:", from);
 
       // Return TwiML response (empty = no reply)
       return new NextResponse(
@@ -62,14 +62,14 @@ export async function POST(req: NextRequest) {
     ];
 
     if (OPT_OUT_KEYWORDS.includes(body)) {
-      console.log("=Ñ Opt-out detected");
+      console.log("= Opt-out detected");
 
       // Update customer opt-out status
       await db.customer.update({
         where: { id: customer.id },
         data: {
           smsOptedOut: true,
-          smsOptOutDate: new Date(),
+          smsOptedOutAt: new Date(),
         },
       });
 
@@ -90,15 +90,13 @@ export async function POST(req: NextRequest) {
       });
 
       // Pause all active campaigns for this customer
-      await db.campaignRecipient.updateMany({
+      await db.campaignEnrollment.updateMany({
         where: {
           customerId: customer.id,
           status: "active",
         },
         data: {
           status: "paused",
-          pausedAt: new Date(),
-          pauseReason: "sms_opt_out",
         },
       });
 
@@ -131,7 +129,7 @@ export async function POST(req: NextRequest) {
         where: { id: customer.id },
         data: {
           smsOptedOut: false,
-          smsOptOutDate: null,
+          smsOptedOutAt: null,
         },
       });
 
@@ -170,7 +168,7 @@ export async function POST(req: NextRequest) {
     // ============================================
     // OTHER MESSAGES (Log for review)
     // ============================================
-    console.log("=¬ General SMS reply - logging for review");
+    console.log("= General SMS reply - logging for review");
 
     // Create audit log for general messages
     await db.auditLog.create({

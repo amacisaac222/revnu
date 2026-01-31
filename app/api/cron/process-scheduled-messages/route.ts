@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    console.log(`=è Found ${pendingMessages.length} messages to process`);
+    console.log(`= Found ${pendingMessages.length} messages to process`);
 
     const results = {
       sent: 0,
@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
             },
           });
           results.skipped++;
-          console.log(`í  Skipped message ${scheduledMsg.id} - customer opted out`);
+          console.log(`  Skipped message ${scheduledMsg.id} - customer opted out`);
           continue;
         }
 
@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
             },
           });
           results.skipped++;
-          console.log(`í  Skipped message ${scheduledMsg.id} - customer opted out`);
+          console.log(`  Skipped message ${scheduledMsg.id} - customer opted out`);
           continue;
         }
 
@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
             },
           });
           results.skipped++;
-          console.log(`í  Skipped message ${scheduledMsg.id} - invoice paid`);
+          console.log(`  Skipped message ${scheduledMsg.id} - invoice paid`);
           continue;
         }
 
@@ -127,7 +127,7 @@ export async function GET(req: NextRequest) {
               },
             });
             results.rescheduled++;
-            console.log(`ð Rescheduled message ${scheduledMsg.id} for ${result.scheduledFor}`);
+            console.log(` Rescheduled message ${scheduledMsg.id} for ${result.scheduledFor}`);
           } else {
             // Successfully sent
             const message = await db.message.create({
@@ -136,11 +136,12 @@ export async function GET(req: NextRequest) {
                 organizationId: scheduledMsg.customer.organizationId,
                 invoiceId: scheduledMsg.invoiceId,
                 channel: "sms",
+                direction: "outbound",
                 subject: null,
                 body: scheduledMsg.body,
                 status: "sent",
                 sentAt: now,
-                externalId: result.messageSid,
+                twilioSid: result.messageSid,
               },
             });
 
@@ -158,7 +159,7 @@ export async function GET(req: NextRequest) {
             await db.campaignEnrollment.update({
               where: { id: scheduledMsg.enrollmentId },
               data: {
-                lastMessageSent: now,
+                lastMessageSentAt: now,
               },
             });
 
@@ -180,6 +181,7 @@ export async function GET(req: NextRequest) {
               organizationId: scheduledMsg.customer.organizationId,
               invoiceId: scheduledMsg.invoiceId,
               channel: "email",
+              direction: "outbound",
               subject: scheduledMsg.subject,
               body: scheduledMsg.body,
               status: "sent",
@@ -200,7 +202,7 @@ export async function GET(req: NextRequest) {
           await db.campaignEnrollment.update({
             where: { id: scheduledMsg.enrollmentId },
             data: {
-              lastMessageSent: now,
+              lastMessageSentAt: now,
             },
           });
 
