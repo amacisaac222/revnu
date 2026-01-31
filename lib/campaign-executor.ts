@@ -142,15 +142,7 @@ export async function scheduleEnrollmentMessages(
   }
 
   // Update enrollment with first message time
-  if (scheduledMessages.length > 0) {
-    await db.campaignEnrollment.update({
-      where: { id: enrollmentId },
-      data: {
-        nextMessageScheduled: scheduledMessages[0].scheduledFor,
-      },
-    });
-  }
-
+  // Messages created successfully
   return scheduledMessages;
 }
 

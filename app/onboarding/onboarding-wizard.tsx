@@ -94,13 +94,19 @@ export default function OnboardingWizard({ userEmail, userName }: OnboardingWiza
           organizationId: orgData.organization.id,
           businessName: formData.businessName,
           industry: formData.industry,
-          collectionMethod: formData.collectionMethod,
+          primaryState: formData.primaryState,
+          invoicesPerYear: formData.invoicesPerYear,
+          latePaymentsPerMonth: formData.latePaymentsPerMonth,
+          timeSpentChasing: formData.timeSpentChasing,
           hasExistingInvoices: formData.hasExistingInvoices,
           preferredChannels: formData.preferredChannels,
           communicationTone: formData.communicationTone,
-          followUpFrequency: formData.followUpFrequency,
           averageInvoiceAmount: formData.averageInvoiceAmount * 100,
           typicalPaymentTerms: formData.typicalPaymentTerms,
+          businessEmail: formData.businessEmail,
+          contactPhone: formData.phone,
+          paymentInstructions: formData.paymentInstructions,
+          paymentLink: formData.paymentLink,
         }),
       });
 
@@ -265,45 +271,6 @@ export default function OnboardingWizard({ userEmail, userName }: OnboardingWiza
                       </div>
                     </button>
                   ))}
-                </div>
-
-                <div className="pt-4">
-                  <label className="block text-sm font-bold text-white mb-3">
-                    How often should we follow up?
-                  </label>
-                  <div className="space-y-2">
-                    {[
-                      { value: "aggressive", label: "Aggressive", desc: "Every 3-5 days until paid" },
-                      { value: "moderate", label: "Moderate", desc: "Weekly follow-ups" },
-                      { value: "relaxed", label: "Relaxed", desc: "Every 2 weeks" },
-                    ].map((freq) => (
-                      <button
-                        key={freq.value}
-                        onClick={() => setFormData({ ...formData, followUpFrequency: freq.value })}
-                        className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                          formData.followUpFrequency === freq.value
-                            ? "bg-revnu-green/20 border-revnu-green"
-                            : "bg-revnu-dark border-revnu-green/20 hover:border-revnu-green/50"
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className={`w-5 h-5 rounded-full border-2 flex-shrink-0 mt-0.5 flex items-center justify-center ${
-                            formData.followUpFrequency === freq.value
-                              ? "border-revnu-green bg-revnu-green"
-                              : "border-revnu-gray"
-                          }`}>
-                            {formData.followUpFrequency === freq.value && (
-                              <div className="w-2 h-2 bg-revnu-dark rounded-full" />
-                            )}
-                          </div>
-                          <div>
-                            <div className="font-bold text-white">{freq.label}</div>
-                            <div className="text-sm text-revnu-gray">{freq.desc}</div>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
                 </div>
               </div>
             )}
