@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Step1BusinessBasics from "@/components/onboarding/step1-business-basics";
+import Step2BusinessVolume from "@/components/onboarding/step2-business-volume";
+import Step5PaymentContact from "@/components/onboarding/step5-payment-contact";
 
 interface OnboardingWizardProps {
   userEmail: string;
@@ -195,177 +198,18 @@ export default function OnboardingWizard({ userEmail, userName }: OnboardingWiza
 
             {/* Step 1: Business Basics */}
             {!generatingSequences && currentStep === 1 && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-2xl font-black text-white mb-2">
-                    Tell us about your business
-                  </h3>
-                  <p className="text-revnu-gray">We'll use this to personalize everything for you</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-white mb-2">
-                    Business Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.businessName}
-                    onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
-                    className="w-full px-4 py-3 bg-revnu-dark border-2 border-revnu-green/20 rounded-lg text-white focus:outline-none focus:border-revnu-green"
-                    placeholder="Smith Electrical Services"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-white mb-2">
-                    Industry *
-                  </label>
-                  <select
-                    value={formData.industry}
-                    onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-                    className="w-full px-4 py-3 bg-revnu-dark border-2 border-revnu-green/20 rounded-lg text-white focus:outline-none focus:border-revnu-green"
-                  >
-                    <option value="electrical">Electrical</option>
-                    <option value="hvac">HVAC</option>
-                    <option value="plumbing">Plumbing</option>
-                    <option value="general_contractor">General Contractor</option>
-                    <option value="roofing">Roofing</option>
-                    <option value="landscaping">Landscaping</option>
-                    <option value="carpentry">Carpentry</option>
-                    <option value="painting">Painting</option>
-                    <option value="other">Other Trades</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-white mb-2">
-                    Business Phone
-                  </label>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-3 bg-revnu-dark border-2 border-revnu-green/20 rounded-lg text-white focus:outline-none focus:border-revnu-green"
-                    placeholder="+1 (555) 123-4567"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-white mb-2">
-                    Timezone *
-                  </label>
-                  <select
-                    value={formData.timezone}
-                    onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
-                    className="w-full px-4 py-3 bg-revnu-dark border-2 border-revnu-green/20 rounded-lg text-white focus:outline-none focus:border-revnu-green"
-                  >
-                    <option value="America/New_York">Eastern Time</option>
-                    <option value="America/Chicago">Central Time</option>
-                    <option value="America/Denver">Mountain Time</option>
-                    <option value="America/Los_Angeles">Pacific Time</option>
-                    <option value="America/Phoenix">Arizona</option>
-                    <option value="America/Anchorage">Alaska</option>
-                    <option value="Pacific/Honolulu">Hawaii</option>
-                  </select>
-                  <p className="mt-2 text-xs text-revnu-gray">
-                    Used to send messages during appropriate hours (8 AM - 9 PM)
-                  </p>
-                </div>
-              </div>
+              <Step1BusinessBasics
+                formData={formData}
+                setFormData={setFormData}
+              />
             )}
 
-            {/* Step 2: Collection Process */}
+            {/* Step 2: Business Volume */}
             {!generatingSequences && currentStep === 2 && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-2xl font-black text-white mb-2">
-                    How do you currently collect payments?
-                  </h3>
-                  <p className="text-revnu-gray">This helps us understand your workflow</p>
-                </div>
-
-                <div className="space-y-3">
-                  {[
-                    { value: "invoicing_software", label: "I send invoices through software", desc: "QuickBooks, FreshBooks, Wave, etc." },
-                    { value: "manual_invoices", label: "I create invoices manually", desc: "Word, Excel, or paper invoices" },
-                    { value: "cash_only", label: "I collect cash/check only", desc: "Payment on delivery" },
-                    { value: "mixed", label: "Mixed methods", desc: "Combination of the above" },
-                  ].map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => setFormData({ ...formData, collectionMethod: option.value })}
-                      className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                        formData.collectionMethod === option.value
-                          ? "bg-revnu-green/20 border-revnu-green"
-                          : "bg-revnu-dark border-revnu-green/20 hover:border-revnu-green/50"
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex-shrink-0 mt-0.5 flex items-center justify-center ${
-                          formData.collectionMethod === option.value
-                            ? "border-revnu-green bg-revnu-green"
-                            : "border-revnu-gray"
-                        }`}>
-                          {formData.collectionMethod === option.value && (
-                            <div className="w-2 h-2 bg-revnu-dark rounded-full" />
-                          )}
-                        </div>
-                        <div>
-                          <div className="font-bold text-white">{option.label}</div>
-                          <div className="text-sm text-revnu-gray">{option.desc}</div>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-
-                <div className="pt-4">
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.hasExistingInvoices}
-                      onChange={(e) => setFormData({ ...formData, hasExistingInvoices: e.target.checked })}
-                      className="w-5 h-5 rounded border-2 border-revnu-green/40 bg-revnu-dark checked:bg-revnu-green focus:outline-none"
-                    />
-                    <span className="text-white font-bold">I have outstanding invoices right now</span>
-                  </label>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-white mb-2">
-                      Payment Terms
-                    </label>
-                    <select
-                      value={formData.typicalPaymentTerms}
-                      onChange={(e) => setFormData({ ...formData, typicalPaymentTerms: parseInt(e.target.value) })}
-                      className="w-full px-4 py-3 bg-revnu-dark border-2 border-revnu-green/20 rounded-lg text-white focus:outline-none focus:border-revnu-green"
-                    >
-                      <option value={15}>Net 15</option>
-                      <option value={30}>Net 30</option>
-                      <option value={45}>Net 45</option>
-                      <option value={60}>Net 60</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-white mb-2">
-                      Average Invoice
-                    </label>
-                    <select
-                      value={formData.averageInvoiceAmount}
-                      onChange={(e) => setFormData({ ...formData, averageInvoiceAmount: parseInt(e.target.value) })}
-                      className="w-full px-4 py-3 bg-revnu-dark border-2 border-revnu-green/20 rounded-lg text-white focus:outline-none focus:border-revnu-green"
-                    >
-                      <option value={250}>$0 - $500</option>
-                      <option value={1000}>$500 - $2,000</option>
-                      <option value={5000}>$2,000 - $10,000</option>
-                      <option value={15000}>$10,000+</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
+              <Step2BusinessVolume
+                formData={formData}
+                setFormData={setFormData}
+              />
             )}
 
             {/* Step 3: Communication Preferences */}
@@ -541,76 +385,12 @@ export default function OnboardingWizard({ userEmail, userName }: OnboardingWiza
               </div>
             )}
 
-            {/* Step 5: Review & Generate */}
+            {/* Step 5: Payment & Contact */}
             {!generatingSequences && currentStep === 5 && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-2xl font-black text-white mb-2">
-                    Ready to generate your sequences! 🎉
-                  </h3>
-                  <p className="text-revnu-gray">Review your selections below</p>
-                </div>
-
-                <div className="bg-revnu-dark rounded-lg p-6 space-y-4">
-                  <div>
-                    <div className="text-xs text-revnu-gray uppercase font-bold mb-1">Business</div>
-                    <div className="text-white font-bold">{formData.businessName}</div>
-                    <div className="text-sm text-revnu-gray">{formData.industry} • {formData.timezone.split("/")[1]}</div>
-                  </div>
-
-                  <div className="border-t border-revnu-green/10 pt-4">
-                    <div className="text-xs text-revnu-gray uppercase font-bold mb-1">Collection Method</div>
-                    <div className="text-white capitalize">{formData.collectionMethod.replace("_", " ")}</div>
-                    <div className="text-sm text-revnu-gray">
-                      Net {formData.typicalPaymentTerms} • Avg ${formData.averageInvoiceAmount.toLocaleString()}
-                      {formData.hasExistingInvoices && " • Has outstanding invoices"}
-                    </div>
-                  </div>
-
-                  <div className="border-t border-revnu-green/10 pt-4">
-                    <div className="text-xs text-revnu-gray uppercase font-bold mb-1">Communication</div>
-                    <div className="text-white capitalize">
-                      {Object.entries(formData.preferredChannels)
-                        .filter(([_, enabled]) => enabled)
-                        .map(([channel, _]) => channel)
-                        .join(", ") || "None selected"}
-                    </div>
-                    <div className="text-sm text-revnu-gray capitalize">{formData.followUpFrequency} follow-up frequency</div>
-                  </div>
-
-                  <div className="border-t border-revnu-green/10 pt-4">
-                    <div className="text-xs text-revnu-gray uppercase font-bold mb-1">Voice & Tone</div>
-                    <div className="text-white capitalize">{formData.communicationTone}</div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-purple-500/20 to-purple-500/5 border-2 border-purple-500/30 rounded-lg p-6">
-                  <div className="flex items-start gap-3">
-                    <div className="text-3xl">🤖</div>
-                    <div>
-                      <div className="font-bold text-white mb-2">AI Will Generate:</div>
-                      <ul className="space-y-1 text-sm text-revnu-gray">
-                        <li className="flex items-center gap-2">
-                          <span className="text-revnu-green">✓</span>
-                          <span>{formData.followUpFrequency === "aggressive" ? "2 complete" : "1 complete"} collection sequence{formData.followUpFrequency === "aggressive" ? "s" : ""}</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="text-revnu-green">✓</span>
-                          <span>3-5 customized message templates per sequence</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="text-revnu-green">✓</span>
-                          <span>Messages tailored to {formData.industry} industry</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="text-revnu-green">✓</span>
-                          <span>Your "{formData.communicationTone}" brand voice throughout</span>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <Step5PaymentContact
+                formData={formData}
+                setFormData={setFormData}
+              />
             )}
 
             {/* Navigation Buttons */}

@@ -13,7 +13,10 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "seed:demo": "tsx scripts/seed-demo-data.ts",
-    "seed:demo:org": "tsx scripts/seed-demo-for-org.ts"
+    "seed:demo:org": "tsx scripts/seed-demo-for-org.ts",
+    "test:mvp": "node scripts/test-mvp.js",
+    "test:twilio": "node scripts/test-twilio.js",
+    "test:sms": "node scripts/test-sms-send.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
@@ -26,6 +29,8 @@
     "@stripe/stripe-js": "^8.6.3",
     "@types/papaparse": "^5.5.2",
     "csv-stringify": "^6.6.0",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "lucide-react": "^0.562.0",
     "next": "^15.1.2",
     "papaparse": "^5.5.3",

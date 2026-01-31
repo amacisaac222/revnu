@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
+import { sendSMS } from "@/lib/twilio";
+import { sendEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
   try {
@@ -43,52 +45,81 @@ export async function POST(req: Request) {
       );
     }
 
-    // For MVP, we'll simulate sending without actual Twilio/Resend integration
-    // In production, you'll integrate with Twilio for SMS and Resend for email
-
     if (channel === "sms") {
-      // TODO: Integrate with Twilio
-      // const twilio = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-      // await twilio.messages.create({
-      //   body: message,
-      //   from: process.env.TWILIO_PHONE_NUMBER,
-      //   to: testPhone
-      // });
+      try {
+        const result = await sendSMS({
+          to: testPhone,
+          body: message,
+          timezone: dbUser.organization.timezone || "America/New_York",
+          respectQuietHours: true,
+        });
 
-      // For now, simulate success
-      console.log("📱 TEST SMS would be sent to:", testPhone);
-      console.log("Message:", message);
+        if (result.scheduled) {
+          return NextResponse.json({
+            success: true,
+            scheduled: true,
+            scheduledFor: result.scheduledFor,
+            message: `Test SMS scheduled for ${result.scheduledFor?.toLocaleString()} (outside quiet hours)`,
+            channel: "sms",
+            sentTo: testPhone,
+          });
+        }
 
-      return NextResponse.json({
-        success: true,
-        message: "Test SMS simulated successfully (Twilio not configured)",
-        channel: "sms",
-        sentTo: testPhone,
-      });
+        return NextResponse.json({
+          success: true,
+          message: "Test SMS sent successfully",
+          channel: "sms",
+          sentTo: testPhone,
+          messageSid: result.messageSid,
+        });
+      } catch (error: any) {
+        // Fallback to simulation if Twilio not configured
+        if (error.message?.includes("not configured")) {
+          console.log("📱 TEST SMS would be sent to:", testPhone);
+          console.log("Message:", message);
+
+          return NextResponse.json({
+            success: true,
+            message: "Test SMS simulated successfully (Twilio not configured)",
+            channel: "sms",
+            sentTo: testPhone,
+          });
+        }
+        throw error;
+      }
     }
 
     if (channel === "email") {
-      // TODO: Integrate with Resend
-      // const { Resend } = require('resend');
-      // const resend = new Resend(process.env.RESEND_API_KEY);
-      // await resend.emails.send({
-      //   from: dbUser.organization.email || process.env.RESEND_FROM_EMAIL,
-      //   to: testEmail,
-      //   subject: subject || 'Test Payment Reminder',
-      //   html: message
-      // });
+      try {
+        await sendEmail({
+          to: testEmail,
+          subject: subject || "Test Payment Reminder",
+          html: message,
+          from: dbUser.organization.email || undefined,
+        });
 
-      // For now, simulate success
-      console.log("📧 TEST EMAIL would be sent to:", testEmail);
-      console.log("Subject:", subject);
-      console.log("Message:", message);
+        return NextResponse.json({
+          success: true,
+          message: "Test email sent successfully",
+          channel: "email",
+          sentTo: testEmail,
+        });
+      } catch (error: any) {
+        // Fallback to simulation if Resend not configured
+        if (error.message?.includes("not configured")) {
+          console.log("📧 TEST EMAIL would be sent to:", testEmail);
+          console.log("Subject:", subject);
+          console.log("Message:", message);
 
-      return NextResponse.json({
-        success: true,
-        message: "Test email simulated successfully (Resend not configured)",
-        channel: "email",
-        sentTo: testEmail,
-      });
+          return NextResponse.json({
+            success: true,
+            message: "Test email simulated successfully (Resend not configured)",
+            channel: "email",
+            sentTo: testEmail,
+          });
+        }
+        throw error;
+      }
     }
 
     return NextResponse.json({ error: "Invalid channel" }, { status: 400 });

@@ -35,7 +35,9 @@
       "Bash(copy:*)",
       "Bash(git revert:*)",
       "Bash(cat:*)",
-      "Bash(del \"C:\\Users\\amaci\\Desktop\\revenupros.com\\app\\api\\onboarding\\generate-sequences\\route-new.ts\")"
+      "Bash(del \"C:\\Users\\amaci\\Desktop\\revenupros.com\\app\\api\\onboarding\\generate-sequences\\route-new.ts\")",
+      "Bash(node:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

@@ -6,6 +6,8 @@ const isPublicRoute = createRouteMatcher([
   '/sign-up(.*)',
   '/payment/success(.*)', // Allow customers to see payment confirmation
   '/api/webhooks(.*)',    // Allow webhooks
+  '/api/sequences/send-test(.*)', // Allow test endpoint
+  '/api/cron(.*)',        // Allow cron jobs
 ])
 
 export default clerkMiddleware(async (auth, request) => {

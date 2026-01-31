@@ -1,54 +1,33 @@
-import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-
-// List of opt-out keywords per TCPA requirements
-const OPT_OUT_KEYWORDS = [
-  "STOP",
-  "STOPALL",
-  "UNSUBSCRIBE",
-  "CANCEL",
-  "END",
-  "QUIT",
-  "STOP ALL",
-  "OPT OUT",
-  "OPTOUT",
-  "REMOVE",
-];
+import { db } from "@/lib/db";
 
 /**
- * Webhook endpoint to handle incoming SMS replies from Twilio
- * Processes opt-out requests automatically
+ * Twilio SMS Reply Webhook
+ *
+ * Handles inbound SMS messages from customers:
+ * - Opt-out keywords: STOP, STOPALL, UNSUBSCRIBE, CANCEL, END, QUIT
+ * - Opt-in keywords: START, UNSTOP, YES
+ * - All messages are logged for compliance
+ *
+ * Twilio sends form data (not JSON), so we parse URLSearchParams
  */
+
 export async function POST(req: NextRequest) {
   try {
     // Parse form data from Twilio
     const formData = await req.formData();
+
     const from = formData.get("From") as string; // Customer phone number
-    const body = formData.get("Body") as string; // Message content
-    const twilioSid = formData.get("MessageSid") as string;
+    const to = formData.get("To") as string; // Your Twilio number
+    const body = (formData.get("Body") as string)?.trim().toUpperCase() || "";
+    const messageSid = formData.get("MessageSid") as string;
 
-    if (!from || !body) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    // Normalize phone number (remove +1, spaces, dashes, etc.)
-    const normalizedPhone = from.replace(/[^\d]/g, "").slice(-10);
-
-    // Check if message is an opt-out request
-    const messageUpper = body.trim().toUpperCase();
-    const isOptOut = OPT_OUT_KEYWORDS.some(keyword =>
-      messageUpper === keyword || messageUpper.includes(keyword)
-    );
+    console.log("=ñ Inbound SMS:", { from, to, body, messageSid });
 
     // Find customer by phone number
     const customer = await db.customer.findFirst({
       where: {
-        phone: {
-          contains: normalizedPhone,
-        },
+        phone: from,
       },
       include: {
         organization: true,
@@ -56,51 +35,13 @@ export async function POST(req: NextRequest) {
     });
 
     if (!customer) {
-      console.log(`Customer not found for phone: ${from}`);
-      // Still return 200 to Twilio
-      return NextResponse.json({
-        success: true,
-        message: "Customer not found"
-      });
-    }
+      console.warn("  Customer not found for phone:", from);
 
-    // Process opt-out
-    if (isOptOut) {
-      await db.customer.update({
-        where: { id: customer.id },
-        data: {
-          smsOptedOut: true,
-          smsOptedOutAt: new Date(),
-        },
-      });
-
-      // Create audit log entry
-      await db.auditLog.create({
-        data: {
-          organizationId: customer.organizationId,
-          userId: null, // Automated action
-          action: "customer.opt_out",
-          entityType: "Customer",
-          entityId: customer.id,
-          metadata: {
-            action: "SMS Opt-Out",
-            method: "Inbound SMS Reply",
-            keyword: body.trim(),
-            phone: from,
-          },
-        },
-      });
-
-      console.log(`Customer ${customer.id} opted out via SMS keyword: ${body}`);
-
-      // Send confirmation message back to customer (required by TCPA)
+      // Return TwiML response (empty = no reply)
       return new NextResponse(
         `<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Message>You have been successfully unsubscribed from ${customer.organization?.businessName || 'our'} messages. You will not receive any more texts. Reply START to resubscribe.</Message>
-</Response>`,
+<Response></Response>`,
         {
-          status: 200,
           headers: {
             "Content-Type": "text/xml",
           },
@@ -108,30 +49,168 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Log the incoming message
-    await db.message.create({
+    // ============================================
+    // OPT-OUT KEYWORDS (TCPA Compliant)
+    // ============================================
+    const OPT_OUT_KEYWORDS = [
+      "STOP",
+      "STOPALL",
+      "UNSUBSCRIBE",
+      "CANCEL",
+      "END",
+      "QUIT",
+    ];
+
+    if (OPT_OUT_KEYWORDS.includes(body)) {
+      console.log("=Ñ Opt-out detected");
+
+      // Update customer opt-out status
+      await db.customer.update({
+        where: { id: customer.id },
+        data: {
+          smsOptedOut: true,
+          smsOptOutDate: new Date(),
+        },
+      });
+
+      // Create audit log for compliance
+      await db.auditLog.create({
+        data: {
+          organizationId: customer.organizationId,
+          action: "sms_opt_out",
+          entityType: "customer",
+          entityId: customer.id,
+          metadata: {
+            phone: from,
+            keyword: body,
+            messageSid,
+            timestamp: new Date().toISOString(),
+          },
+        },
+      });
+
+      // Pause all active campaigns for this customer
+      await db.campaignRecipient.updateMany({
+        where: {
+          customerId: customer.id,
+          status: "active",
+        },
+        data: {
+          status: "paused",
+          pausedAt: new Date(),
+          pauseReason: "sms_opt_out",
+        },
+      });
+
+      console.log(" Customer opted out of SMS");
+
+      // Return confirmation TwiML
+      return new NextResponse(
+        `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Message>You have been unsubscribed from ${customer.organization.businessName} SMS messages. Reply START to resubscribe.</Message>
+</Response>`,
+        {
+          headers: {
+            "Content-Type": "text/xml",
+          },
+        }
+      );
+    }
+
+    // ============================================
+    // OPT-IN KEYWORDS (Re-subscribe)
+    // ============================================
+    const OPT_IN_KEYWORDS = ["START", "UNSTOP", "YES"];
+
+    if (OPT_IN_KEYWORDS.includes(body)) {
+      console.log(" Opt-in detected");
+
+      // Update customer opt-in status
+      await db.customer.update({
+        where: { id: customer.id },
+        data: {
+          smsOptedOut: false,
+          smsOptOutDate: null,
+        },
+      });
+
+      // Create audit log
+      await db.auditLog.create({
+        data: {
+          organizationId: customer.organizationId,
+          action: "sms_opt_in",
+          entityType: "customer",
+          entityId: customer.id,
+          metadata: {
+            phone: from,
+            keyword: body,
+            messageSid,
+            timestamp: new Date().toISOString(),
+          },
+        },
+      });
+
+      console.log(" Customer opted back in to SMS");
+
+      // Return confirmation TwiML
+      return new NextResponse(
+        `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Message>You have been resubscribed to ${customer.organization.businessName} SMS messages. Reply STOP to unsubscribe.</Message>
+</Response>`,
+        {
+          headers: {
+            "Content-Type": "text/xml",
+          },
+        }
+      );
+    }
+
+    // ============================================
+    // OTHER MESSAGES (Log for review)
+    // ============================================
+    console.log("=¬ General SMS reply - logging for review");
+
+    // Create audit log for general messages
+    await db.auditLog.create({
       data: {
         organizationId: customer.organizationId,
-        customerId: customer.id,
-        channel: "sms",
-        direction: "inbound",
-        body,
-        status: "delivered",
-        twilioSid,
-        sentAt: new Date(),
-        deliveredAt: new Date(),
-        isAutomated: false,
+        action: "sms_inbound_message",
+        entityType: "customer",
+        entityId: customer.id,
+        metadata: {
+          phone: from,
+          message: body,
+          messageSid,
+          timestamp: new Date().toISOString(),
+        },
       },
     });
 
-    // Return success to Twilio
-    return NextResponse.json({ success: true });
+    // No auto-reply for general messages (to avoid conversations)
+    return new NextResponse(
+      `<?xml version="1.0" encoding="UTF-8"?>
+<Response></Response>`,
+      {
+        headers: {
+          "Content-Type": "text/xml",
+        },
+      }
+    );
   } catch (error) {
-    console.error("Error processing SMS webhook:", error);
-    // Return 200 to prevent Twilio retries
-    return NextResponse.json({
-      success: false,
-      error: "Internal error"
-    }, { status: 200 });
+    console.error("L SMS webhook error:", error);
+
+    // Return empty TwiML on error (don't expose errors to Twilio)
+    return new NextResponse(
+      `<?xml version="1.0" encoding="UTF-8"?>
+<Response></Response>`,
+      {
+        headers: {
+          "Content-Type": "text/xml",
+        },
+        status: 200, // Always return 200 to Twilio
+      }
+    );
   }
 }

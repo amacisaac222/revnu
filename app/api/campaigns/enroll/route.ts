@@ -233,10 +233,26 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Schedule messages for all enrollments with quiet hours enforcement
+    let messagesScheduled = 0;
+    if (enrollments.length > 0) {
+      try {
+        const { scheduleMultipleEnrollments } = require('@/lib/campaign-executor');
+        const enrollmentIds = enrollments.map((e) => e.id);
+        const scheduleResults = await scheduleMultipleEnrollments(enrollmentIds, true);
+        messagesScheduled = scheduleResults.totalMessages;
+        console.log(`📅 Scheduled ${messagesScheduled} messages for ${enrollmentIds.length} enrollments`);
+      } catch (error) {
+        console.error('Error scheduling messages:', error);
+        // Don't fail the entire request - enrollments are still created
+      }
+    }
+
     return NextResponse.json({
       success: true,
       campaignId,
       enrollments: enrollments.length,
+      messagesScheduled,
       skipped: skipped.length,
       errors: errors.length,
       details: {
