@@ -64,13 +64,17 @@ export default function NOIActionCard({
 
       const data = await response.json();
 
-      // Show NOI preview modal (you'll implement this)
+      // Download PDF automatically
+      if (data.noi.pdfUrl) {
+        window.open(data.noi.pdfUrl, "_blank");
+      }
+
+      // Callback to refresh page data
       if (onSendNOI) {
         onSendNOI();
       }
 
-      // In production, this would open a modal with the NOI text and PDF download
-      alert("NOI generated successfully! Check your downloads.");
+      alert("NOI generated successfully! PDF download started.");
     } catch (error) {
       console.error("NOI generation error:", error);
       alert("Failed to generate NOI. Please try again.");

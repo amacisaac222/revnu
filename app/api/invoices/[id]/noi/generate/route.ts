@@ -151,12 +151,16 @@ export async function POST(
       },
     });
 
-    // 10. Return NOI data (PDF generation will be separate step)
+    // 10. Generate PDF URL (for download)
+    const pdfUrl = `/api/invoices/${invoice.id}/noi/${noticeOfIntent.id}/pdf`;
+
+    // 11. Return NOI data with PDF download link
     return NextResponse.json({
       success: true,
       noi: {
         id: noticeOfIntent.id,
         noiText: noiText,
+        pdfUrl: pdfUrl,
         calculation: noiCalculation,
         templateData: templateData,
         recipients: noiRecipients,
