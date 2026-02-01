@@ -50,7 +50,7 @@ export async function queueMessage(params: QueueMessageParams) {
   });
 
   console.log(
-    `=Å Queued ${channel} message ${scheduledMessage.id} for ${scheduledFor.toISOString()}`
+    `=ï¿½ Queued ${channel} message ${scheduledMessage.id} for ${scheduledFor.toISOString()}`
   );
 
   return scheduledMessage;
@@ -84,7 +84,7 @@ export async function cancelPendingMessages(params: {
     },
   });
 
-  console.log(`=« Cancelled ${result.count} pending messages`);
+  console.log(`=ï¿½ Cancelled ${result.count} pending messages`);
 
   return result;
 }
@@ -108,7 +108,7 @@ export async function getUpcomingMessages(customerId: string) {
       invoice: {
         select: {
           invoiceNumber: true,
-          amount: true,
+          amountDue: true,
         },
       },
     },
