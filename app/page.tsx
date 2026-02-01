@@ -322,6 +322,139 @@ export default function HomePage() {
         {/* How It Works - Interactive Tabs */}
         <HowItWorksTabs />
 
+        {/* Notice of Intent Feature - New Highlight Section */}
+        <section className="py-24 bg-gradient-to-br from-revnu-darker via-revnu-dark to-revnu-darker border-t border-revnu-slate/50 relative overflow-hidden">
+          {/* Background decoration */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-20 right-1/4 w-96 h-96 bg-revnu-green rounded-full blur-3xl"></div>
+            <div className="absolute bottom-20 left-1/4 w-96 h-96 bg-revnu-green rounded-full blur-3xl"></div>
+          </div>
+
+          <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <div className="inline-block mb-4">
+                <span className="inline-flex items-center gap-2 px-4 py-2 bg-revnu-green/10 border border-revnu-green/30 rounded-full text-sm font-semibold text-revnu-green animate-pulse">
+                  <span className="w-2 h-2 bg-revnu-green rounded-full"></span>
+                  NEW: Automated Lien Notices
+                </span>
+              </div>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight">
+                Send Notice of Intent to Lien<br />
+                <span className="bg-gradient-to-r from-revnu-green to-revnu-greenLight bg-clip-text text-transparent">
+                  via USPS Certified Mail
+                </span>
+              </h2>
+              <p className="text-xl text-revnu-gray max-w-3xl mx-auto mb-8">
+                Generate state-specific lien notices and send them automatically via tracked, legally compliant certified mail. <strong className="text-white">47% payment rate</strong> before filing.
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-start">
+              {/* Left: Features List */}
+              <div className="space-y-6">
+                <div className="bg-revnu-slate/60 border border-revnu-green/20 rounded-xl p-6 backdrop-blur-sm hover:border-revnu-green/40 transition-all">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-revnu-green/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-revnu-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold text-white mb-2">State-Specific Legal Templates</h4>
+                      <p className="text-revnu-gray">Professional NOI letters for all 50 states with proper statutory language and legal formatting.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-revnu-slate/60 border border-revnu-green/20 rounded-xl p-6 backdrop-blur-sm hover:border-revnu-green/40 transition-all">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-revnu-green/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-revnu-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold text-white mb-2">USPS Certified Mail Integration</h4>
+                      <p className="text-revnu-gray">Automated sending via Lob.com with signature tracking, delivery confirmation, and legal proof of delivery. Just $2.17 per letter.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-revnu-slate/60 border border-revnu-green/20 rounded-xl p-6 backdrop-blur-sm hover:border-revnu-green/40 transition-all">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-revnu-green/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-revnu-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold text-white mb-2">Automatic Deadline Tracking</h4>
+                      <p className="text-revnu-gray">Smart calculator determines optimal NOI timing based on your state's lien laws (60-180 day windows). Never miss a deadline.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-revnu-slate/60 border border-revnu-green/20 rounded-xl p-6 backdrop-blur-sm hover:border-revnu-green/40 transition-all">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-revnu-green/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-revnu-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold text-white mb-2">Real-Time Delivery Tracking</h4>
+                      <p className="text-revnu-gray">Live webhook updates show when your NOI is in transit, delivered, or signed for. Full audit trail for legal compliance.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Visual/Stats */}
+              <div className="space-y-6">
+                {/* Big Stat Card */}
+                <div className="bg-gradient-to-br from-revnu-green/20 to-revnu-green/5 border-2 border-revnu-green/30 rounded-2xl p-8 text-center">
+                  <div className="text-7xl font-black text-revnu-green mb-3">47%</div>
+                  <div className="text-xl font-bold text-white mb-2">Payment Rate</div>
+                  <p className="text-revnu-gray">of contractors receive payment after sending NOI, before filing the lien</p>
+                </div>
+
+                {/* Process Steps */}
+                <div className="bg-revnu-slate/60 border border-revnu-green/20 rounded-xl p-6 backdrop-blur-sm">
+                  <h4 className="text-lg font-bold text-white mb-4">How It Works:</h4>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-revnu-green rounded-full flex items-center justify-center flex-shrink-0 text-revnu-dark font-bold text-sm">1</div>
+                      <p className="text-revnu-gray pt-1"><strong className="text-white">REVNU calculates</strong> your state-specific lien deadline and optimal NOI timing</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-revnu-green rounded-full flex items-center justify-center flex-shrink-0 text-revnu-dark font-bold text-sm">2</div>
+                      <p className="text-revnu-gray pt-1"><strong className="text-white">Generate PDF</strong> with professional letterhead and state-specific legal language</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-revnu-green rounded-full flex items-center justify-center flex-shrink-0 text-revnu-dark font-bold text-sm">3</div>
+                      <p className="text-revnu-gray pt-1"><strong className="text-white">Send via certified mail</strong> with one click - USPS tracking included ($2.17)</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-revnu-green rounded-full flex items-center justify-center flex-shrink-0 text-revnu-dark font-bold text-sm">4</div>
+                      <p className="text-revnu-gray pt-1"><strong className="text-white">Track delivery</strong> in real-time with automatic status updates</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Cost breakdown */}
+                <div className="bg-revnu-dark/60 border border-revnu-grayLight/20 rounded-xl p-6">
+                  <h4 className="text-sm font-bold text-revnu-gray uppercase tracking-wide mb-3">Certified Mail Pricing</h4>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="text-4xl font-black text-white">$2.17</span>
+                    <span className="text-revnu-gray">per NOI letter</span>
+                  </div>
+                  <p className="text-sm text-revnu-gray">Includes USPS certified mail, tracking, signature confirmation, and legal proof of delivery</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Features - Benefit-Focused */}
         <section id="features" className="py-20 bg-revnu-darker border-t border-revnu-slate/50">
           <div className="max-w-6xl mx-auto px-6 lg:px-8">
