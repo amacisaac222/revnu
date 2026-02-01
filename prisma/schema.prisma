@@ -240,6 +240,7 @@ model Invoice {
   payments            Payment[]
   campaignEnrollments CampaignEnrollment[]
   scheduledMessages   ScheduledMessage[]
+  noticeOfIntents     NoticeOfIntent[]
 
   @@unique([organizationId, invoiceNumber])
   @@index([organizationId])
@@ -511,4 +512,63 @@ model ScheduledMessage {
   @@index([scheduledFor, status])
   @@index([status])
   @@index([processedAt])
+}
+
+// ============================================
+// NOTICE OF INTENT TO LIEN (NOI)
+// ============================================
+
+model NoticeOfIntent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Invoice reference
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  // NOI Details
+  noticeType        String   // "preliminary_notice", "notice_of_intent", "demand_letter"
+  state             String   // State code (e.g., "CA", "TX") - determines legal requirements
+  sentDate          DateTime // Date NOI was sent
+  responseDeadline  DateTime // Date by which payment is required
+
+  // Delivery tracking
+  deliveryMethod    String   // "certified_mail", "hand_delivery", "email", "regular_mail"
+  trackingNumber    String?  // USPS tracking number or similar
+  deliveredAt       DateTime? // Actual delivery date (from tracking)
+  deliveryStatus    String   @default("pending") // "pending", "delivered", "returned", "failed"
+
+  // Recipients (some states require sending to multiple parties)
+  recipients        Json     // Array of {name, address, recipientType: "owner" | "general_contractor" | "lender" | "tenant"}
+
+  // Document & Proof
+  pdfUrl            String?  // URL to generated PDF
+  proofOfServiceUrl String?  // URL to proof of delivery (tracking screenshot, receipt)
+
+  // Amounts (snapshot at time of sending)
+  amountClaimed     Int      // Amount claimed in NOI (in cents)
+  lateFees          Int      @default(0)
+  filingCosts       Int      @default(0)
+  totalAmount       Int      // Total including fees
+
+  // Lien deadlines (calculated at creation)
+  lienFilingDeadline DateTime // Last day to file lien (based on state law)
+  daysUntilDeadline  Int      // Days remaining to file lien
+
+  // Response tracking
+  paymentReceived    Boolean  @default(false)
+  paymentReceivedAt  DateTime?
+  paymentAmount      Int?     // Amount paid in response to NOI
+  disputeReceived    Boolean  @default(false)
+  disputeNotes       String?
+
+  // Metadata
+  notes              String?  // Internal notes about this NOI
+  generatedBy        String?  // User who generated the NOI
+
+  @@index([invoiceId])
+  @@index([sentDate])
+  @@index([deliveryStatus])
+  @@index([lienFilingDeadline])
 }
