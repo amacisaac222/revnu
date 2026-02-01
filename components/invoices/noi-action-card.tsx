@@ -32,6 +32,8 @@ export default function NOIActionCard({
 }: NOIActionCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSendingMail, setIsSendingMail] = useState(false);
+  const [showSendOptions, setShowSendOptions] = useState(false);
 
   // Only show if invoice is lien eligible
   if (!invoice.lienEligible || !invoice.lastWorkDate) {
@@ -75,11 +77,47 @@ export default function NOIActionCard({
       }
 
       alert("NOI generated successfully! PDF download started.");
+
+      // Show send options after generation
+      setShowSendOptions(true);
     } catch (error) {
       console.error("NOI generation error:", error);
       alert("Failed to generate NOI. Please try again.");
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleSendCertifiedMail = async (noiId: string) => {
+    if (!confirm("Send NOI via USPS Certified Mail? Cost: $2.17\n\nThis will create a tracked, legally compliant delivery.")) {
+      return;
+    }
+
+    setIsSendingMail(true);
+    try {
+      const response = await fetch(`/api/invoices/${invoice.id}/noi/${noiId}/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to send");
+      }
+
+      const data = await response.json();
+
+      alert(`Certified mail sent successfully!\n\nTracking: ${data.tracking.trackingNumber}\nExpected Delivery: ${new Date(data.tracking.expectedDelivery).toLocaleDateString()}\nCost: $${(data.tracking.cost / 100).toFixed(2)}`);
+
+      // Refresh page data
+      if (onSendNOI) {
+        onSendNOI();
+      }
+    } catch (error) {
+      console.error("Certified mail error:", error);
+      alert("Failed to send certified mail. Please try again.");
+    } finally {
+      setIsSendingMail(false);
     }
   };
 
@@ -201,14 +239,34 @@ export default function NOIActionCard({
           </button>
         )}
 
+        {latestNOI && latestNOI.deliveryStatus === "pending" && (
+          <button
+            onClick={() => handleSendCertifiedMail(latestNOI.id)}
+            disabled={isSendingMail}
+            className="flex-1 px-4 py-3 bg-revnu-green text-revnu-dark font-bold rounded-lg hover:bg-revnu-greenLight transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {isSendingMail ? (
+              <>
+                <div className="animate-spin w-4 h-4 border-2 border-revnu-dark border-t-transparent rounded-full"></div>
+                Sending...
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4" />
+                Send via Certified Mail ($2.17)
+              </>
+            )}
+          </button>
+        )}
+
         {latestNOI && (
           <button
             onClick={handleGenerateNOI}
             disabled={isGenerating}
-            className="flex-1 px-4 py-3 bg-revnu-slate/40 text-white font-semibold rounded-lg hover:bg-revnu-slate/60 transition-all flex items-center justify-center gap-2"
+            className="px-4 py-3 bg-revnu-slate/40 text-white font-semibold rounded-lg hover:bg-revnu-slate/60 transition-all flex items-center justify-center gap-2"
           >
             <FileText className="w-4 h-4" />
-            Send Another NOI
+            {latestNOI.deliveryStatus === "pending" ? "Download PDF" : "Send Another NOI"}
           </button>
         )}
 
