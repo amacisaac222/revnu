@@ -160,7 +160,7 @@ function buildLienSteps(params: {
         delayDays: 10, // Day 60 past due
         channel: "email",
         subject: "FINAL NOTICE - Lien Filing This Week - Invoice {{invoiceNumber}}",
-        body: `Dear {{customerName}},\n\n**FINAL NOTICE BEFORE LIEN FILING**\n\nInvoice {{invoiceNumber}}: ${{amount}}\nDays Past Due: {{daysPastDue}}\nProperty: {{propertyAddress}}\n\nI have tried multiple times to collect payment on this invoice. Despite my efforts to work with you, the balance remains unpaid.\n\n**I will file a mechanics lien against your property this week if payment is not received.**\n\nOnce the lien is filed:\n• It becomes public record\n• Your property title is clouded\n• You cannot sell or refinance without paying this debt\n• Additional legal fees and filing costs will be added\n• The lien may result in foreclosure if not resolved\n\n**You have ONE FINAL OPPORTUNITY to avoid this:**\nPay the full balance today: ${paymentText}\nOR call me immediately to arrange payment: ${contactPhone || contactEmail}\n\nIf I do not hear from you within 48 hours, the lien will be filed.\n\nSincerely,\n${businessName}\n${contactEmail || ""}`,
+        body: `Dear {{customerName}},\n\n**FINAL NOTICE BEFORE LIEN FILING**\n\nInvoice {{invoiceNumber}}: ${{amount}}\nDays Past Due: {{daysPastDue}}\nProperty: {{propertyAddress}}\n\nI have tried multiple times to obtain payment on this invoice. Despite my efforts to work with you, the balance remains unpaid.\n\n**I will file a mechanics lien against your property this week if payment is not received.**\n\nOnce the lien is filed:\n• It becomes public record\n• Your property title is clouded\n• You cannot sell or refinance without paying this outstanding invoice\n• Additional legal fees and filing costs will be added\n• The lien may result in foreclosure if not resolved\n\n**You have ONE FINAL OPPORTUNITY to avoid this:**\nPay the full balance today: ${paymentText}\nOR call me immediately to arrange payment: ${contactPhone || contactEmail}\n\nIf I do not hear from you within 48 hours, the lien will be filed.\n\nSincerely,\n${businessName}\n${contactEmail || ""}`,
       },
     ];
   }
@@ -188,16 +188,16 @@ function buildLienSteps(params: {
         stepNumber: 3,
         delayDays: 10,
         channel: "email",
-        subject: "DEMAND FOR PAYMENT - Mechanics Lien Notice",
-        body: `{{customerName}},\n\n**DEMAND FOR PAYMENT**\n\nInvoice: {{invoiceNumber}}\nAmount: ${{amount}}\nDays Past Due: {{daysPastDue}}\nProperty: {{propertyAddress}}\n\n**NOTICE OF INTENT TO FILE MECHANICS LIEN**\n\nPursuant to ${stateName} construction lien statutes, we hereby notify you of our intent to file a mechanics lien if payment is not received within 7 days.\n\n**CONSEQUENCES OF LIEN FILING:**\n1. Legal claim against your property\n2. Public record - clouds title\n3. Prevents sale or refinancing\n4. Additional legal costs and filing fees\n5. Potential foreclosure proceedings\n\n**PAYMENT DEADLINE:** 7 days from receipt\n\n${paymentText}\n\nPay immediately or lien will be filed.\n\n${businessName}\n${contactPhone || contactEmail}`,
+        subject: "URGENT PAYMENT NOTICE - Mechanics Lien Notice",
+        body: `{{customerName}},\n\n**URGENT PAYMENT NOTICE**\n\nInvoice: {{invoiceNumber}}\nAmount: ${{amount}}\nDays Past Due: {{daysPastDue}}\nProperty: {{propertyAddress}}\n\n**NOTICE OF INTENT TO FILE MECHANICS LIEN**\n\nPursuant to ${stateName} construction lien statutes, we hereby notify you of our intent to file a mechanics lien if payment is not received within 7 days.\n\n**CONSEQUENCES OF LIEN FILING:**\n1. Legal claim against your property\n2. Public record - clouds title\n3. Prevents sale or refinancing\n4. Additional legal costs and filing fees\n5. Potential foreclosure proceedings\n\n**PAYMENT DEADLINE:** 7 days from receipt\n\n${paymentText}\n\nPay immediately or lien will be filed.\n\n${businessName}\n${contactPhone || contactEmail}`,
       },
       // STEP 4: Day 60 - Final demand
       {
         stepNumber: 4,
         delayDays: 10,
         channel: "email",
-        subject: "FINAL DEMAND - Lien Filing Proceeding",
-        body: `{{customerName}},\n\n**FINAL DEMAND FOR PAYMENT**\n\nInvoice {{invoiceNumber}}: ${{amount}}\nDays Past Due: {{daysPastDue}}\n\n**MECHANICS LIEN WILL BE FILED WITHIN 48 HOURS**\n\nYou have failed to respond to multiple collection attempts. A mechanics lien will be filed against {{propertyAddress}} if full payment is not received immediately.\n\n**TOTAL AMOUNT DUE (Including Filing Fees):** ${{amount}}\n\n${paymentText}\n\nThis is your final notice. After 48 hours, all collection remedies will be pursued.\n\n${businessName}\n${contactPhone || contactEmail}`,
+        subject: "FINAL NOTICE - Lien Filing Proceeding",
+        body: `{{customerName}},\n\n**FINAL NOTICE REGARDING PAYMENT**\n\nInvoice {{invoiceNumber}}: ${{amount}}\nDays Past Due: {{daysPastDue}}\n\n**MECHANICS LIEN WILL BE FILED WITHIN 48 HOURS**\n\nDespite multiple payment requests, this invoice remains unpaid. A mechanics lien will be filed against {{propertyAddress}} if full payment is not received immediately.\n\n**TOTAL AMOUNT DUE (Including Filing Fees):** ${{amount}}\n\n${paymentText}\n\nThis is your final notice. After 48 hours, all available legal remedies may be pursued.\n\n${businessName}\n${contactPhone || contactEmail}`,
       },
     ];
   }

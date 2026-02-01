@@ -334,7 +334,7 @@ export default function HomePage() {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
                 <h4 className="text-xl font-bold text-white mb-2">✓ Automated SMS & Email Reminders</h4>
-                <p className="text-revnu-gray">Sent from YOUR business name with one-click Stripe payment links. Not a third-party collector.</p>
+                <p className="text-revnu-gray">Sent from YOUR business name with one-click payment links. You send the messages via our platform - we're software, not a collection agency.</p>
               </div>
 
               <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
@@ -349,7 +349,7 @@ export default function HomePage() {
 
               <div className="p-6 bg-revnu-slate/40 border-l-4 border-revnu-green rounded-lg">
                 <h4 className="text-xl font-bold text-white mb-2">✓ Built for Contractors, Not Corporations</h4>
-                <p className="text-revnu-gray">Simple enough for solo contractors. Powerful enough for growing businesses. No collections department needed.</p>
+                <p className="text-revnu-gray">Simple enough for solo contractors. Powerful enough for growing businesses. Software platform only - not a collection agency.</p>
               </div>
             </div>
           </div>
@@ -519,6 +519,9 @@ export default function HomePage() {
             </Link>
             <p className="text-sm text-revnu-gray mt-6">
               5-minute setup • Cancel anytime
+            </p>
+            <p className="text-xs text-revnu-gray/60 mt-4 max-w-2xl mx-auto">
+              REVNU is a software platform only and is not a debt collection agency. All messages are sent by you from your business.
             </p>
           </div>
         </section>

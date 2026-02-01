@@ -38,22 +38,22 @@ REVNU automates the entire payment reminder process with:
 - 50-200 invoices/year
 - 5-20 late payments/month
 - Spends 3-5 hours/week chasing payments
-- Pain: Manual follow-up, inconsistent collections
+- Pain: Manual follow-up, inconsistent payment tracking
 - Goal: Get back time, maintain relationships while collecting
 
 **2. Mid-Sized Contractor (5-20 employees)**
 - Revenue: $1M - $5M/year
 - 200-500 invoices/year
 - 20-50 late payments/month
-- Spends 8-15 hours/week on collections
+- Spends 8-15 hours/week on payment follow-up
 - Pain: Can't scale manual process, losing revenue
-- Goal: Systematic collections, improve cash flow
+- Goal: Systematic payment reminders, improve cash flow
 
 **3. Growing Contractor (20+ employees)**
 - Revenue: $5M+/year
 - 500+ invoices/year
 - 50+ late payments/month
-- Has admin staff doing collections
+- Has admin staff doing payment follow-up
 - Pain: Inconsistent process, no automation
 - Goal: Enterprise-grade automation, protect cash flow
 
@@ -96,7 +96,7 @@ REVNU automates the entire payment reminder process with:
 - "Free up time for actual work"
 
 **For Mid-Sized Contractors:**
-- "Scale your collections without hiring"
+- "Scale your payment reminders without hiring"
 - "Systematic, repeatable process"
 - "Improve cash flow predictability"
 - "Professional escalation sequences"
@@ -195,14 +195,14 @@ Every customer gets **7-8 pre-built sequences** during onboarding:
 
 #### **5 Standard Preset Sequences** ([lib/standard-flows.ts](lib/standard-flows.ts))
 
-**1. Standard Collections Flow** (Trigger: 0 days past due)
+**1. Standard Payment Reminders** (Trigger: 0 days past due)
 - Step 1 (Day 0): Friendly email reminder
 - Step 2 (Day 5): SMS follow-up
 - Step 3 (Day 10): Email escalation
 - Step 4 (Day 15): Firm SMS
 - **Use Case**: General purpose, most invoices
 
-**2. Urgent Collections Flow** (Trigger: 15 days past due)
+**2. Urgent Payment Reminders** (Trigger: 15 days past due)
 - Step 1 (Day 0): Urgent email
 - Step 2 (Day 3): Firm SMS
 - Step 3 (Day 7): Final notice email
@@ -372,7 +372,7 @@ ABC Electric
 **Monitor Progress:**
 - Dashboard shows active campaigns
 - Communications tab shows all messages
-- Analytics show collection rates
+- Analytics show payment rates
 - Opt-outs tracked automatically
 
 **Manage Sequences:**
@@ -442,9 +442,9 @@ ABC Electric
 
 ### Business Metrics Tracked
 
-**Collection Performance:**
+**Payment Performance:**
 - Days Sales Outstanding (DSO)
-- Collection rate (% invoices paid)
+- Payment rate (% invoices paid)
 - Average time to payment
 - Late payment reduction
 
@@ -457,8 +457,8 @@ ABC Electric
 **Efficiency Metrics:**
 - Hours saved per week
 - Manual follow-ups eliminated
-- Automated vs manual collections ratio
-- Cost per collected dollar
+- Automated vs manual payment reminder ratio
+- Cost per dollar recovered
 
 **Campaign Metrics:**
 - Active campaigns
@@ -505,6 +505,10 @@ ABC Electric
 ---
 
 ## 🔐 Compliance & Legal
+
+### Important Legal Disclaimer
+
+**REVNU is a software platform only and is NOT a debt collection agency.** We provide automation software that enables contractors to send payment reminders from their own business accounts. All communications are sent by the contractor (you), not by REVNU. You remain in control of all customer communications.
 
 ### TCPA Compliance (Telephone Consumer Protection Act)
 
@@ -675,7 +679,7 @@ Runs every 5 minutes to process pending messages.
 **1. Jobber**
 - Full field service management suite
 - Payment reminders as small feature
-- **Our Advantage**: Focused solely on collections, deeper automation
+- **Our Advantage**: Focused solely on payment reminders, deeper automation
 
 **2. Housecall Pro**
 - Similar to Jobber, broader tool

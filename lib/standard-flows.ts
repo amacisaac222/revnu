@@ -102,11 +102,11 @@ export function generateStandardFlows(params: StandardFlowsParams): FlowTemplate
 
   return [
     // ============================================
-    // FLOW 1: STANDARD COLLECTIONS
+    // FLOW 1: STANDARD PAYMENT REMINDERS
     // ============================================
     {
-      name: `Standard Collections - ${businessName}`,
-      description: "General-purpose collection sequence starting on invoice due date. Escalates from friendly to firm.",
+      name: `Standard Payment Reminders - ${businessName}`,
+      description: "General-purpose payment reminder sequence starting on invoice due date. Escalates from friendly to firm.",
       triggerDaysPastDue: 0,
       source: "standard",
       isDefault: true, // This is the primary default flow
@@ -114,10 +114,10 @@ export function generateStandardFlows(params: StandardFlowsParams): FlowTemplate
     },
 
     // ============================================
-    // FLOW 2: URGENT COLLECTIONS
+    // FLOW 2: URGENT PAYMENT REMINDERS
     // ============================================
     {
-      name: `Urgent Collections - ${businessName}`,
+      name: `Urgent Payment Reminders - ${businessName}`,
       description: "Accelerated sequence for invoices 15+ days past due. Shorter delays, more urgency.",
       triggerDaysPastDue: 15,
       source: "standard",
@@ -164,7 +164,7 @@ export function generateStandardFlows(params: StandardFlowsParams): FlowTemplate
 }
 
 // ============================================
-// FLOW 1: STANDARD COLLECTIONS STEPS
+// FLOW 1: STANDARD PAYMENT REMINDER STEPS
 // ============================================
 function getStandardSteps(
   delays: number[],
@@ -240,7 +240,7 @@ function getStandardSteps(
         delayDays: d3,
         channel: channels.primary,
         subject: channels.primary === "email" ? "URGENT: Payment Required - Invoice {{invoiceNumber}}" : undefined,
-        body: `{{customerName}},\n\nInvoice {{invoiceNumber}} for ${{amount}} is {{daysPastDue}} days overdue. Immediate payment is required.\n\nFailure to pay may result in:\n• Suspension of future services\n• Referral to collections\n• Legal action\n\n${paymentText}\n\nPay today to avoid escalation.\n\n${businessName}`
+        body: `{{customerName}},\n\nInvoice {{invoiceNumber}} for ${{amount}} is {{daysPastDue}} days overdue. Immediate payment is required.\n\nContinued non-payment may result in:\n• Suspension of future services\n• Additional payment recovery steps\n• Legal action\n\n${paymentText}\n\nPay today to avoid escalation.\n\n${businessName}`
       },
       {
         stepNumber: 4,
@@ -253,8 +253,8 @@ function getStandardSteps(
         stepNumber: 5,
         delayDays: d5,
         channel: channels.primary,
-        subject: channels.primary === "email" ? "DEMAND FOR PAYMENT - Invoice {{invoiceNumber}}" : undefined,
-        body: `{{customerName}},\n\nDEMAND FOR PAYMENT\n\nInvoice {{invoiceNumber}}: ${{amount}}\nDays Past Due: {{daysPastDue}}\n\nThis is a formal demand for immediate payment. If full payment is not received within 5 business days, we will pursue all available legal remedies.\n\n${paymentText}\n\n${businessName}`
+        subject: channels.primary === "email" ? "URGENT PAYMENT NOTICE - Invoice {{invoiceNumber}}" : undefined,
+        body: `{{customerName}},\n\nURGENT PAYMENT NOTICE\n\nInvoice {{invoiceNumber}}: ${{amount}}\nDays Past Due: {{daysPastDue}}\n\nThis is a formal notice requesting immediate payment. If full payment is not received within 5 business days, we may pursue all available legal remedies.\n\n${paymentText}\n\n${businessName}`
       },
     ];
   }
@@ -289,20 +289,20 @@ function getStandardSteps(
       delayDays: d4,
       channel: channels.secondary,
       subject: channels.secondary === "email" ? "Urgent: Payment Required - Invoice {{invoiceNumber}}" : undefined,
-      body: `Dear {{customerName}},\n\nInvoice {{invoiceNumber}} for ${{amount}} remains unpaid ({{daysPastDue}} days past due).\n\nWe require immediate payment to avoid further collection action.\n\n${paymentText}\n\nPlease contact us if you need to discuss payment arrangements.\n\nSincerely,\n${businessName}`
+      body: `Dear {{customerName}},\n\nInvoice {{invoiceNumber}} for ${{amount}} remains unpaid ({{daysPastDue}} days past due).\n\nWe require immediate payment to avoid further action.\n\n${paymentText}\n\nPlease contact us if you need to discuss payment arrangements.\n\nSincerely,\n${businessName}`
     },
     {
       stepNumber: 5,
       delayDays: d5,
       channel: channels.primary,
       subject: channels.primary === "email" ? "Final Notice - Invoice {{invoiceNumber}}" : undefined,
-      body: `Dear {{customerName}},\n\nThis is a final notice regarding Invoice {{invoiceNumber}} for ${{amount}}, now {{daysPastDue}} days past due.\n\nIf payment is not received within 5 business days, we will be forced to pursue alternative collection methods, which may include:\n• Referral to a collection agency\n• Suspension of services\n• Legal action\n\n${paymentText}\n\nPlease remit payment immediately or contact us to resolve this matter.\n\nSincerely,\n${businessName}`
+      body: `Dear {{customerName}},\n\nThis is a final notice regarding Invoice {{invoiceNumber}} for ${{amount}}, now {{daysPastDue}} days past due.\n\nIf payment is not received within 5 business days, we may need to pursue alternative payment resolution methods, which may include:\n• Third-party payment assistance\n• Suspension of services\n• Legal action\n\n${paymentText}\n\nPlease remit payment immediately or contact us to resolve this matter.\n\nSincerely,\n${businessName}`
     },
   ];
 }
 
 // ============================================
-// FLOW 2: URGENT COLLECTIONS STEPS
+// FLOW 2: URGENT PAYMENT REMINDER STEPS
 // ============================================
 function getUrgentSteps(
   delays: number[],
@@ -327,21 +327,21 @@ function getUrgentSteps(
       delayDays: d2,
       channel: channels.secondary,
       subject: channels.secondary === "email" ? "URGENT ACTION REQUIRED - Invoice {{invoiceNumber}}" : undefined,
-      body: `{{customerName}},\n\nInvoice {{invoiceNumber}} (${{amount}}) - {{daysPastDue}} days past due.\n\nPay immediately to avoid collection proceedings.\n\n${paymentText}\n\n${businessName}`
+      body: `{{customerName}},\n\nInvoice {{invoiceNumber}} (${{amount}}) - {{daysPastDue}} days past due.\n\nPay immediately to avoid further action.\n\n${paymentText}\n\n${businessName}`
     },
     {
       stepNumber: 3,
       delayDays: d3,
       channel: channels.primary,
       subject: channels.primary === "email" ? "FINAL WARNING - Invoice {{invoiceNumber}}" : undefined,
-      body: `{{customerName}},\n\nFINAL WARNING: Invoice {{invoiceNumber}} (${{amount}}) is {{daysPastDue}} days overdue.\n\nYou have 48 hours to pay before we proceed with:\n• Collection agency referral\n• Legal action\n• Suspension of all services\n\n${paymentText}\n\nContact us immediately.\n\n${businessName}`
+      body: `{{customerName}},\n\nFINAL WARNING: Invoice {{invoiceNumber}} (${{amount}}) is {{daysPastDue}} days overdue.\n\nYou have 48 hours to pay before we may proceed with:\n• Third-party payment assistance\n• Legal action\n• Suspension of all services\n\n${paymentText}\n\nContact us immediately.\n\n${businessName}`
     },
     {
       stepNumber: 4,
       delayDays: d4,
       channel: channels.secondary,
-      subject: channels.secondary === "email" ? "NOTICE OF COLLECTION ACTION - Invoice {{invoiceNumber}}" : undefined,
-      body: `{{customerName}},\n\nNotice of Intent to Pursue Collection\n\nInvoice: {{invoiceNumber}}\nAmount: ${{amount}}\nDays Past Due: {{daysPastDue}}\n\nThis account will be referred to our collection agency within 3 business days if payment is not received.\n\n${paymentText}\n\nThis is your final opportunity to resolve this directly.\n\n${businessName}`
+      subject: channels.secondary === "email" ? "NOTICE OF FURTHER ACTION - Invoice {{invoiceNumber}}" : undefined,
+      body: `{{customerName}},\n\nNotice of Intent to Pursue Payment Resolution\n\nInvoice: {{invoiceNumber}}\nAmount: ${{amount}}\nDays Past Due: {{daysPastDue}}\n\nWithout payment within 3 business days, we may refer this matter for third-party payment assistance.\n\n${paymentText}\n\nThis is your final opportunity to resolve this directly.\n\n${businessName}`
     },
   ];
 }
